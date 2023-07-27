@@ -66,9 +66,24 @@ for i in range(len(jarray)):
                             "id": 2 ,
                             "auth": AUTHTOKEN
                     })
-        print(json.dumps(r3.json(), indent=4, sort_keys=True))
+        print(json.dumps(r3.json(), indent=5, sort_keys=True))
    
 print(counter)
 #glpitoker - NckBv0PbYGQJ5sK1YEDVmwHPjKOlt58WbBQbgjKg
 
-#curl.exe -X POST -H 'Content-Type: application/json' -H "Session-Token: xxxxxxxx" -d '{"input": {"name": "Ticket Name", "content": "Ticket Desc"}}' 'http://glpiserver/apirest.php/Ticket/'
+url = 'http://path/to/glpi/apirest.php/getMyProfiles'
+headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'user_token gbx24bStlmOLnf7PxANoU6h9KgaPSpEeOeogmqWW',
+    'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP'
+}
+
+response = requests.get(url, headers=headers)
+
+# Check if the request was successful (status code 200)
+if response.status_code == 200:
+    data = response.json()
+    print(data)
+else:
+    print("Error:", response.status_code)
+   

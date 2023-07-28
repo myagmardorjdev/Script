@@ -53,13 +53,33 @@ def createticket(session_token):
 
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
+def get_hosts_with_ip(hostid):
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        'jsonrpc': '2.0',
+        'method': 'host.get',
+        'params': {
+            'output': ['hostid', 'name'],
+            'selectInterfaces': ['ip'],
+            'filter': {
+                'hostid': hostid  # Specific hostid you want to fetch
+            }
+            # Add more parameters or filters as needed
+        },
+        'auth': AUTHTOKEN,
+        'id': 1
+    }
+
+    response = requests.post(ZABBIX_API_URL, json=payload, headers=headers)
+    return response.json()['result'][0]['interfaces'][0]['ip']
 
 
 ZABBIX_API_URL = "https://zbx.altanjoloo.mn/zabbix/api_jsonrpc.php"
 UNAME = "Myagmardorj"
 PWORD = "Az123456!0@"
 AUTHTOKEN = "56bc1ff73deb2c79145b1e8315a064e8e967251e2d4b60f0d1207c077ea2a5ef"
-
 
 r = requests.post(ZABBIX_API_URL,
                   json={
@@ -81,6 +101,8 @@ r2 = requests.post(ZABBIX_API_URL,
                     "params": {         
                           #"output": "extend",         "selectDServices": "extend",         "druleids": "19"
                             "output": "extend",
+                            "selectHosts": ["host", "name",'allowed_hosts','hostid'],
+                            "interfaces" : ['ip','allowed_hosts','hostid'],
                             "selectAcknowledges": "extend",
                             "recent": "true",
                             "sortfield": ["eventid"],
@@ -92,6 +114,7 @@ r2 = requests.post(ZABBIX_API_URL,
                         "auth": AUTHTOKEN
                   })
 #print(json.dumps(r2.json(), indent=4, sort_keys=True))
+
 
 jarray = r2.json()["result"]
 print("Төрөл: ",type(jarray))
@@ -108,21 +131,20 @@ for i in range(len(jarray)):
                         "jsonrpc": "2.0",     
                         "method":"event.get",     
                         "params": {         
-                                "output": ['eventid', 'hostid','name','clock','severity'],
-                                'selectHosts': ['hostid', 'host','ip'],
-                                'selectInterfaces': ['ip'],
+                                "output": ['eventid', 'hostid','name','clock','severity','ip'],
+                                'selectHosts': ['hostid', 'host'],
                                 "select_acknowledges": "extend",         
                                 "selectTags": "extend",        
-                                "eventids": jarray[i]['eventid']
-                                
+                                "eventids": jarray[i]['eventid']  
                             }  ,     
                             "id": 2 ,
                             "auth": AUTHTOKEN
                     })
-        print(json.dumps(r3.json(), indent=5, sort_keys=True))
+        print(json.dumps(r3.json(), indent=4, sort_keys=True))
         eachdict = {
+            "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
             "reason" : r3.json().get('result')[0]['name'],
-            "host" : r3.json().get('result')[0].get('hosts')[0]['host'] 
+            "ip_address" : get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
         }
         allproblemdict[counter] = eachdict
         counter+=1

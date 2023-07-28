@@ -99,10 +99,10 @@ print("Урт: ", len(jarray))
 #Possible values:0 - not classified;1 - information;2 - warning;3 - average;4 - high;5 - disaster.
 severvalue = 4
 counter=0
+allproblemdict = {} 
 for i in range(len(jarray)):
     tmp = int(jarray[i]['severity'])
     if tmp > severvalue:
-        counter+=1
         r3 = requests.post(ZABBIX_API_URL,
                     json={     
                         "jsonrpc": "2.0",     
@@ -120,7 +120,13 @@ for i in range(len(jarray)):
                             "auth": AUTHTOKEN
                     })
         print(json.dumps(r3.json(), indent=5, sort_keys=True))
-   
+        eachdict = {
+            "reason" : r3.json().get('result')[0]['name'],
+            "host" : r3.json().get('result')[0].get('hosts')[0]['host'] 
+        }
+        allproblemdict[counter] = eachdict
+        counter+=1
+
 print(counter)
 #
 

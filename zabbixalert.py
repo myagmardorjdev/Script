@@ -71,19 +71,29 @@ for i in range(len(jarray)):
 print(counter)
 #glpitoker - NckBv0PbYGQJ5sK1YEDVmwHPjKOlt58WbBQbgjKg
 
-url = 'http://path/to/glpi/apirest.php/getMyProfiles'
-headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'user_token gbx24bStlmOLnf7PxANoU6h9KgaPSpEeOeogmqWW',
-    'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP'
-}
+def initsession():
+    url = 'http://10.0.0.14/apirest.php/initSession'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'user_token gbx24bStlmOLnf7PxANoU6h9KgaPSpEeOeogmqWW',
+        'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP'
+    }
+    response = requests.get(url, headers=headers)
 
-response = requests.get(url, headers=headers)
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        data = response.json()
+        return data['session_token']
+    else:
+        print("Error:", response.status_code)
 
-# Check if the request was successful (status code 200)
-if response.status_code == 200:
-    data = response.json()
-    print(data)
-else:
-    print("Error:", response.status_code)
-   
+
+  
+
+initsession()
+
+
+
+
+
+

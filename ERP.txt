@@ -1,0 +1,182 @@
+#----------------------------------------------------------------------# 2021/09/10
+POS хаагдсан үед , Пос haagdsan ued
+	1.select * from AltanJolooTradeRetail..VIEW_Cashier where Id = '6105'  query-г Altan JolooTradeRetailTrade dr уншуулж Pkld: олж авна 
+	2.тухайн посын сервер посруу нь хандаж new query үүсгээд 
+	жишээ pkId: 210707015905447160
+	select * from PosClose
+	where CashierPkId = 210707015905447160
+	order by CreatedDate desc                    
+	3. он сараар нь хараад хамгийн эхний Processin PkId аваад доорх query дээр хуулж ажиллуулна.
+
+		delete from PosClose where PkId = 210701094654009116
+#-----------------------------------------------------------------------------------
+192.168.0.20 Remote 
+admin\administrator 
+ABCabc1234+
+192.168.0.16 Remote
+ABCabc123+2019
+#-----------------------------------------------------------------------------------#
+pos suscpect болсон үед
+EXEC sp_resetstatus [YourDatabase];
+ALTER DATABASE [YourDatabase] SET EMERGENCY
+DBCC checkdb([YourDatabase])
+ALTER DATABASE [YourDatabase] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+DBCC CheckDB ([YourDatabase], REPAIR_ALLOW_DATA_LOSS)
+ALTER DATABASE [YourDatabase] SET MULTI_USER
+#-----------------------------------------------------------------------------------#
+6.0 Database suspect болсон тохиолдолд яах вэ?
+1. 192.168.0.20 руу хандаж 	
+	Distributed Link Tracking Client    >> stop хийх 
+	Distributed Transaction Coordinator >> stop хийх 
+2. 192.168.0.16 руу хандаж 
+	AlwaysUp Stopped болгох 
+3. Suspect болсон бааздээр доорх query-г мөр мөрөөр ажилуулах 
+	use master
+	EXEC sp_resetstatus 'AltanJolooTraderetail'
+	ALTER DATABASE AltanJolooTraderetail SET EMERGENCY
+	ALTER DATABASE AltanJolooTraderetail SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+	DBCC CheckDB ('AltanJolooTraderetail', REPAIR_ALLOW_DATA_LOSS)
+	ALTER DATABASE AltanJolooTraderetail SET MULTI_USER
+	
+	-- ALtanJolooTraderetail-ын оронд баазын нэрийг өгнө . 
+	
+#------------------------------------------------------------------------------#
+1. Тооллогоны эрх үүсгэх 	
+	тухайн салбарын нябог- DiamondSCM > бараа материалын нярав  > Цонхны эрх > бараа материалын тооллого гэснийг чагтлах 
+2. Тооллогоны цонх нээсэн бол хэрэглэгчийн эрхийн тохиргоо дээр тоолох салбарыг нэмж өгөх, тооллого дууссаны дараа устгах
+
+#-----------------------------------------------------------------------------------#
+192.168.0.21 дээр  PowerBI хэрэглэгч Diamond@1234 түлхүүр үгээр нэвтэрч  харах боломжтой 
+
+2018, 2019 оны баазыг  10.0.99.231 хаяг дээрээс PowerBI хэрэглэгч Diamond@1234 түлхүүр үгээр нэвтэрч  харах боломжтой
+
+#--------------------------------------------------------------------#	
+Картын мэргэжилтэний эрхийг sankhuu програм дээр үүсгэж өгнө,  http://192.168.0.16:8082/EM/ 
+Лиценз ашиглалтын мэдээлэл цонхноос >> DiamondCRM >> хөнгөлөлтийн картын менежер - эрхээр үүсгэж өгнө 
+#--------------------------------------------------------------------#
+192.168.0.25 Remote
+User: Administrator ,
+Pass: ABCabc123+2019
+	192.168.0.131 тестийн баазыг,
+#-----------------------------------------------#
+http://192.168.0.16:8082/EM/
+	Admin
+	Admin2020Abc
+#---------------------------------------------------------------#
+Харилцахын тооцоо, Гэрээ 
+http://192.168.0.16:8082/DiamondERP/home.html
+	erp team 
+	7412
+#---------------------------------------------------------------#
+Sansar621RetailPOS
+EM нэвтрэх эрх 
+
+--Тест--
+http://10.0.0.31:8081/EM/ 
+admin
+admin123
+
+89350099
+
+
+--АЖИ-- Impex EM 
+http://192.168.0.15:8080/EM/ 
+Admin
+AdmiN123
+
+--АҮБ--
+http://192.168.0.21:8080/EM/ 
+Admin
+Admin123 
+Сайн байна уу,
+
+EM AJT нууц үг 
+	Admin
+	Admin2020Abc 
+
+Өвөрхангай, эрдэнэт сугалаа 
+	update PosConfiguration set VALUE='N' where id='IsManyPrintSmallBill'   // bolix 
+
+	update PosConfiguration set VALUE='Y' where id='IsManyPrintSmallBill'  ///syyylgax
+	
+wifi restart 
+10.12.1.2 луу xandana 
+S42 Switch username;admin password:Swi@Sansar42
+
+enable  >> password : sansar 
+conf t 
+interface gigabitEthernet 1/0/21 
+shutdown 
+no shutdown
+
+gi 1/0/20 - 10.12.99.5
+
+gi 1/0/21 - 10.12.99.6
+
+gi 1/0/22 - 10.12.99.4
+sh interface status
+switch 2960 vlan change
+ansar34_c2960#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Sansar34_c2960(config)#int
+Sansar34_c2960(config)#interface gi
+Sansar34_c2960(config)#interface gigabitEthernet 1/0/20
+Sansar34_c2960(config-if)#switchport access vlan 30
+Sansar34_c2960(config-if)#end
+Sansar34_c2960#wr
+Sansar34_c2960#write me
+Sansar34_c2960#write memory
+Building configuration...
+[OK]
+Sansar34_c2960#copy
+Sansar34_c2960#copy r
+Sansar34_c2960#copy ru
+Sansar34_c2960#copy running-config st
+Sansar34_c2960#copy running-config startup-config
+Destination filename [startup-config]?
+Building configuration...
+[OK]
+
+---call pro 
+
+501-SNSRSPR
+uvFQefpMeRdHBRfT
+204-SNSRSPR
+sip.callpro.mn
+UDP disabled media encryption 
+
+
+## 
+
+ALTER TABLE [msdb].[dbo].[sysjobhistory2]  ALTER COLUMN [run_duration] varchar(15)
+If(Form1.Mode = FormMode.New,Today(),ThisItem.Created_date)
+If(Form1.Mode = FormMode.Edit,Today(),ThisItem.Solved_Date)
+If(Form1.Mode = FormMode.New,Last(operator_table).id + 1,ThisItem.id)
+
+NewForm(Form1);Notify("Амжилттай xадгаллаа.",NotificationType.Success)
+If(Form1.Mode = FormMode.New,Last(operator_table).id + 1,ThisItem.id)
+
+If(Form1.Mode = FormMode.Edit && DataCardValue4.Value = false,Int(DateDiff(
+            ThisItem.Created_date,
+            Now(),
+            Minutes)) - Int(
+ThisItem.Solved_Duration_Hour*60)
+)
+If(Form1.Mode = FormMode.Edit && DataCardValue4.Value = false, Int(DateDiff(ThisItem.Created_date,Now(),Minutes)/60))
+If(Form1.Mode = FormMode.New,Text(Hour(Now()),"[$-en-US]00"),Text(Hour(Parent.Default)))
+
+
+Search(Filter(operator_table,
+ OData__x041e__x0413__x041d__x041e__x04>= DatePicker1.SelectedDate,
+OData__x0421__x0410__x041b__x0411__x04 = Dropdown4.Selected.salbar,
+closed_type = false
+    ),
+    Text(TextInput1.Text),"customer_number"
+)
+If(Form1.Mode = FormMode.Edit && DataCardValue4.Value = false,Int(DateDiff(ThisItem.Created_date,Now(),Minutes)) - Int(ThisItem.Solved_Duration_Hour*60)
+)
+10.32.1.5:8080
+Sansar32RetailPOS
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcGVyYXRvcl9jb2RlIjoiQUxUQU5KT0xPTyIsImlkIjoiQUxUQU5KT0xPTyIsImlhdCI6MTY2MzM5MzgzMywiZXhwIjoxNjY0MjU3ODMzfQ.mmQ2tJQ-W9pXn6io646ctK80BfXfmM1v2BTpqtvPBz0
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcGVyYXRvcl9jb2RlIjoiQUxUQU5KT0xPTyIsImlkIjoiQUxUQU5KT0xPTyIsImlhdCI6MTY2MzM5MzgzMywiZXhwIjoxNjY0MjU3ODMzfQ.mmQ2tJQ-W9pXn6io646ctK80BfXfmM1v2BTpqtvPBz0

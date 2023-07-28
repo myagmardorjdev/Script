@@ -1,5 +1,6 @@
 import requests
 import json
+from requests.auth import HTTPBasicAuth
 
 
 ZABBIX_API_URL = "https://zbx.altanjoloo.mn/zabbix/api_jsonrpc.php"
@@ -88,12 +89,45 @@ def initsession():
         print("Error:", response.status_code)
 
 
-  
+sessiontoken = initsession()
 
-initsession()
+def createticket(session_token):
+    url = 'http://10.0.0.14/apirest.php/Ticket/'
+
+    # Replace 'your_username' and 'your_password' with your actual GLPI credentials
+    username = 'myagmardorj'
+    password = 'Az123456!0@'
+    headers = {
+        'Content-Type': 'application/json',
+        'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP',
+        'Session-Token' : session_token
+    }
+    # Data for creating the ticket (replace with actual data)
+    ticket_data = {
+        'input': {
+            'name': 'Your Ticket Title',
+            'content': 'Your ticket description goes here',
+            'priority': 3,  # Replace with the appropriate priority level
+            'itemtype': 'Ticket',  # If you are creating a ticket
+            # Add other relevant data based on your GLPI setup and requirements
+        }
+    }
+
+    try:
+        response = requests.post(url, json=ticket_data,headers=headers, auth=HTTPBasicAuth(username, password))
+
+        # Check if the request was successful (status code 201 for created)
+        if response.status_code == 201:
+            data = response.json()
+            ticket_id = data['id']
+            print(f"Ticket created successfully with ID: {ticket_id}")
+        else:
+            print(f"Failed to create ticket. Status code: {response.status_code}")
+            print(response.json())
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
 
 
-
-
-
+createticket(sessiontoken)
 

@@ -1,6 +1,10 @@
 import requests
 import json
 from requests.auth import HTTPBasicAuth
+from datetime import datetime
+now = datetime.now()
+
+createdtickets = {}
 
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
@@ -17,7 +21,7 @@ def initsession():
         return data['session_token']
     else:
         print("Error:", response.status_code)
-def createticket(session_token):
+def createticket(session_token,title,content):
     url = 'http://10.0.0.14/apirest.php/Ticket/'
 
     # Replace 'your_username' and 'your_password' with your actual GLPI credentials
@@ -116,12 +120,15 @@ r2 = requests.post(ZABBIX_API_URL,
 #print(json.dumps(r2.json(), indent=4, sort_keys=True))
 
 
+
+sessiontoken = initsession()
 jarray = r2.json()["result"]
 print("Төрөл: ",type(jarray))
 print("Урт: ", len(jarray))
 #Possible values:0 - not classified;1 - information;2 - warning;3 - average;4 - high;5 - disaster.
 severvalue = 4
 counter=0
+ustgax_day_limit = 2
 allproblemdict = {} 
 for i in range(len(jarray)):
     tmp = int(jarray[i]['severity'])
@@ -152,12 +159,31 @@ for i in range(len(jarray)):
         allproblemdict[counter] = eachdict
         
 
-print(counter)
-print(allproblemdict)
-#
+print("counter: ", counter)
+counter = len(createdtickets)
+isfind = False
+for x in allproblemdict:
+    for z in createdtickets:
+        if allproblemdict[x]['host'] == createdtickets[z]['host']:
+            isfind = True
+            break
 
+    # host created ticket dotor baixgvi baiwal shineer vvsgeed, daraa ni vvssen ticket dotor nemj ogj bna
+    if isfind == False:
+        #createticket(sessiontoken,ticket,content)
+        print("ticket craeted   ---" , allproblemdict[x]['host'])
+        eachdict1 ={
+        "host" : allproblemdict[x]['host'],
+        "reason" : allproblemdict[x]['reason'],
+        "day": now.day,
+        "hour" : now.hour,
+        "date" : now
+        }
+        createdtickets[counter] = eachdict1
+        counter+=1
+        
 
-#sessiontoken = initsession()
- 
-#createticket(sessiontoken)
-
+    isfind = False
+   
+    
+    

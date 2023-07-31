@@ -140,20 +140,24 @@ for i in range(len(jarray)):
                             "id": 2 ,
                             "auth": AUTHTOKEN
                     })
-        print(json.dumps(r3.json(), indent=4, sort_keys=True))
-        eachdict = {
-            "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
-            "reason" : r3.json().get('result')[0]['name'],
-            "ip_address" : get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
-        }
+        #print(json.dumps(r3.json(), indent=4, sort_keys=True))
+        if "Client" not in r3.json().get('result')[0].get('hosts')[0]['host'] and "last 24hours" not in  r3.json().get('result')[0]['name']:
+            eachdict = {
+                "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
+                "reason" : r3.json().get('result')[0]['name'],
+                "ip_address" : get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
+            }
+            counter+=1
+        
         allproblemdict[counter] = eachdict
-        counter+=1
+        
 
 print(counter)
+print(allproblemdict)
 #
 
 
 #sessiontoken = initsession()
-
+ 
 #createticket(sessiontoken)
 

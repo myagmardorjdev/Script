@@ -182,6 +182,16 @@ while(1==1):
 
             isfind = False
         
+        #createdtickets ees hugatsaa ni bolson ticketvvdiig ustgaj bna
+        for z in createdtickets:
+            tdate = createdtickets[z]['date']
+            zorvvodor = now - tdate
+            if zorvvodor.days == 0:
+                print(print(f'Difference is {zorvvodor.days} days'))
+            if zorvvodor.days == 2:
+                createdtickets.pop(z)
             
-        time.sleep(4)
+    time.sleep(15)
+    print(now)
     print("sleeping...")
+

@@ -183,15 +183,30 @@ while(1==1):
             isfind = False
         
         #createdtickets ees hugatsaa ni bolson ticketvvdiig ustgaj bna
+        temptickets = {}
+        cc = 0
         for z in createdtickets:
             tdate = createdtickets[z]['date']
             zorvvodor = now - tdate
-            if zorvvodor.days == 0:
-                print(print(f'Difference is {zorvvodor.days} days'))
+            print(zorvvodor.days)
             if zorvvodor.days == 2:
-                createdtickets.pop(z)
+                print("")
+            else:
+               temptickets[cc] = createdtickets[z]
+               print(createdtickets[z])
+               cc+=1
+        createdtickets = temptickets  # tempticketiig tickets rvv hadgalj bna
+                
             
     time.sleep(15)
     print(now)
     print("sleeping...")
 
+eachdict1 ={
+                    "host" : 'myagaaatest',
+                    "reason" : 'not response',
+                    "day": 7,
+                    "hour" : 2,
+                    "date" : datetime(2023, 8, 7, 9, 56, 23, 877416)
+                }
+createdtickets[1] = eachdict1

@@ -3,28 +3,29 @@ import json
 import time
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
-
+sleepsecond = 120
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'user_token gbx24bStlmOLnf7PxANoU6h9KgaPSpEeOeogmqWW',
+        'Authorization': 'user_token SrYgrl5akIahhBtsonYZLaE9DRIP5dS62QlgKGEp', #myagmardorj token shvv
         'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP'
     }
     response = requests.get(url, headers=headers)
-
+    print(response)
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
         data = response.json()
         return data['session_token']
     else:
         print("Error:", response.status_code)
+
 def createticket(session_token,title,content):
     url = 'http://10.0.0.14/apirest.php/Ticket/'
 
     # Replace 'your_username' and 'your_password' with your actual GLPI credentials
-    username = 'myagmardorj'
-    password = 'Az123456!0@'
+    username = 'zabbix'
+    password = 'Aa123456!0@'
     headers = {
         'Content-Type': 'application/json',
         'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP',
@@ -33,10 +34,11 @@ def createticket(session_token,title,content):
     # Data for creating the ticket (replace with actual data)
     ticket_data = {
         'input': {
-            'name': 'Your Ticket Title',
-            'content': 'Your ticket description goes here',
+            'name': title,
+            'content': content,
             'priority': 3,  # Replace with the appropriate priority level
             'itemtype': 'Ticket',  # If you are creating a ticket
+            'entity' : 20,
             # Add other relevant data based on your GLPI setup and requirements
         }
     }
@@ -80,12 +82,13 @@ def get_hosts_with_ip(hostid):
 
 #loop outsides variables
 createdtickets = {}
+sessiontoken = initsession()
 
 while(1==1):
     now = datetime.now()
     if now.hour > 8 and now.hour < 24:
         ZABBIX_API_URL = "https://zbx.altanjoloo.mn/zabbix/api_jsonrpc.php"
-        UNAME = "Myagmardorj"
+        UNAME = "myagmardorj"
         PWORD = "Az123456!0@"
         AUTHTOKEN = "56bc1ff73deb2c79145b1e8315a064e8e967251e2d4b60f0d1207c077ea2a5ef"
 
@@ -120,8 +123,8 @@ while(1==1):
                                 "auth": AUTHTOKEN
                         })
         #print(json.dumps(r2.json(), indent=4, sort_keys=True))
-
-        sessiontoken = initsession()
+        if now.minute % 10 == 0:
+            sessiontoken = initsession()
         jarray = r2.json()["result"]
         #Possible values:0 - not classified;1 - information;2 - warning;3 - average;4 - high;5 - disaster.
         severvalue = 4
@@ -147,7 +150,7 @@ while(1==1):
                             })
                 #print(json.dumps(r3.json(), indent=4, sort_keys=True))
                 #Client pos bolon not restarted 24 hours gdg iig algasaj bna 
-                if "Client" not in r3.json().get('result')[0].get('hosts')[0]['host'] and "last 24hours" not in  r3.json().get('result')[0]['name']:
+                if "Client" not in r3.json().get('result')[0].get('hosts')[0]['host'] and "last 24hours" not in  r3.json().get('result')[0]['name'] and "POS_8080_down" not in r3.json().get('result')[0]['name']:
                     eachdict = {
                         "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
                         "reason" : r3.json().get('result')[0]['name'],
@@ -168,12 +171,14 @@ while(1==1):
 
             # host created ticket dotor baixgvi baiwal shineer vvsgeed, daraa ni vvssen ticket dotor nemj ogj bna
             if isfind == False:
-                #createticket(sessiontoken,ticket,content)
+                tempcontent = allproblemdict[x]['reason'] +' ip:'+ allproblemdict[x]['ip_address'] 
+                #createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
                 print("ticket created   ---" , allproblemdict[x]['host'])
                 eachdict1 ={
                     "host" : allproblemdict[x]['host'],
                     "reason" : allproblemdict[x]['reason'],
                     "day": now.day,
+                    "ip" : allproblemdict[x]['ip_address'],
                     "hour" : now.hour,
                     "date" : now
                 }
@@ -188,25 +193,15 @@ while(1==1):
         for z in createdtickets:
             tdate = createdtickets[z]['date']
             zorvvodor = now - tdate
-            print(zorvvodor.days)
             if zorvvodor.days == 2:
                 print("")
             else:
                temptickets[cc] = createdtickets[z]
-               print(createdtickets[z])
                cc+=1
         createdtickets = temptickets  # tempticketiig tickets rvv hadgalj bna
                 
             
-    time.sleep(15)
+    time.sleep(sleepsecond)
     print(now)
     print("sleeping...")
 
-eachdict1 ={
-                    "host" : 'myagaaatest',
-                    "reason" : 'not response',
-                    "day": 7,
-                    "hour" : 2,
-                    "date" : datetime(2023, 8, 7, 9, 56, 23, 877416)
-                }
-createdtickets[1] = eachdict1

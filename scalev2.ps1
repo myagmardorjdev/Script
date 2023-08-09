@@ -206,7 +206,7 @@ while (1 -eq 1) {
             }
         }
         # s13 log c13 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>13 13 13 13 13- 13- 13- 13-13-131-1--3-31-
-    foreach ($i2 in $scaleip13.GetEnumerator()) {
+        foreach ($i2 in $scaleip13.GetEnumerator()) {
             $temp = $carrefour.Item('c13')[8] + $i2.Value.Split('.')[3] + ".txt"
             if ((Get-Content $temp) -eq 0) {
                 $filter = "*AutoPLU_" + $i2.Value + "*"
@@ -231,7 +231,7 @@ while (1 -eq 1) {
         }
         ### c21 iin 2 jin  c21 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         foreach ($i2 in $scaleip21.GetEnumerator()) {
-            $temp = $carrefour.Item('c21')[8] + $i2.Value.Split('.')[3] + ".txt"
+            $temp = $carrefour.Item('c21')[8] +'c21'+ $i2.Value.Split('.')[3] + ".txt"  # omnox utgaa shalgaj bna
             if ((Get-Content $temp) -eq 0) {
                 $filter = "*AutoPLU_" + $i2.Value + "*"
                 $temp2 = $carrefour.item('c21')[6].replace('*.txt', '')

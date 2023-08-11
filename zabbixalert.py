@@ -4,6 +4,7 @@ import time
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
 sleepsecond = 120
+log_path = 'D:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
     headers = {
@@ -204,4 +205,5 @@ while(1==1):
     time.sleep(sleepsecond)
     print(now)
     print("sleeping...")
-
+    with open(log_path, 'a') as f:
+        f.write('\nloopoing...')

@@ -8,7 +8,7 @@ $label2 = 2081, 2179, 4060, 4054, 4071,2414 # ogt on sargvi
 Import-Module importexcel 
 #0                                         1                                        2                                           3                                   4                                       5           6                                               7                                                       8                               9
 
-$sleeptime = 20;
+$sleeptime = 40;
 $logfile = "B:\Scripts\scalelog.txt"
 (Get-Date).ToString() + " Script Started." | out-file -FilePath $logfile -append
 
@@ -30,14 +30,14 @@ function EXECUTER($v1, $v2, $v3) {
     $conn.Close();
     return $value
 }
-$zabbixfolder = "B:\Scripts\zabbix_scale\scale"
+
 $loopcount = 0
 while (1 -eq 1) {
-    $carrefour = @{       #0                                      1                                   2                                              3                                       4                                      5            6                                                    7                                        8                                9
-    c13 =            '"http://10.13.1.220/scale/products"', '"X-Odoo-dbfilter: CARREFOURS13_LIVE"', 'B:\Scripts\ScalePriceLIST\check\file13.xlsx', 'B:\Scripts\ScalePriceLIST\file13.xlsx', 'B:\Scripts\ScalePriceLIST\file13.csv', 's13scale', '\\192.168.0.236\Aclas LINK69\aclassdk_log\*.txt', '\\192.168.0.236\Aclas LINK69\Temp\*.txt', '\\192.168.0.236\Scalelog\scale', 'B:\Scripts\zabbix_scale\scalecodeduplicated13.txt';
-    c34            = '"http://10.34.1.220/scale/products"', '"X-Odoo-dbfilter: CARREFOURS34_LIVE"', 'B:\Scripts\ScalePriceLIST\check\file34.xlsx', 'B:\Scripts\ScalePriceLIST\file34.xlsx', 'B:\Scripts\ScalePriceLIST\file34.csv', 's34scale', 'C:\Program Files (x86)\Aclas LINK69\aclassdk_log\*.txt', 'C:\Program Files (x86)\Aclas LINK69\Temp\*.txt', "B:\Scripts\zabbix_scale\scale", 'B:\Scripts\zabbix_scale\scalecodeduplicated34.txt';
-    c88            = '"http://10.88.1.220/scale/products"', '"X-Odoo-dbfilter: CARREFOURS88_LIVE"', 'B:\Scripts\ScalePriceLIST\check\file88.xlsx', 'B:\Scripts\ScalePriceLIST\file88.xlsx', 'B:\Scripts\ScalePriceLIST\file88.csv', 's88scale', '', '', '', 'B:\Scripts\zabbix_scale\scalecodeduplicated88.txt';
-    c21            = '"http://10.21.1.220/scale/products"', '"X-Odoo-dbfilter: CARREFOURS21_LIVE"', 'B:\Scripts\ScalePriceLIST\check\file21.xlsx', 'B:\Scripts\ScalePriceLIST\file21.xlsx', 'B:\Scripts\ScalePriceLIST\file21.csv', 's21scale', '\\10.21.1.45\aclassdk_log\*.txt', '\\10.21.1.45\Temp\*.txt', "B:\Scripts\zabbix_scale\scale", 'B:\Scripts\zabbix_scale\scalecodeduplicated21.txt'
+    $carrefour = @{       #0                                      1                                   2                                              3                                       4                                      5            6                                                    7                                        8                                     9
+    c13 =            '"http://10.13.1.220/scale/products"', '"X-Odoo-dbfilter: CARREFOURS13_LIVE"', 'B:\Scripts\ScalePriceLIST\check\file13.xlsx', 'B:\Scripts\ScalePriceLIST\file13.xlsx', 'B:\Scripts\ScalePriceLIST\file13.csv', 's13scale', '\\192.168.0.236\Aclas LINK69\aclassdk_log\*.txt', '\\192.168.0.236\Aclas LINK69\Temp\*', '\\192.168.0.236\Scalelog\scale',         'B:\Scripts\zabbix_scale\scalecodeduplicated13.txt';
+    c34            = '"http://10.34.1.220/scale/products"', '"X-Odoo-dbfilter: CARREFOURS34_LIVE"', 'B:\Scripts\ScalePriceLIST\check\file34.xlsx', 'B:\Scripts\ScalePriceLIST\file34.xlsx', 'B:\Scripts\ScalePriceLIST\file34.csv', 's34scale', 'C:\Program Files (x86)\Aclas LINK69\aclassdk_log\*.txt', 'C:\Program Files (x86)\Aclas LINK69\Temp\*', "B:\Scripts\zabbix_scale\scale", 'B:\Scripts\zabbix_scale\scalecodeduplicated34.txt';
+    c88            = '"http://10.88.1.220/scale/products"', '"X-Odoo-dbfilter: CARREFOURS88_LIVE"', 'B:\Scripts\ScalePriceLIST\check\file88.xlsx', 'B:\Scripts\ScalePriceLIST\file88.xlsx', 'B:\Scripts\ScalePriceLIST\file88.csv', 's88scale', '',                                                  '',                                  '',                                    'B:\Scripts\zabbix_scale\scalecodeduplicated88.txt';
+    c21            = '"http://10.21.1.220/scale/products"', '"X-Odoo-dbfilter: CARREFOURS21_LIVE"', 'B:\Scripts\ScalePriceLIST\check\file21.xlsx', 'B:\Scripts\ScalePriceLIST\file21.xlsx', 'B:\Scripts\ScalePriceLIST\file21.csv', 's21scale', '\\10.21.1.45\aclassdk_log\*.txt',                   '\\10.21.1.45\Temp\*',             "B:\Scripts\zabbix_scale\scale",           'B:\Scripts\zabbix_scale\scalecodeduplicated21.txt'
     } 
     $scaleipdevices = @{ip1 = '010.034.001.241'; ip2 = '010.034.001.242'; ip3 = '010.034.001.243'; ip4 = '010.034.001.244'; ip5 = '010.034.001.245'
     ip6 = '010.034.001.246'; ip7 = '010.034.001.247'; ip8 = '010.034.001.248'; ip9 = '010.034.001.249'
@@ -78,7 +78,7 @@ while (1 -eq 1) {
                 Copy-Item $z.Value[2] -Destination $z.Value[3] -Recurse
                 (Get-Date).ToString() + " file-d oorchlolt orson bna." + $z.Key | out-file -FilePath $logfile -append
                 try {
-                    $ans1 = Import-Excel -Path "B:\Scripts\scalepricelist\file34.xlsx" | Select-Object 'Code on Scale', 'Product Code', 'Product Name', 'Barcode',
+                    $ans1 = Import-Excel -Path $z.Value[3] | Select-Object 'Code on Scale', 'Product Code', 'Product Name', 'Barcode',
                     'Product short name', 'Product Price', 'Unit', 'Ingredient List', 'Expiration Days', @{n = 'LabelID'; e = { [String]('1') } }, @{n = 'UnitID'; e = { [String]('4') } }
                 }
                 catch {
@@ -133,7 +133,6 @@ while (1 -eq 1) {
                 # ortsgvi baraaag label 4 tei bolgox
                 for ($i = 0; $i -ne $ans1.Count; $i++) {
                     if ($ans1[$i].'Ingredient List' -eq $null) {
-                        Write-Output "orts null bna"
                         #$ans1[$i].LabelID = 4;
                     }
                 }
@@ -162,19 +161,19 @@ while (1 -eq 1) {
         foreach ($j in $scaleipdevices.GetEnumerator()) {
             $temp = $carrefour.Item('c34')[8] + $j.Value.Split('.')[3] + ".txt"
             0 | out-file -FilePath $temp
-            Remove-item -Recurse -Force  $carrefour.Item('c34')[7]
+            Remove-Item -Recurse -Force  $carrefour.Item('c34')[7]
             Remove-Item -Recurse -Force  $carrefour.Item('c34')[6]
         }
         foreach ($j in $scaleip13.GetEnumerator()) {
             $temp = $carrefour.Item('c13')[8] + $j.Value.Split('.')[3] + ".txt"
             0 | out-file -FilePath $temp
-            Remove-item -Recurse -Force  $carrefour.Item('c13')[7]
+            Remove-Item -Recurse -Force  $carrefour.Item('c13')[7]
             Remove-Item -Recurse -Force  $carrefour.Item('c13')[6]
         }
         foreach ($j in $scaleip21.GetEnumerator()) {
             $temp = $carrefour.Item('c21')[8] + $j.Value.Split('.')[3] + ".txt"
             0 | out-file -FilePath $temp
-            Remove-item -Recurse -Force  $carrefour.Item('c21')[7]
+            Remove-Item -Recurse -Force  $carrefour.Item('c21')[7]
             Remove-Item -Recurse -Force  $carrefour.Item('c21')[6]
         }
     }

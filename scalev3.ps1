@@ -1,21 +1,43 @@
 
 $loopstatus = 0
+$backstatus = 0
 $hrange = 8
 $hrangeo = 23
 $hrangeshono = 0
 $isrun = 'B:\Scripts\zabbix_scale\isrunmon.txt'
-$carrefour = @{c88 = 'B:\Scripts\scalepricelist\file88.xlsx',"", "" , 'B:\Scripts\zabbix_scale\Scale88.txt' ;
-               c21 = 'B:\Scripts\scalepricelist\file21.xlsx',"", "" , 'B:\Scripts\zabbix_scale\Scale21.txt' ; 
+$carrefour = @{c88 = 'B:\Scripts\scalepricelist\file88.xlsx','B:\Scripts\plu88.csv', "" , 'B:\Scripts\zabbix_scale\Scale88.txt' ;
+               c21 = 'B:\Scripts\scalepricelist\file21.xlsx','B:\Scripts\plu21.csv', "" , 'B:\Scripts\zabbix_scale\Scale21.txt' ; 
             }
 #hamgiin bagadaa 2 ip address zooj ogoxiig anxaarna uu
 $ipdevices = @{c88 = '10.88.1.240';
                c21 = '10.21.1.240', '10.21.1.241','10.21.1.242','10.21.1.243'
             }
 $onsargvi = @(4028,4071,4061,4054,4066,4060,4052,4248,4246,4246)
+function EXECUTER($v1, $v2,$v3){
+    $value = 0
+    $SqlAuthLogin = "sa"          # SQL Authentication login
+    $SqlAuthPass  = "SpawnGG" 
+    $connString = "Data Source=$v1;Database=$v2;User ID=$SqlAuthLogin;Password=$SqlAuthPass"
+    $conn = New-Object System.Data.SqlClient.SqlConnection $connString
+    $conn.Open()
+    $sqlcmd = $conn.CreateCommand()
+    $sqlcmd = New-Object System.Data.SqlClient.SqlCommand
+    $sqlcmd.Connection = $conn
+    $sqlcmd.CommandText = $v3
+    $adp = New-Object System.Data.SqlClient.SqlDataAdapter $sqlcmd
+    $data = New-Object System.Data.DataSet
+    $adp.Fill($data) | Out-Null
+    $value = $data.Tables
+    $conn.Close();
+    return $value
+}
+$query_zksoftbackup = "BACKUP DATABASE [ZKSoft] TO  DISK = N'C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\Backup\ZKSoft.bak' 
+WITH NOFORMAT, NOINIT,  NAME = N'ZKSoft-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10
+"
 
 while(1 -eq 1){
-        $tempdate = (Get-Date);
-        if((Get-Date).Hour -ge $hrange -and (Get-Date).Hour -le $hrangeo -and (get-date).Minute -and $loopstatus -eq 0){
+    $tempdate = (Get-Date);
+    if((Get-Date).Hour -ge $hrange -and (Get-Date).Hour -le $hrangeo -and (get-date).Minute -and $loopstatus -eq 0){
             $loopstatus = 1
             foreach ($z in $carrefour.GetEnumerator()){
             $counter=0
@@ -697,8 +719,7 @@ while(1 -eq 1){
             Add-Type -Path "B:\Scripts\chilkatdotnet47-9.5.0-x64\ChilkatDotNet47.dll"
             $sb = New-Object Chilkat.StringBuilder
             $sbing = New-Object Chilkat.StringBuilder
-            # In this case, my test file has some norwegian chars in the utf-8 encoding
-            #Remove-Item 'B:\Scripts\plu0uall2.csv' -Force
+
             Write-Output $tempdate
             Write-Output (Get-Date)
             $success = $sb.LoadFile('B:\Scripts\plu0uall2.csv',"utf-8")
@@ -758,22 +779,37 @@ while(1 -eq 1){
             catch {
                 #0 | out-file -FilePath $z.Value[3]
             }
+        Remove-Item $z.Value[1];
+        Copy-Item "B:\Scripts\plu0uall.csv" -Destination $z.Value[1];
+        Remove-Item "B:\Scripts\plu0uall.csv"
         } # for leep end
     } # dict loop end
     
-    
-    if((get-date).Hour -eq $hrangeshono){
+    # RESET ALL SCALES 0 status
+    if((get-date).Hour -eq $hrangeshono -and (get-date).Minute -le 2){
         $loopstatus = 0
+        $backstatus = 0
         0 | out-file -FilePath 'B:\Scripts\zabbix_scale\Scale88.txt'
-        foreach ($z in $ipdevices.GetEnumerator()){
-            for($i =0; $i -lt $ipdevices.($z.Key).Length; $i++){
-                $logfile = 'B:\Scripts\zabbix_scale\' + $ipdevices.($z.Key)[$i] + '.txt'
-                0 | Out-File -FilePath $logfile
-            }
+        for($i =0; $i -lt $ipdevices.($z.Key).Length; $i++){
+            $logfile = 'B:\Scripts\zabbix_scale\' + $ipdevices.($z.Key)[$i] + '.txt'
+            0 | Out-File -FilePath $logfile
         }
     }
+        
+    
+    #ZK time device baaz backup
+    if((get-date).hour -eq 12 -and $backstatus -eq 0){
+        EXECUTER -v1 "192.168.0.25" -v2 "ZKSoft" -v3 $query_zksoftbackup
+        Copy-Item  "\\192.168.0.25\mssql\Backup\ZKSoft.bak" -Destination "\\10.0.99.40\Backups\ZkSfot" -Force
+        Remove-Item "\\192.168.0.25\mssql\Backup\ZKSoft.bak"
+
+        $backstatus = 1
+    }
+
     Write-Output 'MAIN Sleeping...'
     0 | Out-File -FilePath $isrun
-    Start-Sleep -Seconds 40
+    Start-Sleep -Seconds 60
+
+
 }
 

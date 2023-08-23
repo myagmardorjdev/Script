@@ -1,15 +1,19 @@
 import requests
 import json
+import base64
 import time
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
 sleepsecond = 120
-log_path = 'D:/zabbixlog.txt'
+log_path = 'B:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
+    username = 'zabbix'
+    password = 'Aa123456!0@'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'user_token SrYgrl5akIahhBtsonYZLaE9DRIP5dS62QlgKGEp', #myagmardorj token shvv
+        #'Authorization': 'user_token Lu0XOm1Bm9Aheza2mPsXyEUfa2jP2renomp2P0hD', #zabbix token
+        'Authorization': 'Basic ' + base64.b64encode(f'{username}:{password}'.encode('utf-8')).decode('utf-8'),
         'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP'
     }
     response = requests.get(url, headers=headers)
@@ -39,7 +43,8 @@ def createticket(session_token,title,content):
             'content': content,
             'priority': 3,  # Replace with the appropriate priority level
             'itemtype': 'Ticket',  # If you are creating a ticket
-            'entity' : 20,
+            'entity' : 24,
+            'requesttypes_id': 13,
             # Add other relevant data based on your GLPI setup and requirements
         }
     }
@@ -82,13 +87,14 @@ def get_hosts_with_ip(hostid):
     return response.json()['result'][0]['interfaces'][0]['ip']
 
 #loop outsides variables
-createdtickets = {}
 sessiontoken = initsession()
+createdtickets = {}
+
 
 while(1==1):
     now = datetime.now()
     if now.hour > 8 and now.hour < 24:
-        ZABBIX_API_URL = "https://zbx.altanjoloo.mn/zabbix/api_jsonrpc.php"
+        ZABBIX_API_URL = "http://192.168.0.44:8080/zabbix/api_jsonrpc.php"
         UNAME = "myagmardorj"
         PWORD = "Az123456!0@"
         AUTHTOKEN = "56bc1ff73deb2c79145b1e8315a064e8e967251e2d4b60f0d1207c077ea2a5ef"
@@ -173,7 +179,7 @@ while(1==1):
             # host created ticket dotor baixgvi baiwal shineer vvsgeed, daraa ni vvssen ticket dotor nemj ogj bna
             if isfind == False:
                 tempcontent = allproblemdict[x]['reason'] +' ip:'+ allproblemdict[x]['ip_address'] 
-                #createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
+                createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
                 print("ticket created   ---" , allproblemdict[x]['host'])
                 eachdict1 ={
                     "host" : allproblemdict[x]['host'],

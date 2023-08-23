@@ -5,7 +5,7 @@ import time
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
 sleepsecond = 120
-log_path = 'B:/zabbixlog.txt'
+log_path = 'D:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
     username = 'zabbix'
@@ -24,7 +24,6 @@ def initsession():
         return data['session_token']
     else:
         print("Error:", response.status_code)
-
 def createticket(session_token,title,content):
     url = 'http://10.0.0.14/apirest.php/Ticket/'
 
@@ -85,6 +84,11 @@ def get_hosts_with_ip(hostid):
 
     response = requests.post(ZABBIX_API_URL, json=payload, headers=headers)
     return response.json()['result'][0]['interfaces'][0]['ip']
+def log_write(content):
+    with open(log_path, 'a') as f:
+        now = datetime.now()
+        string = '\n'+str(now) + ' '+ content
+        f.write(string)
 
 #loop outsides variables
 sessiontoken = initsession()
@@ -179,7 +183,7 @@ while(1==1):
             # host created ticket dotor baixgvi baiwal shineer vvsgeed, daraa ni vvssen ticket dotor nemj ogj bna
             if isfind == False:
                 tempcontent = allproblemdict[x]['reason'] +' ip:'+ allproblemdict[x]['ip_address'] 
-                createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
+                #createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
                 print("ticket created   ---" , allproblemdict[x]['host'])
                 eachdict1 ={
                     "host" : allproblemdict[x]['host'],
@@ -211,5 +215,4 @@ while(1==1):
     time.sleep(sleepsecond)
     print(now)
     print("sleeping...")
-    with open(log_path, 'a') as f:
-        f.write('\nloopoing...')
+    log_write("looping ...")

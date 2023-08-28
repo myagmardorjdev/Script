@@ -64,7 +64,7 @@ def createticket(session_token,title,content):
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
 def get_hosts_with_ip(hostid):
-
+    
     headers = {
         'Content-Type': 'application/json'
     }
@@ -72,7 +72,7 @@ def get_hosts_with_ip(hostid):
         'jsonrpc': '2.0',
         'method': 'host.get',
         'params': {
-            'output': ['hostid', 'name'],
+            'output': ['hostid', 'name','value'],
             'selectInterfaces': ['ip'],
             'filter': {
                 'hostid': hostid  # Specific hostid you want to fetch
@@ -85,7 +85,13 @@ def get_hosts_with_ip(hostid):
 
     response = requests.post(ZABBIX_API_URL, json=payload, headers=headers)
     return response.json()['result'][0]['interfaces'][0]['ip']
+def log_write(content):
+    with open(log_path, 'a') as f:
+        now = datetime.now()
+        string = '\n'+str(now) + ' '+ content
+        f.write(string)
 
+bannedhosts = ['PowerBI2','AJTPowerBI','AUB_Web','Client','last 24hours','POS_8080_down','itremote','BackupServer','PowerBI2','Ysoft','BSO-Printer']
 #loop outsides variables
 sessiontoken = initsession()
 createdtickets = {}
@@ -117,13 +123,13 @@ while(1==1):
                             "params": {         
                                 #"output": "extend",         "selectDServices": "extend",         "druleids": "19"
                                     "output": "extend",
-                                    "selectHosts": ["host", "name",'allowed_hosts','hostid'],
+                                    "selectHosts": ["host", "name",'allowed_hosts','hostid','clock'],
                                     "interfaces" : ['ip','allowed_hosts','hostid'],
                                     "selectAcknowledges": "extend",
                                     "recent": "true",
                                     "sortfield": ["eventid"],
                                     "sortorder": "ASC",
-                                    "severity": 5    
+                                    "severity": 5,
                                 }  ,
                             
                                 "id": 2 ,
@@ -156,8 +162,11 @@ while(1==1):
                                     "auth": AUTHTOKEN
                             })
                 #print(json.dumps(r3.json(), indent=4, sort_keys=True))
-                #Client pos bolon not restarted 24 hours gdg iig algasaj bna # blocked tickets 
-                if "PowerBI2" not in r3.json().get('result')[0]['name'] and "AUB_Web" not in r3.json().get('result')[0]['name'] and "AJTPowerBI" not in r3.json().get('result')[0]['name'] and "Client" not in r3.json().get('result')[0].get('hosts')[0]['host'] and "last 24hours" not in  r3.json().get('result')[0]['name'] and "POS_8080_down" not in r3.json().get('result')[0]['name'] and "itremote" not in r3.json().get('result')[0]['name'] and "BackupServer" not in r3.json().get('result')[0]['name']:
+                
+                eventclock = datetime.fromtimestamp(int(r3.json().get('result')[0]['clock']))
+                zorvvtsag = now - eventclock
+
+                if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and zorvvtsag.total_seconds()/60 > 20:   # 20 minutaas ix durationtai problem orj irne
                     eachdict = {
                         "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
                         "reason" : r3.json().get('result')[0]['name'],
@@ -224,5 +233,4 @@ while(1==1):
     time.sleep(sleepsecond)
     print(now)
     print("sleeping...")
-    with open(log_path, 'a') as f:
-        f.write('\nloopoing...')
+    log_write("looping ...")

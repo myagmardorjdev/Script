@@ -5,7 +5,7 @@ import time
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
 sleepsecond = 120
-log_path = 'D:/zabbixlog.txt'
+log_path = 'B:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
     username = 'zabbix'
@@ -24,6 +24,7 @@ def initsession():
         return data['session_token']
     else:
         print("Error:", response.status_code)
+
 def createticket(session_token,title,content):
     url = 'http://10.0.0.14/apirest.php/Ticket/'
 
@@ -42,8 +43,8 @@ def createticket(session_token,title,content):
             'content': content,
             'priority': 3,  # Replace with the appropriate priority level
             'itemtype': 'Ticket',  # If you are creating a ticket
-            'entity' : 24,
-            'requesttypes_id': 13,
+            'itilcategories_id' : 42,
+            'requesttypes_id' : 12,
             # Add other relevant data based on your GLPI setup and requirements
         }
     }
@@ -84,11 +85,6 @@ def get_hosts_with_ip(hostid):
 
     response = requests.post(ZABBIX_API_URL, json=payload, headers=headers)
     return response.json()['result'][0]['interfaces'][0]['ip']
-def log_write(content):
-    with open(log_path, 'a') as f:
-        now = datetime.now()
-        string = '\n'+str(now) + ' '+ content
-        f.write(string)
 
 #loop outsides variables
 sessiontoken = initsession()
@@ -160,16 +156,29 @@ while(1==1):
                                     "auth": AUTHTOKEN
                             })
                 #print(json.dumps(r3.json(), indent=4, sort_keys=True))
-                #Client pos bolon not restarted 24 hours gdg iig algasaj bna 
-                if "Client" not in r3.json().get('result')[0].get('hosts')[0]['host'] and "last 24hours" not in  r3.json().get('result')[0]['name'] and "POS_8080_down" not in r3.json().get('result')[0]['name']:
+                #Client pos bolon not restarted 24 hours gdg iig algasaj bna # blocked tickets 
+                if "PowerBI2" not in r3.json().get('result')[0]['name'] and "AUB_Web" not in r3.json().get('result')[0]['name'] and "AJTPowerBI" not in r3.json().get('result')[0]['name'] and "Client" not in r3.json().get('result')[0].get('hosts')[0]['host'] and "last 24hours" not in  r3.json().get('result')[0]['name'] and "POS_8080_down" not in r3.json().get('result')[0]['name'] and "itremote" not in r3.json().get('result')[0]['name'] and "BackupServer" not in r3.json().get('result')[0]['name']:
                     eachdict = {
                         "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
                         "reason" : r3.json().get('result')[0]['name'],
                         "ip_address" : get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
                     }
-                    counter+=1
-                    allproblemdict[counter] = eachdict
-
+                   
+                    hostname = eachdict['host'][:6]    # salbaraar yalgaj bna
+                    if hostname.find('NVR') != -1:     # NVR iig neg salbart olon garj irwel 1 eer duudlaga bvrtgene
+                        itsbna = 0
+                        for z1 in allproblemdict:
+                            if hostname in allproblemdict[z1]['host']:
+                                itsbna = 1
+                                print("host dawxardsan ---- ",hostname," versus ",allproblemdict[z1]['host'])
+                                allproblemdict[z1]['reason'] = allproblemdict[z1]['reason'] + " another host ip:" + eachdict['host']
+                                break
+                        if itsbna == 0:
+                            counter+=1
+                            allproblemdict[counter] = eachdict
+                    else:
+                        counter+=1
+                        allproblemdict[counter] = eachdict
 
         counter = len(createdtickets)
         isfind = False
@@ -204,7 +213,7 @@ while(1==1):
         for z in createdtickets:
             tdate = createdtickets[z]['date']
             zorvvodor = now - tdate
-            if zorvvodor.days == 2:
+            if zorvvodor.days == 3:
                 print("")
             else:
                temptickets[cc] = createdtickets[z]
@@ -215,4 +224,5 @@ while(1==1):
     time.sleep(sleepsecond)
     print(now)
     print("sleeping...")
-    log_write("looping ...")
+    with open(log_path, 'a') as f:
+        f.write('\nloopoing...')

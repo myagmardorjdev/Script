@@ -72,24 +72,49 @@ def get_hosts_with_ip(hostid):
         'jsonrpc': '2.0',
         'method': 'host.get',
         'params': {
-            'output': ['hostid', 'name','value'],
+            'output': ['hostid', 'name','value','itemid','status'],
             'selectInterfaces': ['ip'],
             'filter': {
-                'hostid': hostid  # Specific hostid you want to fetch
+                'hostid': hostid , # Specific hostid you want to fetch
+                'status': 0  # тухайн хост enabled or disabled iig ni shalgaj bna
             }
             # Add more parameters or filters as needed
         },
         'auth': AUTHTOKEN,
         'id': 1
     }
-
-    response = requests.post(ZABBIX_API_URL, json=payload, headers=headers)
-    return response.json()['result'][0]['interfaces'][0]['ip']
+    try:
+        response = requests.post(ZABBIX_API_URL, json=payload, headers=headers)
+        return response.json()['result'][0]['interfaces'][0]['ip']
+    except:
+        return '0'
 def log_write(content):
     with open(log_path, 'a') as f:
         now = datetime.now()
         string = '\n'+str(now) + ' '+ content
         f.write(string)
+def getnon_disabled_host(eventid):
+    headers = {
+    'Content-Type': 'application/json'
+    }
+    payload = {
+        'jsonrpc': '2.0',
+        'method': 'item.get',
+        'params': {
+             "output": "extend",         
+             "hostids": "10084",         
+             "search": {"key_": "system.cpu"},
+        },
+        'auth': AUTHTOKEN,
+        'id': 1
+    }
+    response = requests.post(ZABBIX_API_URL, json=payload, headers=headers)
+    item_result = response.json()
+
+    if 'result' in item_result:
+        items = item_result['result']
+        return items
+
 
 bannedhosts = ['PowerBI2','AJTPowerBI','AUB_Web','Client','last 24hours','POS_8080_down','itremote','BackupServer','PowerBI2','Ysoft','BSO-Printer']
 #loop outsides variables
@@ -123,7 +148,7 @@ while(1==1):
                             "params": {         
                                 #"output": "extend",         "selectDServices": "extend",         "druleids": "19"
                                     "output": "extend",
-                                    "selectHosts": ["host", "name",'allowed_hosts','hostid','clock'],
+                                    "selectHosts": ["host", "name",'allowed_hosts','hostid','clock','itemid'],
                                     "interfaces" : ['ip','allowed_hosts','hostid'],
                                     "selectAcknowledges": "extend",
                                     "recent": "true",
@@ -156,7 +181,7 @@ while(1==1):
                                         'selectHosts': ['hostid', 'host'],
                                         "select_acknowledges": "extend",         
                                         "selectTags": "extend",        
-                                        "eventids": jarray[i]['eventid']  
+                                        "eventids": jarray[i]['eventid'] 
                                     }  ,     
                                     "id": 2 ,
                                     "auth": AUTHTOKEN
@@ -165,8 +190,12 @@ while(1==1):
                 
                 eventclock = datetime.fromtimestamp(int(r3.json().get('result')[0]['clock']))
                 zorvvtsag = now - eventclock
+                # Enabled Disabled item shalgaj bna
+                enedisabled = 0
+                if get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid')) == '0':
+                    enedisabled = 1
 
-                if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and zorvvtsag.total_seconds()/60 > 20:   # 20 minutaas ix durationtai problem orj irne
+                if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and zorvvtsag.total_seconds()/60 > 180 and enedisabled == 0:   # 20 minutaas ix durationtai problem orj irne
                     eachdict = {
                         "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
                         "reason" : r3.json().get('result')[0]['name'],

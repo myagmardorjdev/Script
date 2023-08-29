@@ -93,28 +93,6 @@ def log_write(content):
         now = datetime.now()
         string = '\n'+str(now) + ' '+ content
         f.write(string)
-def getnon_disabled_host(eventid):
-    headers = {
-    'Content-Type': 'application/json'
-    }
-    payload = {
-        'jsonrpc': '2.0',
-        'method': 'item.get',
-        'params': {
-             "output": "extend",         
-             "hostids": "10084",         
-             "search": {"key_": "system.cpu"},
-        },
-        'auth': AUTHTOKEN,
-        'id': 1
-    }
-    response = requests.post(ZABBIX_API_URL, json=payload, headers=headers)
-    item_result = response.json()
-
-    if 'result' in item_result:
-        items = item_result['result']
-        return items
-
 
 bannedhosts = ['PowerBI2','AJTPowerBI','AUB_Web','Client','last 24hours','POS_8080_down','itremote','BackupServer','PowerBI2','Ysoft','BSO-Printer']
 #loop outsides variables
@@ -192,14 +170,15 @@ while(1==1):
                 zorvvtsag = now - eventclock
                 # Enabled Disabled item shalgaj bna
                 enedisabled = 0
-                if get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid')) == '0':
+                tempip = get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
+                if tempip == '0':
                     enedisabled = 1
 
-                if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and zorvvtsag.total_seconds()/60 > 180 and enedisabled == 0:   # 20 minutaas ix durationtai problem orj irne
+                if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and zorvvtsag.total_seconds()/60 > 20 and enedisabled == 0:   # 20 minutaas ix durationtai problem orj irne
                     eachdict = {
                         "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
                         "reason" : r3.json().get('result')[0]['name'],
-                        "ip_address" : get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
+                        "ip_address" : tempip
                     }
                    
                     hostname = eachdict['host'][:6]    # salbaraar yalgaj bna

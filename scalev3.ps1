@@ -1,10 +1,15 @@
 
 $loopstatus = 0
 $backstatus = 0
-$hrange = 8
-$hrangeo = 23
-$hrangeshono = 0
+$jobstart_hour = 7
+$jobstart_min = 33
+$jobend_hour = 18
+$download_interval = 60 #minute
+$startleepduration = 50
+$scalezerostatus = $jobstart_hour - 1 
+$scalezerostatusmin = 0
 $isrun = 'B:\Scripts\zabbix_scale\isrunmon.txt'
+$logfilemain = "B:\Scripts\scalelogv2.txt"
 $carrefour = @{c88 = 'B:\Scripts\scalepricelist\file88.xlsx','B:\Scripts\plu88.csv', "" , 'B:\Scripts\zabbix_scale\Scale88.txt' ;
                c21 = 'B:\Scripts\scalepricelist\file21.xlsx','B:\Scripts\plu21.csv', "" , 'B:\Scripts\zabbix_scale\Scale21.txt' ; 
             }
@@ -31,15 +36,26 @@ function EXECUTER($v1, $v2,$v3){
     $conn.Close();
     return $value
 }
+function deletefolder($v1, $v2){
+    $logfolder = Get-ChildItem $v1 -Directory
+    foreach($f in $logfolder){
+        $ts =  New-TimeSpan -Start $f.CreationTime -end (Get-Date)
+        if($ts.Days -gt $v2){
+            $tp = $v1 + $f.Name
+            Remove-item $tp -Recurse
+        }
+    }
+}
+
 $query_zksoftbackup = "BACKUP DATABASE [ZKSoft] TO  DISK = N'C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\Backup\ZKSoft.bak' 
 WITH NOFORMAT, NOINIT,  NAME = N'ZKSoft-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10
 "
 
 while(1 -eq 1){
     $tempdate = (Get-Date);
-    if((Get-Date).Hour -ge $hrange -and (Get-Date).Hour -le $hrangeo -and (get-date).Minute -and $loopstatus -eq 0){
-            $loopstatus = 1
-            foreach ($z in $carrefour.GetEnumerator()){
+    if((Get-Date).Hour -ge $jobstart_hour -and (Get-Date).Hour -le $jobend_hour -and (get-date).Minute -ge $jobstart_min -and $loopstatus -eq 0){
+        $loopstatus = 1
+        foreach ($z in $carrefour.GetEnumerator()){
             $counter=0
             $ingred = @();
             $plu0uall = Import-Csv -Path 'B:\Scripts\plu0uallsource.csv' -Delimiter "," 
@@ -720,8 +736,6 @@ while(1 -eq 1){
             $sb = New-Object Chilkat.StringBuilder
             $sbing = New-Object Chilkat.StringBuilder
 
-            Write-Output $tempdate
-            Write-Output (Get-Date)
             $success = $sb.LoadFile('B:\Scripts\plu0uall2.csv',"utf-8")
             $ing = $sbing.LoadFile('B:\Scripts\ing0uall2.csv',"utf-8")
             
@@ -750,7 +764,10 @@ while(1 -eq 1){
                                     0 | out-file -FilePath $z.Value[3]
                                 }  
                             }
-                        }   else{
+                            $tempfname = "B:\Scripts\zabbix_scale\" + (Get-Date -Format "yyyyMMddhhmmss") + "." + $ipdevices.($z.Key)
+                            New-Item -ItemType Directory -Path $tempfname
+                            copy-item "B:\Scripts\plu0uall.csv" -Destination $tempfname
+                        }else{
                             Write-Output "88 jin shinechilsen bna"
                         }
                     }else{ # ipdevices 2 ba olon baiwal 
@@ -770,6 +787,9 @@ while(1 -eq 1){
                                     0 | out-file -FilePath $sliceoflife
                                 }  
                             }
+                            $tempfname = "B:\Scripts\zabbix_scale\" + (Get-Date -Format "yyyyMMddhhmmss") + "." + $ipdevices.($z.Key)[$i]
+                            New-Item -ItemType Directory -Path $tempfname
+                            copy-item "B:\Scripts\plu0uall.csv" -Destination $tempfname
                         }else{
                             Write-Output "21 jin shinechilsen bna"
                         }    
@@ -786,14 +806,17 @@ while(1 -eq 1){
     } # dict loop end
     
     # RESET ALL SCALES 0 status
-    if((get-date).Hour -eq $hrangeshono -and (get-date).Minute -le 2){
+    if((get-date).Hour -eq $scalezerostatus -and (get-date).Minute -le $scalezerostatusmin){
         $loopstatus = 0
         $backstatus = 0
         0 | out-file -FilePath 'B:\Scripts\zabbix_scale\Scale88.txt'
+
         for($i =0; $i -lt $ipdevices.($z.Key).Length; $i++){
             $logfile = 'B:\Scripts\zabbix_scale\' + $ipdevices.($z.Key)[$i] + '.txt'
             0 | Out-File -FilePath $logfile
         }
+
+        (get-date) + "all digit scale 0 status" | out-file -FilePath $logfilemain
     }
         
     
@@ -802,13 +825,16 @@ while(1 -eq 1){
         EXECUTER -v1 "192.168.0.25" -v2 "ZKSoft" -v3 $query_zksoftbackup
         Copy-Item  "\\192.168.0.25\mssql\Backup\ZKSoft.bak" -Destination "\\10.0.99.40\Backups\ZkSfot" -Force
         Remove-Item "\\192.168.0.25\mssql\Backup\ZKSoft.bak"
-
+        (get-date) + "zk time device backup run" | out-file -FilePath $logfilemain
         $backstatus = 1
     }
 
-    Write-Output 'MAIN Sleeping...'
+    # delete log folders scale 
+    deletefolder -v1 "B:\Scripts\zabbix_scale\" -v2 6
+
+    Write-Output 'v3 Sleeping...'
     0 | Out-File -FilePath $isrun
-    Start-Sleep -Seconds 60
+    Start-Sleep -Seconds $startleepduration
 
 
 }

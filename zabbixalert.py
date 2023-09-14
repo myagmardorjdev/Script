@@ -1,10 +1,13 @@
 import requests
 import json
 import base64
+import psycopg2
+import pypyodbc as odbc
 import time
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
 sleepsecond = 120
+query_error_check = "SELECT * FROM public.action_pull_sync_line where create_date >= CURRENT_DATE and has_error = true"
 log_path = 'B:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
@@ -24,6 +27,18 @@ def initsession():
         return data['session_token']
     else:
         print("Error:", response.status_code)
+def postg(conn,query):
+    global stringa;
+    cursor = conn.cursor()
+    cursor.execute(query)
+
+    data = cursor.fetchall()
+    #print(len(data))
+    #for row in data:
+        #print(row)
+        #stringa = row;
+    return len(data)
+    conn.close()
 
 def createticket(session_token,title,content):
     url = 'http://10.0.0.14/apirest.php/Ticket/'
@@ -93,8 +108,14 @@ def log_write(content):
         now = datetime.now()
         string = '\n'+str(now) + ' '+ content
         f.write(string)
-
-bannedhosts = ['PowerBI2','AJTPowerBI','AUB_Web','Client','last 24hours','POS_8080_down','itremote','BackupServer','PowerBI2','Ysoft','BSO-Printer']
+odoodatabases = {0: {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'},
+                1: {'user': 'postgres','password': 'postgres','server': '10.13.1.220','port': 5432,'database':'CARREFOURS13_LIVE'},
+                2: {'user': 'readonly_c88','password': 'readonly_c88_password','server': '10.88.1.220','port': 5432,'database':'CARREFOURS88_LIVE'},
+                3: {'user': 'readonly_c21','password': 'readonly_c21_password','server': '10.21.1.220','port': 5432,'database':'CARREFOURS21_LIVE'}
+}
+server = {"server" : "10.34.1.220","database" :"CARREFOURS34_LIVE","user" : "readonly_c34", "password" : "readonly_c34_password"}
+bannedhosts = ['PowerBI2','AJTPowerBI','AUB_Web','itremote','BackupServer','PowerBI2','Ysoft','BSO-Printer']
+bannedreasons = ['last 24hours','Client','POS_8080_down','CPU util high','MEM util disaster','CPU util disaster','Free disk']
 #loop outsides variables
 sessiontoken = initsession()
 createdtickets = {}
@@ -102,6 +123,13 @@ createdtickets = {}
 
 while(1==1):
     now = datetime.now()
+    
+    if now.hour > 8 and now.hour < 20:
+        for i in range(len(odoodatabases)):
+            conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
+            qresult = postg(conp,query_error_check)
+            time.sleep(1)
+
     if now.hour > 8 and now.hour < 24:
         ZABBIX_API_URL = "http://192.168.0.44:8080/zabbix/api_jsonrpc.php"
         UNAME = "myagmardorj"
@@ -174,7 +202,7 @@ while(1==1):
                 if tempip == '0':
                     enedisabled = 1
 
-                if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and zorvvtsag.total_seconds()/60 > 20 and enedisabled == 0:   # 20 minutaas ix durationtai problem orj irne
+                if all(word not in r3.json().get('result')[0].get('hosts')[0]['host']for word in bannedhosts) and all(word not in r3.json().get('result')[0]['name'] for word in bannedreasons) and zorvvtsag.total_seconds()/60 >= 20 and enedisabled == 0:   # 20 minutaas ix durationtai problem orj irne
                     eachdict = {
                         "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
                         "reason" : r3.json().get('result')[0]['name'],
@@ -209,8 +237,8 @@ while(1==1):
             # host created ticket dotor baixgvi baiwal shineer vvsgeed, daraa ni vvssen ticket dotor nemj ogj bna
             if isfind == False:
                 tempcontent = allproblemdict[x]['reason'] +' ip:'+ allproblemdict[x]['ip_address'] 
-                #createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
-                print("ticket created   ---" , allproblemdict[x]['host'])
+                createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
+                print("ticket created   ---" , allproblemdict[x]['host'], ' ', allproblemdict[x]['reason'])
                 eachdict1 ={
                     "host" : allproblemdict[x]['host'],
                     "reason" : allproblemdict[x]['reason'],

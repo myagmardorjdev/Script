@@ -1,0 +1,454 @@
+Set(loopcount,If(daysongolt_2.Selected.Value=1,16,32));
+Set(shvvxlock,1);
+Set(duration1,Now());
+Set(tasag, ComboBox6.Selected.id);
+Clear(tasagdata);Clear(zkrealdata);
+If(daysongolt_2.Selected.Value = 1,
+ForAll(Sequence(CountRows(LookUp(division,id=If(ComboBox6.DisplayMode="disabled",LookUp(salbaruud,dep=Office365Users.UserProfile(User().Email).Department,id), ComboBox6.Selected.id), division[@Item]))) As i,
+Collect(
+    tasagdata,
+    ForAll(
+        Table(ParseJSON('tasag-getitemsv2'.Run(Text(year_6.Selected.Value),Text(month_7.Selected.Value),daysongolt_2.Selected.Value,
+        LookUp(division,id=If(ComboBox6.DisplayMode="disabled",LookUp(salbaruud,dep=Office365Users.UserProfile(User().Email).Department,id), ComboBox6.Selected.id),Index(Item[@Value],i.Value).Value),If(ComboBox6.DisplayMode="disabled",Office365Users.UserProfile(User().Email).Department ,ComboBox6.Selected.dep),2,0).output)),
+        {
+            faceid: Value(Value.faceid),
+            fullname: Text(Value.workername),
+            pkid: Value(Value.pkid),
+            position: Text(Value.position),
+            '6000' : 0,
+            '12000': 0,
+            tasag: LookUp(division,id=If(ComboBox6.DisplayMode="disabled",LookUp(salbaruud,dep=Office365Users.UserProfile(User().Email).Department,id), ComboBox6.Selected.id),Index(Item[@Value],i.Value).Value),
+            day1: Text(Value.day1),
+            day2: Text(Value.day2),
+            day3: Text(Value.day3),
+            day4: Text(Value.day4),
+            day5: Text(Value.day5),
+            day6: Text(Value.day6),
+            day7: Text(Value.day7),
+            day8: Text(Value.day8),
+            day9: Text(Value.day9),
+            day10: Text(Value.day10),
+            day11: Text(Value.day11),
+            day12: Text(Value.day12),
+            day13: Text(Value.day13),
+            day14: Text(Value.day14),
+            day15: Text(Value.day15),
+            day16: Text(Value.day16),
+            firstday: 0,
+            secondday: 0,
+            firsthour: 0,
+            secondhour: 0
+        }
+    )
+));
+,
+ForAll(Sequence(CountRows(LookUp(division,id=If(ComboBox6.DisplayMode="disabled",LookUp(salbaruud,dep=Office365Users.UserProfile(User().Email).Department,id), ComboBox6.Selected.id), division[@Item]))) As i,
+Collect(
+    tasagdata,
+    ForAll(
+        Table(ParseJSON('tasag-getitemsv2'.Run(Text(year_6.Selected.Value),Text(month_7.Selected.Value),daysongolt_2.Selected.Value,
+        LookUp(division,id=If(ComboBox6.DisplayMode="disabled",LookUp(salbaruud,dep=Office365Users.UserProfile(User().Email).Department,id), ComboBox6.Selected.id),Index(Item[@Value],i.Value).Value),If(ComboBox6.DisplayMode="disabled",Office365Users.UserProfile(User().Email).Department ,ComboBox6.Selected.dep),2,0).output)),
+        {
+            faceid: Value(Value.faceid),
+            fullname: Text(Value.workername),
+            pkid: Value(Value.pkid),
+            position: Text(Value.position),
+            '6000' : 0,
+            '12000': 0,
+            tasag: LookUp(division,id=If(ComboBox6.DisplayMode="disabled",LookUp(salbaruud,dep=Office365Users.UserProfile(User().Email).Department,id), ComboBox6.Selected.id),Index(Item[@Value],i.Value).Value),
+            day1: Text(Value.day1),
+            day2: Text(Value.day2),
+            day3: Text(Value.day3),
+            day4: Text(Value.day4),
+            day5: Text(Value.day5),
+            day6: Text(Value.day6),
+            day7: Text(Value.day7),
+            day8: Text(Value.day8),
+            day9: Text(Value.day9),
+            day10: Text(Value.day10),
+            day11: Text(Value.day11),
+            day12: Text(Value.day12),
+            day13: Text(Value.day13),
+            day14: Text(Value.day14),
+            day15: Text(Value.day15),
+            day16: Text(Value.day16)
+        }
+    )
+));
+);
+If(Checkbox1.Value = true , 
+ClearCollect(tempv1,//цаг бүртгэлийн листнээс ажилтны төлөвлөсөн цагийг авч байна
+ForAll(Table(ParseJSON('tasag-getitemsv2'.Run(Text(year_6.Selected.Value),Text(month_7.Selected.Value),0,"",If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep ),6,0).output)),
+    {   faceid:Value(Value.faceid),
+        fullname:Text(Value.fullname),
+        tasag:Text(Value.tasag),
+        pkid:Value(Value.pkid),
+        tsag:Text(Value.tsag),
+        position:Text(Value.position)}));
+//цуваа цагийн мэдээллийг мөрөн хүснэгт болгон хадгалж байна
+Clear(temp6);
+ForAll(Sequence(CountRows(tempv1)),Collect(temp6,({d:Split(Index(tempv1[@tsag],Value).tsag,"-"),faceid:Index(tempv1[@faceid],Value).faceid,fullname:Index(tempv1[@fullname],Value).fullname,tasag:Index(tempv1[@tasag],Value).tasag,position:Index(tempv1[@position],Value).position})));
+ClearCollect(zorchillist
+,//зөрчилбүртгэл листнээс ажилтны датаг авч байна
+        ForAll(Table(ParseJSON('tasag-getitemsv2'.Run(dropz.Selected.name,Text(Month(Now())),year_6.Selected.Value,
+        ""
+        ,If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep ),8,month_7.Selected.Value).output)),
+        {faceid:Value(Value.faceid),
+        pday:Value(Value.pday),
+        phour:Value(Value.phour),
+        inout: Text(Value.inout),
+        type:Text(Value.type),
+        tasag:Text(Value.tasag),
+        moretime:Value(Value.moretime),
+        ptotalhour:Value(Value.ptotalhour)}));  
+		
+		//zk gaas real time tataj bna
+ClearCollect(zkrealdata,ForAll(Table(ParseJSON('tasag-getitemsv2'.Run(Text(year_6.Selected.Value),Text(month_7.Selected.Value),0,Label50.Text,"",7,0).output)),
+    {faceid:Value(Value.faceid),
+    hour:Value(Value.hour),
+    minute:Value(Value.minute),
+    day:Value(Value.day),
+    date:Text(Value.date)}));
+	
+	//zorchiliin datag zk real data tai нийлүүлж байна
+ForAll(Sequence(CountRows(zorchillist)),If(
+    Index(zorchillist[@type],Value).type="Илүү цагийн амралт"&&Index(zorchillist[@pday],Value).pday<loopcount
+    || Index(zorchillist[@type],Value).type="Ажилласан"&&Index(zorchillist[@pday],Value).pday<loopcount
+    || Index(zorchillist[@type],Value).type="Цалинтай чөлөө"&&Index(zorchillist[@pday],Value).pday<loopcount && 
+    Len(
+        LookUp(
+            zkrealdata,
+            faceid=Index(zorchillist[@faceid], Value).faceid && day=Index(zorchillist[@pday], Value).pday 
+            && If(
+                Index(zorchillist[@inout], Value).inout = "Ирсэн",
+                hour <= Index(zorchillist[@phour], Value).phour + Index(zorchillist[@moretime], Value).moretime,
+                hour >= Index(zorchillist[@phour], Value).phour - Index(zorchillist[@moretime], Value).moretime
+            ),
+            date
+        )
+    ) > 0
+    || Index(zorchillist[@type],Value).type="Гадуур ажилтай"&&Index(zorchillist[@pday],Value).pday<loopcount && 
+    Len(
+        LookUp(
+            zkrealdata,
+            faceid=Index(zorchillist[@faceid], Value).faceid && day=Index(zorchillist[@pday], Value).pday 
+            && If(
+                Index(zorchillist[@inout], Value).inout = "Ирсэн",
+                hour <= Index(zorchillist[@phour], Value).phour + Index(zorchillist[@moretime], Value).moretime,
+                hour >= Index(zorchillist[@phour], Value).phour - Index(zorchillist[@moretime], Value).moretime
+            ),
+            date
+        )
+    ) > 0
+    || Index(zorchillist[@type],Value).type="Цалинтай чөлөө"&&Index(zorchillist[@pday],Value).pday<loopcount &&Index(zorchillist[@moretime],Value).moretime = 0
+    || Index(zorchillist[@type],Value).type="Гадуур ажилтай"&&Index(zorchillist[@pday],Value).pday<loopcount &&Index(zorchillist[@moretime],Value).moretime = 0
+,
+    Collect(zkrealdata,{
+    faceid:Index(zorchillist[@faceid],Value).faceid,
+    hour:Index(zorchillist[@phour],Value).phour,
+    day:Index(zorchillist[@pday],Value).pday,
+    date:"null",minute:0})));
+
+// 24 цагт буух ажилтай хүмүүсдээр маргаашийнх нь хурууг давхар шалгаад ,хиймэлээр 24 цаг гэж оруулж өгч байна.
+ForAll(Sequence(CountRows(temp6)) As i, 
+    ForAll(Sequence(loopcount) As j,
+        If(Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value)>=20,
+            If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid 
+            && day=Day(DateAdd(year_6.Selected.Value&If(month_7.Selected.Value>9,"","0")&month_7.Selected.Value&If(j.Value>9,"","0")&j.Value,1,TimeUnit.Days))
+            && hour<=2,date))>0,
+                Collect(zkrealdata,
+                    {
+                        date: "24tsag",
+                        day : j.Value,
+                        faceid : Index(temp6[@faceid],i.Value).faceid,
+                        hour: Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value),
+                        minute: 0
+                    }
+                )
+            )
+        )
+    )
+
+);
+If(daysongolt_2.Selected.Value = 16,
+Clear(temp10);Clear(ajilsanodor);ForAll(Sequence(CountRows(temp6)) As i,
+    ForAll(Sequence(16) As j,
+    If(j.Value<15,Collect(temp10,{
+        faceid:Index(temp6[@faceid],i.Value).faceid,tasag:Index(temp6[@tasag],i.Value).tasag,
+        ajilsantsag:
+        If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value+1),date)) <> 0
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value),date))>2 
+        ,If(j.Value>1,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag)+Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) - If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1))&& Len(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value)>0 ,1,0) //ундны цаг 1 цаг
+     ,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag),
+    ajilsanodor:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid && day=j.Value && hour<=Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value+1) 
+    && Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) > 0,date))<>0&&
+    Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value),date))>2
+        //Хонодог хамгаалагч
+        || Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@d],i.Value).d,Day(DateAdd(Date           (year_6.Selected.Value,month_7.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value+1),date)) <> 0
+        //Хонодог хамгаалагч дараа өдөрийн 9 цагт буусныг нь шалгаж байна.
+        || Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value),date))>2  
+    ,If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor)+1,If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor,0))
+    //Хонодог хамгаалагч 1 өдөрөөр
+    -If(Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value+1).Value,";")).Value) = 0,1,0) }),
+
+    j.Value=15,
+    Collect(ajilsanodor,{faceid:Index(temp6[@faceid],i.Value).faceid,
+        tasag:Index(temp6[@tasag],i.Value).tasag,
+        position: Index(temp6[@position],i.Value).position,
+        ajilsanodor:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value+1) && Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) > 0 ,date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value),date))>2 
+        //Хонодог хамгаалагч
+        || Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@d],i.Value).d,Day(DateAdd(Date           (year_6.Selected.Value,month_7.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value+1),date)) <> 0
+        //Хонодог хамгаалагч дараа өдөрийн 9 цагт буусныг нь шалгаж байна.
+        || Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value),date))>2,
+        If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor) + 1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor) 
+         //Хонодог хамгаалагч 1 өдөрөөр
+        -If(Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@d],i.Value).d,Day(DateAdd(Date           (year_6.Selected.Value,month_7.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0,1,0) ,
+        ajilsantsag:If(Len(LookUp(zkrealdata,
+        faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value+1),date))<>0
+        &&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value && hour>=Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value),date))>2 
+        ,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag+Int(Last(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value)
+        -If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value)>0 
+        || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(First(Split(Index(Index(temp6[@d],i.Value).d,j.Value).Value,";")).Value)>0 ,1,0) //ундны цаг 1 цаг
+        ,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag)}),
+
+    j.Value=16,RemoveIf(temp10, true ))));
+    ); //daysongolt_2 
+); //checkbox = true
+Clear(temp);
+ClearCollect(
+    temp,
+ForAll(Table(ParseJSON('tasag-getitemsv2'.Run(Text(year_6.Selected.Value),Text(month_7.Selected.Value),month_7.Selected.Value,
+"null",If(ComboBox6.DisplayMode="disabled",Office365Users.UserProfile(User().Email).Department ,ComboBox6.Selected.dep),4,0).output)),
+        {
+            faceid: Value(Value.faceid),
+            workername: Text(Value.fullname),
+            value: Value(Value.value),
+            valuelast: Value(Value.valuel),
+            odoroor: Value(Value.odoroor),
+            tasag: Text(Value.tasag),
+            position: Text(Value.postion)
+        }
+    )
+);
+
+
+ClearCollect(temp2, AddColumns(temp,"total",valuelast-value));
+ClearCollect(
+    temp3,
+    DropColumns(
+        AddColumns(
+            GroupBy(temp2,"faceid","position","GroupedItems"),
+        "totaltime",Sum(GroupedItems,total) ,
+        "totalday",Sum(GroupedItems,odoroor) ),"GroupedItems"));
+
+ClearCollect(temp,AddColumns(tasagdata,"totaltime",LookUp(temp3,faceid=tasagdata[@faceid] && position=tasagdata[@position] ,totaltime)));
+ClearCollect(tasagdata2,AddColumns(temp,"totalday",LookUp(temp3,faceid=temp[@faceid] && position=temp[@position] ,     totalday)));
+Set(jday,daysongolt_2.Selected.Value);
+If(torol.Selected.Value = "Нийт цагаар",
+ClearCollect(
+    tasagd3,
+    ForAll(
+        Sequence(CountRows(tasagdata2)),
+        Patch(
+            Last(FirstN(tasagdata2, Value)),
+            {RowNumber: Value,
+             day1: Text( If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday &&hour<=Int(First(Split(Index(tasagdata2[@day1],Value).day1,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day1],Value).day1,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday&&hour>=Int(Last(Split(Index(tasagdata2[@day1],Value).day1,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day1],Value).day1,";")).Value) - Int(First(Split(Index(tasagdata2[@day1],Value).day1,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day1],Value).day1,";")).Value) - Int(First(Split(Index(tasagdata2[@day1],Value).day1,";")).Value),0)
+             -If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day1],Value).day1,";")).Value)>0,1,0 ) )
+            ,day2: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+1 &&hour<=Int(First(Split(Index(tasagdata2[@day2],Value).day2,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day2],Value).day2,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+1&&hour>=Int(Last(Split(Index(tasagdata2[@day2],Value).day2,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day2],Value).day2,";")).Value) - Int(First(Split(Index(tasagdata2[@day2],Value).day2,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day2],Value).day2,";")).Value) - Int(First(Split(Index(tasagdata2[@day2],Value).day2,";")).Value),0) - 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day2],Value).day2,";")).Value)>0,1,0 ) )
+            ,day3: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+2 &&hour<=Int(First(Split(Index(tasagdata2[@day3],Value).day3,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day3],Value).day3,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+2&&hour>=Int(Last(Split(Index(tasagdata2[@day3],Value).day3,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day3],Value).day3,";")).Value) - Int(First(Split(Index(tasagdata2[@day3],Value).day3,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day3],Value).day3,";")).Value) - Int(First(Split(Index(tasagdata2[@day3],Value).day3,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day3],Value).day3,";")).Value)>0,1,0 ))
+            ,day4: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+3 &&hour<=Int(First(Split(Index(tasagdata2[@day4],Value).day4,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day4],Value).day4,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+3&&hour>=Int(Last(Split(Index(tasagdata2[@day4],Value).day4,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day4],Value).day4,";")).Value) - Int(First(Split(Index(tasagdata2[@day4],Value).day4,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day4],Value).day4,";")).Value) - Int(First(Split(Index(tasagdata2[@day4],Value).day4,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day4],Value).day4,";")).Value)>0,1,0 ))
+            ,day5: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+4 &&hour<=Int(First(Split(Index(tasagdata2[@day5],Value).day5,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day5],Value).day5,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+4&&hour>=Int(Last(Split(Index(tasagdata2[@day5],Value).day5,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day5],Value).day5,";")).Value) - Int(First(Split(Index(tasagdata2[@day5],Value).day5,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day5],Value).day5,";")).Value) - Int(First(Split(Index(tasagdata2[@day5],Value).day5,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day5],Value).day5,";")).Value)>0,1,0 ))
+            ,day6: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+5 &&hour<=Int(First(Split(Index(tasagdata2[@day6],Value).day6,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day6],Value).day6,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+5&&hour>=Int(Last(Split(Index(tasagdata2[@day6],Value).day6,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day6],Value).day6,";")).Value) - Int(First(Split(Index(tasagdata2[@day6],Value).day6,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day6],Value).day6,";")).Value) - Int(First(Split(Index(tasagdata2[@day6],Value).day6,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day6],Value).day6,";")).Value)>0,1,0 ))
+            ,day7: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+6 &&hour<=Int(First(Split(Index(tasagdata2[@day7],Value).day7,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day7],Value).day7,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+6&&hour>=Int(Last(Split(Index(tasagdata2[@day7],Value).day7,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day7],Value).day7,";")).Value) - Int(First(Split(Index(tasagdata2[@day7],Value).day7,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day7],Value).day7,";")).Value) - Int(First(Split(Index(tasagdata2[@day7],Value).day7,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day7],Value).day7,";")).Value)>0,1,0 ))
+            ,day8: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+7 &&hour<=Int(First(Split(Index(tasagdata2[@day8],Value).day8,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day8],Value).day8,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+7&&hour>=Int(Last(Split(Index(tasagdata2[@day8],Value).day8,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day8],Value).day8,";")).Value) - Int(First(Split(Index(tasagdata2[@day8],Value).day8,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day8],Value).day8,";")).Value) - Int(First(Split(Index(tasagdata2[@day8],Value).day8,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day8],Value).day8,";")).Value)>0,1,0 ))
+            ,day9: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+8 &&hour<=Int(First(Split(Index(tasagdata2[@day9],Value).day9,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day9],Value).day9,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+8&&hour>=Int(Last(Split(Index(tasagdata2[@day9],Value).day9,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day9],Value).day9,";")).Value) - Int(First(Split(Index(tasagdata2[@day9],Value).day9,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day9],Value).day9,";")).Value) - Int(First(Split(Index(tasagdata2[@day9],Value).day9,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day9],Value).day9,";")).Value)>0,1,0 ))
+            ,day10:Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+9 &&hour<=Int(First(Split(Index(tasagdata2[@day10],Value).day10,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day10],Value).day10,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+9&&hour>=Int(Last(Split(Index(tasagdata2[@day10],Value).day10,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day10],Value).day10,";")).Value) - Int(First(Split(Index(tasagdata2[@day10],Value).day10,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day10],Value).day10,";")).Value) - Int(First(Split(Index(tasagdata2[@day10],Value).day10,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day10],Value).day10,";")).Value)>0,1,0 ))
+            ,day11: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+10 &&hour<=Int(First(Split(Index(tasagdata2[@day11],Value).day11,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day11],Value).day11,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+10&&hour>=Int(Last(Split(Index(tasagdata2[@day11],Value).day11,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day11],Value).day11,";")).Value) - Int(First(Split(Index(tasagdata2[@day11],Value).day11,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day11],Value).day11,";")).Value) - Int(First(Split(Index(tasagdata2[@day11],Value).day11,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day11],Value).day11,";")).Value)>0,1,0 ))
+            ,day12: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+11 &&hour<=Int(First(Split(Index(tasagdata2[@day12],Value).day12,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day12],Value).day12,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+11&&hour>=Int(Last(Split(Index(tasagdata2[@day12],Value).day12,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day12],Value).day12,";")).Value) - Int(First(Split(Index(tasagdata2[@day12],Value).day12,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day12],Value).day12,";")).Value) - Int(First(Split(Index(tasagdata2[@day12],Value).day12,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day12],Value).day12,";")).Value)>0,1,0 ))
+            ,day13: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+12 &&hour<=Int(First(Split(Index(tasagdata2[@day13],Value).day13,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day13],Value).day13,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+12&&hour>=Int(Last(Split(Index(tasagdata2[@day13],Value).day13,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day13],Value).day13,";")).Value) - Int(First(Split(Index(tasagdata2[@day13],Value).day13,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day13],Value).day13,";")).Value) - Int(First(Split(Index(tasagdata2[@day13],Value).day13,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day13],Value).day13,";")).Value)>0,1,0 ))
+            ,day14: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+13 &&hour<=Int(First(Split(Index(tasagdata2[@day14],Value).day14,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day14],Value).day14,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+13&&hour>=Int(Last(Split(Index(tasagdata2[@day14],Value).day14,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day14],Value).day14,";")).Value) - Int(First(Split(Index(tasagdata2[@day14],Value).day14,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day14],Value).day14,";")).Value) - Int(First(Split(Index(tasagdata2[@day14],Value).day14,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day14],Value).day14,";")).Value)>0,1,0 ))
+            ,day15: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+14 &&hour<=Int(First(Split(Index(tasagdata2[@day15],Value).day15,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day15],Value).day15,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+14&&hour>=Int(Last(Split(Index(tasagdata2[@day15],Value).day15,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day15],Value).day15,";")).Value) - Int(First(Split(Index(tasagdata2[@day15],Value).day15,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day15],Value).day15,";")).Value) - Int(First(Split(Index(tasagdata2[@day15],Value).day15,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day15],Value).day15,";")).Value)>0,1,0 ))
+            ,day16: Text(If(Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid &&day=jday+15 &&hour<=Int(First(Split(Index(tasagdata2[@day16],Value).day16,";")).Value+1),date)) <> 0 && Len(Last(Split(Index(tasagdata2[@day16],Value).day16,";")).Value)>0
+        && Len(LookUp(zkrealdata,faceid=Index(tasagdata2[@faceid],Value).faceid&&day=jday+15&&hour>=Int(Last(Split(Index(tasagdata2[@day16],Value).day16,";")).Value),date))>2 
+		,Int(Last(Split(Index(tasagdata2[@day16],Value).day16,";")).Value) - Int(First(Split(Index(tasagdata2[@day16],Value).day16,";")).Value),Checkbox1.Value = false,Int(Last(Split(Index(tasagdata2[@day16],Value).day16,";")).Value) - Int(First(Split(Index(tasagdata2[@day16],Value).day16,";")).Value),0)- 
+             If(!IsBlank(Find(Index(tasagdata2[@position],Value).position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)) && Len(Last(Split(Index(tasagdata2[@day16],Value).day16,";")).Value)>0,1,0 ))
+            }
+        )
+    )
+),
+ClearCollect(
+    tasagd3,
+    ForAll(
+        Sequence(CountRows(tasagdata2)),
+        Patch(
+            Last(FirstN(tasagdata2, Value)),
+            {RowNumber: Value,
+             day1: First(Split(Index(tasagdata2[@day1],Value).day1,";")).Value &":"& Last(Split(Index(tasagdata2[@day1],Value).day1,";")).Value
+            ,day2: First(Split(Index(tasagdata2[@day2],Value).day2,";")).Value &":"& Last(Split(Index(tasagdata2[@day2],Value).day2,";")).Value
+            ,day3: First(Split(Index(tasagdata2[@day3],Value).day3,";")).Value &":"& Last(Split(Index(tasagdata2[@day3],Value).day3,";")).Value
+            ,day4: First(Split(Index(tasagdata2[@day4],Value).day4,";")).Value &":"& Last(Split(Index(tasagdata2[@day4],Value).day4,";")).Value
+            ,day5: First(Split(Index(tasagdata2[@day5],Value).day5,";")).Value &":"& Last(Split(Index(tasagdata2[@day5],Value).day5,";")).Value
+            ,day6: First(Split(Index(tasagdata2[@day6],Value).day6,";")).Value &":"& Last(Split(Index(tasagdata2[@day6],Value).day6,";")).Value
+            ,day7: First(Split(Index(tasagdata2[@day7],Value).day7,";")).Value &":"& Last(Split(Index(tasagdata2[@day7],Value).day7,";")).Value
+            ,day8: First(Split(Index(tasagdata2[@day8],Value).day8,";")).Value &":"& Last(Split(Index(tasagdata2[@day8],Value).day8,";")).Value
+            ,day9: First(Split(Index(tasagdata2[@day9],Value).day9,";")).Value &":"& Last(Split(Index(tasagdata2[@day9],Value).day9,";")).Value
+            ,day10: First(Split(Index(tasagdata2[@day10],Value).day10,";")).Value &":"& Last(Split(Index(tasagdata2[@day10],Value).day10,";")).Value
+            ,day11: First(Split(Index(tasagdata2[@day11],Value).day11,";")).Value &":"& Last(Split(Index(tasagdata2[@day11],Value).day11,";")).Value
+            ,day12: First(Split(Index(tasagdata2[@day12],Value).day12,";")).Value &":"& Last(Split(Index(tasagdata2[@day12],Value).day12,";")).Value
+            ,day13: First(Split(Index(tasagdata2[@day13],Value).day13,";")).Value &":"& Last(Split(Index(tasagdata2[@day13],Value).day13,";")).Value
+            ,day14: First(Split(Index(tasagdata2[@day14],Value).day14,";")).Value &":"& Last(Split(Index(tasagdata2[@day14],Value).day14,";")).Value
+            ,day15: First(Split(Index(tasagdata2[@day15],Value).day15,";")).Value &":"& Last(Split(Index(tasagdata2[@day15],Value).day15,";")).Value
+             ,day16: First(Split(Index(tasagdata2[@day16],Value).day16,";")).Value &":"& Last(Split(Index(tasagdata2[@day16],Value).day16,";")).Value
+            }
+        )
+    )
+)
+);
+If(torol.Selected.Value = "Нийт цагаар", 
+    UpdateIf( tasagd3, Int(day1) < 12 && Int(day1) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day2) < 12 && Int(day2) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day3) < 12 && Int(day3) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day4) < 12 && Int(day4) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day5) < 12 && Int(day5) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day6) < 12 && Int(day6) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day7) < 12 && Int(day7) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day8) < 12 && Int(day8) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day9) < 12 && Int(day9) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day10) < 12 && Int(day10) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day11) < 12 && Int(day11) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day12) < 12 && Int(day12) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day13) < 12 && Int(day13) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day14) < 12 && Int(day14) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day15) < 12 && Int(day15) > 4, { '6000': '6000'+ 1 } );
+    UpdateIf( tasagd3, Int(day16) < 12 && Int(day16) > 4, { '6000': '6000'+ 1 } );
+);
+If(torol.Selected.Value = "Нийт цагаар", 
+    UpdateIf( tasagd3, Int(day1) > 11 ,{ '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day2) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day3) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day4) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day5) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day6) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day7) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day8) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day9) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day10) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day11) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day12) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day13) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day14) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day15) > 11, { '12000': '12000'+ 1 } );
+    UpdateIf( tasagd3, Int(day16) > 11, { '12000': '12000'+ 1 } );
+);
+If(daysongolt_2.Selected.Value = 16,
+    UpdateIf( tasagd3, Int(day1) > 0 ,{ secondday: secondday + 1 } );
+     UpdateIf( tasagd3, Int(day2) > 0 ,{ secondday: secondday + 1 } );
+      UpdateIf( tasagd3, Int(day3) > 0 ,{ secondday: secondday + 1 } );
+       UpdateIf( tasagd3, Int(day4) > 0 ,{ secondday: secondday + 1 } );
+        UpdateIf( tasagd3, Int(day5) > 0 ,{ secondday: secondday + 1 } );
+         UpdateIf( tasagd3, Int(day6) > 0 ,{ secondday: secondday + 1 } );
+          UpdateIf( tasagd3, Int(day7) > 0 ,{ secondday: secondday + 1 } );
+           UpdateIf( tasagd3, Int(day8) > 0 ,{ secondday: secondday + 1 } );
+            UpdateIf( tasagd3, Int(day9) > 0 ,{ secondday: secondday + 1 } );
+             UpdateIf( tasagd3, Int(day10) > 0 ,{ secondday: secondday + 1 } );
+              UpdateIf( tasagd3, Int(day11) > 0 ,{ secondday: secondday + 1 } );
+               UpdateIf( tasagd3, Int(day12) > 0 ,{ secondday: secondday + 1 } );
+                UpdateIf( tasagd3, Int(day13) > 0 ,{ secondday: secondday + 1 } );
+                 UpdateIf( tasagd3, Int(day14) > 0 ,{ secondday: secondday + 1 } );
+                  UpdateIf( tasagd3, Int(day15) > 0 ,{ secondday: secondday + 1 } );
+                   UpdateIf( tasagd3, Int(day16) > 0 ,{ secondday: secondday + 1 } );
+);
+If(daysongolt_2.Selected.Value = 16,
+    UpdateIf( tasagd3, Int(day1) < 0,{ day1: 0 } );
+     UpdateIf( tasagd3, Int(day2) < 0 ,{ day2: 0 } );
+      UpdateIf( tasagd3, Int(day3) < 0 ,{ day3: 0 } );
+       UpdateIf( tasagd3, Int(day4) < 0 ,{ day4: 0 } );
+        UpdateIf( tasagd3, Int(day5) < 0 ,{ day5: 0 } );
+         UpdateIf( tasagd3, Int(day6) < 0 ,{ day6: 0 } );
+          UpdateIf( tasagd3, Int(day7) < 0 ,{ day7: 0 } );
+           UpdateIf( tasagd3, Int(day8) < 0 ,{ day8: 0 } );
+            UpdateIf( tasagd3, Int(day9) < 0 ,{ day9: 0 } );
+             UpdateIf( tasagd3, Int(day10) < 0 ,{ day10: 0 } );
+              UpdateIf( tasagd3, Int(day11) < 0 ,{ day11: 0 } );
+               UpdateIf( tasagd3, Int(day12) < 0 ,{ day12: 0 } );
+                UpdateIf( tasagd3, Int(day13) < 0 ,{ day13 : 0 } );
+                 UpdateIf( tasagd3, Int(day14) < 0 ,{ day14: 0 } );
+                  UpdateIf( tasagd3, Int(day15) < 0 ,{ day15: 0 } );
+                   UpdateIf( tasagd3, Int(day16) < 0 ,{ day16: 0 } );
+);
+UpdateIf(tasagd3, !IsBlank(Find(position ,LookUp(undniitsag,id=Int(Index(Split(If(IsBlank(ComboBox6.Selected.dep),Office365Users.UserProfile(User().Email).Department,ComboBox6.Selected.dep )," "),2).Value),Item),1)), { totaltime :  totaltime-totalday }); 
+If(daysongolt_2.Selected.Value = 16,
+    UpdateIf( tasagd3,1=1,{ secondhour: secondhour + day1+day2+day3+day4+day5+day6+day7+day8+day9+day10+day11+day12+day13+day14+day15+day16} )
+);
+If(daysongolt_2.Selected.Value = 16,
+    ForAll(Sequence(CountRows(tasagd3)) As i, 
+        UpdateIf( tasagd3 As d3,1=1,{ firsthour: LookUp(ajilsanodor, faceid = d3.faceid ,ajilsantsag)})
+    )
+);
+If(daysongolt_2.Selected.Value = 16,
+    UpdateIf( tasagd3 As d3,1=1,{ firstday: LookUp(ajilsanodor, faceid = d3.faceid ,ajilsanodor)});
+    UpdateIf( tasagd3,1=1,{ totaltime: secondhour + firsthour});
+    UpdateIf( tasagd3,1=1,{ totalday: secondday + firstday   });
+);
+Clear(sumtotal);
+ForAll(Sequence(CountRows(tasagd3)),
+    Collect(sumtotal,{sumh: Index(tasagd3[@totaltime],Value).totaltime + If(Value>1,Index(sumtotal[@sumh],Value-1).sumh)
+    } 
+    );
+);
+Collect(tasagd3,{fullname: "Нийт цаг:", totaltime : Index(sumtotal[@sumh],CountRows(tasagd3)).sumh ,
+    RowNumber: CountRows(tasagd3)+1,
+    tasag: "null"  ,
+    position: "null"  ,
+    '6000' : 0  ,
+    '12000': 0 , 
+    totalday : 0
+});
+Set(shvvxlock,0);
+Set(duration2,Now())

@@ -1,7 +1,7 @@
 Set(loopcount,If(daysongolt_1.Selected.Value=1,16,32));Set(shvvxlock,1);Notify("Тайланг боловсруулж байна түр хүлээнэ үү.",NotificationType.Success);
 Clear(temp9);ClearCollect(zorchillist
 ,//зөрчилбүртгэл листнээс ажилтны датаг авч байна
-        ForAll(Table(ParseJSON('tasag-getitemsv2'.Run("hr-зөрчилбүртгэл",Text(Month(Now())),year_1.Selected.Value,
+        ForAll(Table(ParseJSON('tasag-getitemsv2'.Run(dropz.Selected.name,Text(Month(Now())),year_1.Selected.Value,
         ""
         ,department.Selected.department,8,month_2.Selected.Value).output)),
         {faceid:Value(Value.faceid),
@@ -11,8 +11,10 @@ Clear(temp9);ClearCollect(zorchillist
         type:Text(Value.type),
         tasag:Text(Value.tasag),
         moretime:Value(Value.moretime),
-        ptotalhour:Value(Value.ptotalhour)}));  ClearCollect(tempv1,//цаг бүртгэлийн листнээс ажилтны төлөвлөсөн цагийг авч байна
-ForAll(Table(ParseJSON('tasag-getitemsv2'.Run(Text(year_1.Selected.Value),Text(month_2.Selected.Value),0,"",department.Selected.department,6,0).output)),{faceid:Value(Value.faceid),fullname:Text(Value.fullname),tasag:Text(Value.tasag),pkid:Value(Value.pkid),tsag:Text(Value.tsag),position:Text(Value.position)}));Clear(temp6);
+        ptotalhour:Value(Value.ptotalhour)}));  
+ClearCollect(tempv1,//цаг бүртгэлийн листнээс ажилтны төлөвлөсөн цагийг авч байна
+ForAll(Table(ParseJSON('tasag-getitemsv2'.Run(Text(year_1.Selected.Value),Text(month_2.Selected.Value),0,"",department.Selected.department,6,0).output)),
+{faceid:Value(Value.faceid),fullname:Text(Value.fullname),tasag:Text(Value.tasag),pkid:Value(Value.pkid),tsag:Text(Value.tsag),position:Text(Value.position)}));Clear(temp6);
 //цуваа цагийн мэдээллийг мөрөн хүснэгт болгон хадгалж байна
 ForAll(Sequence(CountRows(tempv1)),Collect(temp6,({data:Split(Index(tempv1[@tsag],Value).tsag,"-"),faceid:Index(tempv1[@faceid],Value).faceid,fullname:Index(tempv1[@fullname],Value).fullname,tasag:Index(tempv1[@tasag],Value).tasag,position:Index(tempv1[@position],Value).position})));
 
@@ -29,7 +31,7 @@ ClearCollect(
     ForAll(
         Table(ParseJSON('Илүүцаг-ManagerA2'.Run(Text(
             Date(Text(year_1.Selected.Value), Text(month_2.Selected.Value),1),"mm/dd/yyyy"),
-            Text(DateAdd(Text(year_1.Selected.Value)&If(month_2.Selected.Value<10,"0")&Text(month_2.Selected.Value+1)&"01",-1,TimeUnit.Days),"mm/dd/yyyy")).output)),
+            managerA2.Text).output)),
         {
             Title: Text(Value.username),
             type: Text(Value.type),
@@ -106,18 +108,17 @@ ForAll(Sequence(CountRows(zorchillist)),If(
     ) > 0
     || Index(zorchillist[@type],Value).type="Цалинтай чөлөө"&&Index(zorchillist[@pday],Value).pday<loopcount &&Index(zorchillist[@moretime],Value).moretime = 0
     || Index(zorchillist[@type],Value).type="Гадуур ажилтай"&&Index(zorchillist[@pday],Value).pday<loopcount &&Index(zorchillist[@moretime],Value).moretime = 0
-    || Index(zorchillist[@type],Value).type="Чөлөөтэй" && Index(zorchillist[@pday],Value).pday<loopcount &&Index(zorchillist[@moretime],Value).moretime = 0
 ,
     Collect(zkrealdata,{
     faceid:Index(zorchillist[@faceid],Value).faceid,
     hour:Index(zorchillist[@phour],Value).phour,
     day:Index(zorchillist[@pday],Value).pday,
-    date:"null",minute:0})));
+    date:"zorchil",minute:0})));
 
 // 24 цагт буух ажилтай хүмүүсдээр маргаашийнх нь хурууг давхар шалгаад ,хиймэлээр 24 цаг гэж оруулж өгч байна.
 ForAll(Sequence(CountRows(temp6)) As i, 
     ForAll(Sequence(loopcount) As j,
-        If(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)=24,
+        If(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>=20,
             If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid && 
             day=Day(DateAdd(year_1.Selected.Value&If(month_2.Selected.Value>9,"","0")&month_2.Selected.Value&If(j.Value>9,"","0")&j.Value,1,TimeUnit.Days))
             && hour<=2,date))>0,
@@ -126,7 +127,7 @@ ForAll(Sequence(CountRows(temp6)) As i,
                         date: "24tsag",
                         day : j.Value,
                         faceid : Index(temp6[@faceid],i.Value).faceid,
-                        hour: 24 ,
+                        hour: Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),
                         minute: 0
                     }
                 )
@@ -234,12 +235,12 @@ ForAll(Sequence(CountRows(temp6)) As i,
         If(j.Value<CountRows(zorchillist),
             Collect(temp12, 
                 {
-                    faceid:Index(temp6[@faceid],i.Value).faceid,  tasag:Index(temp6[@tasag],i.Value).tasag,
+                    faceid:Index(temp6[@faceid],i.Value).faceid,  tasag:Index(temp6[@tasag],i.Value).tasag,position:Index(temp6[@position],i.Value).position,
                     totalday: If(Index(zorchillist[@type],j.Value).type = "Чөлөөтэй" && Index(zorchillist[@faceid],j.Value).faceid = Index(temp6[@faceid],i.Value).faceid && Index(zorchillist[@pday],j.Value).pday<loopcount && Index(zorchillist[@tasag],j.Value).tasag = Index(temp6[@tasag],i.Value).tasag, 
                         If(Index(zorchillist[@moretime],j.Value).moretime=0,1/2,1) + Index(temp12[@totalday],j.Value-1).totalday,
                         Index(temp12[@totalday],j.Value-1).totalday ),
                     totalhour: If(Index(zorchillist[@type],j.Value).type = "Чөлөөтэй" && Index(zorchillist[@faceid],j.Value).faceid = Index(temp6[@faceid],i.Value).faceid && Index(zorchillist[@pday],j.Value).pday<loopcount && Index(zorchillist[@tasag],j.Value).tasag = Index(temp6[@tasag],i.Value).tasag, 
-                        If(Index(zorchillist[@moretime],j.Value).moretime=0,Index(zorchillist[@ptotalhour],j.Value).ptotalhour/2,Index(zorchillist[@moretime],j.Value).moretime) + Index(temp12[@totalhour],j.Value-1).totalhour 
+                        If(Index(zorchillist[@moretime],j.Value).moretime=0,Index(zorchillist[@ptotalhour],j.Value).ptotalhour/2,Index(zorchillist[@moretime],j.Value).moretime) + Index(temp12[@totalhour],j.Value-1).totalhour -If (Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 ,1,0)
                         -If(!IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1))&& Len(First(Split(Index(Index(temp6[@data],i.Value).data,Index(zorchillist[@pday],j.Value).pday).Value,";")).Value)>0 && Index(zorchillist[@inout],j.Value).inout = "Ирсэн" ,1,0) ,//ундны цаг 1 цаг
                         Index(temp12[@totalhour],j.Value-1).totalhour) 
                 }
@@ -252,16 +253,22 @@ ForAll(Sequence(CountRows(temp6)) As i,
                         Index(temp12[@totalday],j.Value-1).totalday ),
                     totalhour: If(Index(zorchillist[@type],j.Value).type = "Чөлөөтэй" && Index(zorchillist[@faceid],j.Value).faceid = Index(temp6[@faceid],i.Value).faceid && Index(zorchillist[@pday],j.Value).pday<loopcount && Index(zorchillist[@tasag],j.Value).tasag = Index(temp6[@tasag],i.Value).tasag, 
                         If(Index(zorchillist[@moretime],j.Value).moretime=0,Index(zorchillist[@ptotalhour],j.Value).ptotalhour/2,Index(zorchillist[@moretime],j.Value).moretime) + Index(temp12[@totalhour],j.Value-1).totalhour-If(!IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1))&& Len(First(Split(Index(Index(temp6[@data],i.Value).data,Index(zorchillist[@pday],j.Value).pday).Value,";")).Value)>0 && Index(zorchillist[@inout],j.Value).inout = "Ирсэн",1,0) ,//ундны цаг 1 цаг,
-                        Index(temp12[@totalhour],j.Value-1).totalhour) 
+                        Index(temp12[@totalhour],j.Value-1).totalhour+0) 
                 }
             ),j.Value=CountRows(zorchillist)+1,RemoveIf(temp12, true )
         )
     )
 );
-
-// Ундны цагийг нэр бүхий албан тушаалтнаас хасч байна
-// Салбарын эрхлэгч, Нягтлан бодогч,Ахлах Нягтлан бодогч,Зохион байгуулагч, Нярав, Ачигч, Үйлчлэгч, Ахлах тогооч, Ерөнхий тогооч
-LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item);
+//Илүү цаг чөлөө бүртгэлийн програмаас чөлөөг оруулж ирж байна 
+ForAll(Sequence(CountRows(programcholoo)), 
+    UpdateIf(choloocoll, faceid = LookUp(temp6,fullname=Index(programcholoo[@Title],Value).Title,faceid),
+    {totalhour: totalhour + DateDiff(Index(programcholoo[@startdate],Value).startdate,Index(programcholoo[@enddate],Value).enddate,TimeUnit.Hours) 
+    - If(Hour(DateAdd(Index(programcholoo[@startdate],Value).startdate,-8,TimeUnit.Hours))>=14 || Hour(DateAdd(Index(programcholoo[@enddate],Value).enddate,-8,TimeUnit.Hours)) <=13,0,1)})
+    );
+ForAll(Sequence(CountRows(programcholoo)), 
+    UpdateIf(choloocoll, faceid = LookUp(temp6,fullname=Index(programcholoo[@Title],Value).Title,faceid),
+    {totalday: totalday + If(DateDiff(Index(programcholoo[@startdate],Value).startdate,Index(programcholoo[@enddate],Value).enddate,TimeUnit.Hours)=9,1,0)} ) //бүтэн өдөр чөлөөтэй  байвал  1 өдөр гэж тооцож байна
+    );
 //Зөрчилийн лист нээс ээлжийн амралттай ажилтны мэдээллийг салгаж авч байна
 Clear(temp14);Clear(ээлжийнамралт);ForAll(Sequence(CountRows(temp6)) As i,ForAll(Sequence(CountRows(zorchillist)+1) As D,If(D.Value<CountRows(zorchillist),Collect(temp14,{faceid:Index(temp6[@faceid],i.Value).faceid,tasag:Index(temp6[@tasag],i.Value).tasag,totalday:If(Index(zorchillist[@faceid],D.Value).faceid=Index(temp6[@faceid],i.Value).faceid&&Index(zorchillist[@type],D.Value).type="Ээлжийн амралт" && Index(zorchillist[@moretime],D.Value).moretime=0&&Index(zorchillist[@pday],D.Value).pday<loopcount,1+Index(temp14[@totalday],D.Value-1).totalday,Int(Index(temp14[@totalday],D.Value-1).totalday)),totalhour:If(Index(zorchillist[@faceid],D.Value).faceid=Index(temp6[@faceid],i.Value).faceid&&Index(zorchillist[@type],D.Value).type="Ээлжийн амралт" && Index(zorchillist[@moretime],D.Value).moretime=0&&Index(zorchillist[@pday],D.Value).pday<loopcount,Index(zorchillist[@ptotalhour],D.Value).ptotalhour+Index(temp14[@totalhour],D.Value-1).totalhour,Int(Index(temp14[@totalhour],D.Value-1).totalhour))}),
 D.Value=CountRows(zorchillist),
@@ -275,24 +282,45 @@ Clear(temp10);Clear(ajilsanodor);ForAll(Sequence(CountRows(temp6)) As i,
     If(j.Value<loopcount-1,Collect(temp10,{
         faceid:Index(temp6[@faceid],i.Value).faceid,tasag:Index(temp6[@tasag],i.Value).tasag,
         ajilsantsag:
-        If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 
-        ,If(j.Value>1,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag)+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value
-     ,";")).Value) - If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1))&& Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 ,1,0) //ундны цаг 1 цаг
+        If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date)) <> 0
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 
+        //Хонодог хамгаалагч
+        || Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value+1).Value,";")).Value) = 0 
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date)) <> 0
+        //Хонодог хамгаалагч дараа өдөрийн 9 цагт буусныг нь шалгаж байна.
+        || Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2   
+        
+        ,If(j.Value>1,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag)+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) - If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1))&& Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 ,1,0) //ундны цаг 1 цаг
      ,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag),
-    ajilsanodor:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) && Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) > 0,date))<>0&&
+    ajilsanodor:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid && day=j.Value && hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1) 
+    && Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) > 0,date))<>0&&
     Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2
-    ,If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor)+1,If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor,0))}),
+        //Хонодог хамгаалагч
+        || Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,Day(DateAdd(Date           (year_1.Selected.Value,month_2.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date)) <> 0
+        //Хонодог хамгаалагч дараа өдөрийн 9 цагт буусныг нь шалгаж байна.
+        || Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2  
+    ,If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor)+1,If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor,0))
+    //Хонодог хамгаалагч 1 өдөрөөр
+    -If(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value+1).Value,";")).Value) = 0,1,0) }),
 
     j.Value=loopcount-1,
     Collect(ajilsanodor,{faceid:Index(temp6[@faceid],i.Value).faceid,
         tasag:Index(temp6[@tasag],i.Value).tasag,
         position: Index(temp6[@position],i.Value).position,
-        ajilsanodor:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) && Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) > 0 ,date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 ,
-        If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor) + 1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor),
+        ajilsanodor:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1) && Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) > 0 ,date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 
+        //Хонодог хамгаалагч
+        || Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,Day(DateAdd(Date           (year_1.Selected.Value,month_2.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date)) <> 0
+        //Хонодог хамгаалагч дараа өдөрийн 9 цагт буусныг нь шалгаж байна.
+        || Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2,
+        If(j.Value>1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor) + 1,Index(temp10[@ajilsanodor],j.Value-1).ajilsanodor) 
+         //Хонодог хамгаалагч 1 өдөрөөр
+        -If(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,Day(DateAdd(Date           (year_1.Selected.Value,month_2.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0,1,0) ,
         ajilsantsag:If(Len(LookUp(zkrealdata,
         faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))<>0
-        &&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value
-        &&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 ,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)
+        &&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value && hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 
+        ,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)
         -If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 
         || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1)) && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 ,1,0) //ундны цаг 1 цаг
         ,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag)}),
@@ -301,48 +329,94 @@ Clear(temp10);Clear(ajilsanodor);ForAll(Sequence(CountRows(temp6)) As i,
 //Real data bolon planned time aas ТАСАЛСАН өдрийг бодож байна 
 Clear(temp15);Clear(tasalsanodor);
 ForAll(Sequence(CountRows(temp6)) As i,
-    ForAll(Sequence(loopcount) As j,If(j.Value<loopcount-1,Collect(temp15,{
+    ForAll(Sequence(loopcount) As j,
+    If(j.Value<loopcount-1,
+    Collect(temp15,{
         faceid:Index(temp6[@faceid],i.Value).faceid,tasag:Index(temp6[@tasag],i.Value).tasag, position:Index(temp6[@position],i.Value).position,
-        tasalsanodor:If((Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0)||(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0),Index(temp15[@tasalsanodor],j.Value-1).tasalsanodor+1,Index(temp15[@tasalsanodor],j.Value-1).tasalsanodor+0),         tasalsantsag:If((Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0)||(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0),Index(temp15[@tasalsantsag],j.Value-1).tasalsantsag+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) 
+        //if өглөө оройны аль нэг цаг нь олдохгүй байвал тасаар авч байна
+        tasalsanodor:If((Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))=0 && Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0) || 
+        (Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))= 0 && Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0)
+        ,Index(temp15[@tasalsanodor],j.Value-1).tasalsanodor+1 
+        //хонодог хамгаалагч өдөр хасалт
+        - If(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value+1).Value,";")).Value) = 0 
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date)) <> 0
+        //Хонодог хамгаалагч дараа өдөрийн 9 цагт буусныг нь шалгаж байна.
+        || Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2,1,0 )
+        ,Index(temp15[@tasalsanodor],j.Value-1).tasalsanodor+0), 
+                
+        tasalsantsag:If((Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))=0 
+        && Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0)  || (Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0) 
+       
+        ,If(j.Value>1,Index(temp10[@ajilsantsag],j.Value-1).ajilsantsag)+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)
+        //хонодог ажилтан цагхасалт
+        - If( Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value+1).Value,";")).Value) = 0 
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date)) <> 0
+        || Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2,Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),0)    
+
+        ,Index(temp15[@tasalsantsag],j.Value-1).tasalsantsag+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) 
      //ундны цаг 1 цаг
-    - If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1))&& Len(First(Split(Index(Index(temp6[@data],i.Value).data,Index(zorchillist[@pday],j.Value).pday).Value,";")).Value)>0 && Index(zorchillist[@inout],j.Value).inout = "Ирсэн" ,1,0)
+        - If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1))&& Len(First(Split(Index(Index(temp6[@data],i.Value).data,Index(zorchillist[@pday],j.Value).pday).Value,";")).Value)>0 && Index(zorchillist[@inout],j.Value).inout = "Ирсэн" ,1,0)
     ,Index(temp15[@tasalsantsag],j.Value-1).tasalsantsag)}),
 j.Value=loopcount-1,
     Collect(tasalsanodor,{
         faceid:Index(temp6[@faceid],i.Value).faceid,
         position:Index(temp6[@position],i.Value).position,
         tasag:Index(temp6[@tasag],i.Value).tasag,
-        tasalsanodor:If((Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0)||(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0),Index(temp15[@tasalsanodor],j.Value-1).tasalsanodor+1,Index(temp15[@tasalsanodor],j.Value-1).tasalsanodor),
-    tasalsantsag:If((Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0)||(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0),Index(temp15[@tasalsantsag],j.Value-1).tasalsantsag+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)
+        tasalsanodor:If((Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0) 
+        || (Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0),Index(temp15[@tasalsanodor],j.Value-1).tasalsanodor+1,Index(temp15[@tasalsanodor],j.Value-1).tasalsanodor)
+         //хонодог хамгаалагч өдөр хасалт
+        - If(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,Day(DateAdd(Date           (year_1.Selected.Value,month_2.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date)) <> 0
+        //Хонодог хамгаалагч дараа өдөрийн 9 цагт буусныг нь шалгаж байна.
+        || Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2,1,0 ),
+        tasalsantsag:If((Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0) 
+        
+        ||(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))=0&&Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)<>0 ),
+        Index(temp15[@tasalsantsag],j.Value-1).tasalsantsag+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)
+        //хонодог ажилтан цагхасалт
+        - If( Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,Day(DateAdd(Date           (year_1.Selected.Value,month_2.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0 
+        && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour<=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date)) <> 0
+        || Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2,Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),0) 
+        
     //ундны цаг 1 цаг
     - If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1))&& Len(First(Split(Index(Index(temp6[@data],i.Value).data,Index(zorchillist[@pday],j.Value).pday).Value,";")).Value)>0 && Index(zorchillist[@inout],j.Value).inout = "Ирсэн" ,1,0)
-    ,Index(temp15[@tasalsantsag],j.Value-1).tasalsantsag)}),
+    ,Index(temp15[@tasalsantsag],j.Value-1).tasalsantsag)
+      
+    }),
     j.Value=loopcount,RemoveIf(temp15, true ))));
 //real data bolon planned time aas ajiltnii xotosrson tsagiig gargaj awj bna
 Clear(temp11);Clear(xotsrolt);
 ForAll(Sequence(CountRows(temp6)) As i,
     ForAll(Sequence(loopcount) As j,If(
-                j.Value<loopcount-1,Collect(temp11,{
+                j.Value<loopcount-1,
+                Collect(temp11,{
                 faceid:Index(temp6[@faceid],i.Value).faceid, tasag:Index(temp6[@tasag],i.Value).tasag,position:Index(temp6[@position],i.Value).position,
                 // hotsroltiin tsagiiig 2 oor tsag dr shalgaj bna
-                xotorsonmin:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid && day=j.Value && 
-                hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date)) <> 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid
-                && day=j.Value && hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 
+                xotorsonmin:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid && day=j.Value &&
+                hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date)) <> 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid && day=j.Value && hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 
+                 // zorchiliin data nd ирсэн цагт засвар орсон үгүйг шалгаж байна
+                 && If(Len(LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",type))=0,
+                 true,LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",moretime) > 2) 
+                 && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0
+                ||
+            Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)+1,date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2
+                 // zorchiliin data nd ирсэн цагт засвар орсон үгүйг шалгаж байна
+                && If(Len(LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",type))=0,
+                 true,LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",moretime) > 2)
+                 && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0,
+        If(j.Value>1,Index(temp11[@xotorsonmin],j.Value-1).xotorsonmin)+DateDiff(Date(year_1.Selected.Value,month_2.Selected.Value,j.Value)+Time(Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),0,0),
+        LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date),TimeUnit.Minutes)+DateDiff(Date(year_1.Selected.Value,month_2.Selected.Value,j.Value)+Time(Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),0,0),LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date),TimeUnit.Minutes),Index(temp11[@xotorsonmin],j.Value-1).xotorsonmin),
+        
+        hotsorsonday:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid && day=j.Value &&
+                hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date)) <> 0 && Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid && day=j.Value && hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2
+                && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 
                  // zorchiliin data nd ирсэн цагт засвар орсон үгүйг шалгаж байна
                  && If(Len(LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",type))=0,
                  true,LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",moretime) > 2)
                 ||
             Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)+1,date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2
+             && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 
                  // zorchiliin data nd ирсэн цагт засвар орсон үгүйг шалгаж байна
-                && If(Len(LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",type))=0,
-                 true,LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",moretime) > 2),
-        Index(temp11[@xotorsonmin],j.Value-1).xotorsonmin+DateDiff(Date(year_1.Selected.Value,month_2.Selected.Value,j.Value)+Time(Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),0,0),
-        LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date),TimeUnit.Minutes)+DateDiff(Date(year_1.Selected.Value,month_2.Selected.Value,j.Value)+Time(Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),0,0),LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date),TimeUnit.Minutes),Index(temp11[@xotorsonmin],j.Value-1).xotorsonmin),
-        
-        hotsorsonday:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 // zorchiliin data nd ирсэн цагт засвар орсон үгүйг шалгаж байна
-               && If(Len(LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",type))=0,
-                 true,LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",moretime) > 2)
-        ||   Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2          // zorchiliin data nd ирсэн цагт засвар орсон үгүйг шалгаж байна
                 && If(Len(LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",type))=0,
                  true,LookUp(zorchillist,faceid=Index(temp6[@faceid],i.Value).faceid && pday = j.Value && inout="Ирсэн",moretime) > 2)
         ,1+Index(temp11[@hotsorsonday],j.Value-1).hotsorsonday,
@@ -352,15 +426,16 @@ ForAll(Sequence(CountRows(temp6)) As i,
             faceid:Index(temp6[@faceid],i.Value).faceid,tasag:Index(temp6[@tasag],i.Value).tasag,position:Index(temp6[@position],i.Value).position,
             xotorsonmin:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&
                 hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))<>0&&
-                Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2  || Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2           
+                Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)+1,date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0           
             ,Index(temp11[@xotorsonmin],j.Value-1).xotorsonmin
             +DateDiff(Date(year_1.Selected.Value,month_2.Selected.Value,j.Value)+Time(Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),0,0),LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date),TimeUnit.Minutes)
             ,Index(temp11[@xotorsonmin],j.Value-1).xotorsonmin),
-            hotsorsonday:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2  
-            || Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value+1),date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2         
+            hotsorsonday:If(Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2  && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 
+            || Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour=Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)+1,date))<>0&&Len(LookUp(zkrealdata,faceid=Index(temp6[@faceid],i.Value).faceid&&day=j.Value&&hour>=Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value),date))>2 && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0     
             ,1+Index(temp11[@hotsorsonday],j.Value-1).hotsorsonday,Index(temp11[@hotsorsonday],j.Value-1).hotsorsonday)}),
             
-            j.Value=loopcount,RemoveIf(temp11, true );)));
+            j.Value=loopcount,RemoveIf(temp11, true );))
+);
 //tuxain sariin batalsan bvx ugluu oroinii tsagiig salgaj awj bna
 Clear(temp9);Clear(temp3);Set(totaltsag,0);Set(totalodor,0);
 ForAll(Sequence(CountRows(temp6)) As i,
@@ -368,18 +443,27 @@ ForAll(Sequence(CountRows(temp6)) As i,
     If(j.Value<loopcount-1,
         Collect(temp3,{faceid:Index(temp6[@faceid],i.Value).faceid,fullname:Index(temp6[@fullname],i.Value).fullname,position:Index(temp6[@position],i.Value).position,
     tasag:Index(temp6[@tasag],i.Value).tasag,
-    plantsag:Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)+If(j.Value>1,Index(temp3[@plantsag],j.Value-1).plantsag)-If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1)) && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 ,1,0),//Ундны цагийг хасж байна
-    day:If(Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0,1,0)+Index(temp3[@day],j.Value-1).day}),
+    plantsag:Abs( Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value))+
+    If(j.Value>1,Index(temp3[@plantsag],j.Value-1).plantsag)
+    //Ундны цагийг хасж байна
+    -If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1)) && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 ,1,0)
+    ,
+    day:If(Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0,1,0)+Index(temp3[@day],j.Value-1).day
+    // хонодог хамгалаагч 1 өдөрөөр
+   - If(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,Day(DateAdd(Date           (year_1.Selected.Value,month_2.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0,1,0)
+    } ),
 j.Value=loopcount-1,
     Collect(temp9,{faceid:Index(temp6[@faceid],i.Value).faceid,
         fullname:Index(temp6[@fullname],i.Value).fullname,
         tasag:Index(temp6[@tasag],i.Value).tasag,
         position:Index(temp6[@position],i.Value).position,
-        plantsag:Index(temp3[@plantsag],j.Value-1).plantsag+Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)
+        plantsag:Index(temp3[@plantsag],j.Value-1).plantsag+Abs(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)-Int(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value))
         -If(Index(temp6[@tasag],1).tasag = "office" && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 || !IsBlank(Find(Index(temp6[@position],i.Value).position,LookUp(undniitsag,id=Int(Index(Split(department.Selected.department," "),2).Value),Item),1)) && Len(First(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0 ,1,0),  //Ундны цагийг хасж байна
-day:Index(temp3[@day],j.Value-1).day + If(Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0,1,0),
-ajilsanodor:LookUp(ajilsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,ajilsanodor)-LookUp(choloocoll,faceid=Index(temp6[@faceid],i.Value).faceid && tasag=Index(temp6[@tasag],i.Value).tasag&& position=Index(temp6[@position],i.Value).position,totalday),
-ajilsantsag:RoundDown(LookUp(ajilsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag&& position=Index(temp6[@position],i.Value).position,ajilsantsag)-LookUp(xotsrolt,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag&& position=Index(temp6[@position],i.Value).position,xotorsonmin)/60+0 -LookUp(choloocoll,faceid=Index(temp6[@faceid],i.Value).faceid && tasag=Index(temp6[@tasag],i.Value).tasag&& position=Index(temp6[@position],i.Value).position,totalhour)+0,2),
+    day:Index(temp3[@day],j.Value-1).day + If(Len(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value)>0,1,0) 
+    // хонодог хамгаалагч 1 өдөрөөр
+    - If(Int(Last(Split(Index(Index(temp6[@data],i.Value).data,j.Value).Value,";")).Value) = 24 && Int(First(Split(Index(Index(temp6[@data],i.Value).data,Day(DateAdd(Date(year_1.Selected.Value,month_2.Selected.Value,j.Value),1,TimeUnit.Days))).Value,";")).Value) = 0,1,0),
+ajilsanodor:LookUp(ajilsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,ajilsanodor)+0,
+ajilsantsag:RoundDown(LookUp(ajilsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag&& position=Index(temp6[@position],i.Value).position,ajilsantsag)-LookUp(xotsrolt,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag&& position=Index(temp6[@position],i.Value).position,xotorsonmin)/60+0,2),
                     //xotsorson tsagiig ajilsanaas hasj ogch bna
 hotsorsond:LookUp(xotsrolt,faceid=Index(temp6[@faceid],i.Value).faceid && tasag=Index(temp6[@tasag],i.Value).tasag&& position=Index(temp6[@position],i.Value).position,hotsorsonday)+0,
 hotsorsonmin:RoundDown(LookUp(xotsrolt,faceid=Index(temp6[@faceid],i.Value).faceid && tasag=Index(temp6[@tasag],i.Value).tasag&& position=Index(temp6[@position],i.Value).position,xotorsonmin)/60+0,2),
@@ -393,15 +477,24 @@ tsalintaicholooodor:LookUp(tsalintaicholoo,faceid=Index(temp6[@faceid],i.Value).
 tsalintaicholootsag:LookUp(tsalintaicholoo,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalhour)+0,
 gaduurodor: LookUp(гадууражилтай,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalday)+0,
 gaduurtsag:LookUp(гадууражилтай,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalhour)+0,
-tasalsanodor:Round( LookUp(tasalsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,tasalsanodor)-LookUp(өвчтэй,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalday)-LookUp(ээлжийнамралт,faceid=Index(temp6[@faceid],i.Value).faceid,totalday)+0,1),
-tasalsantsag:LookUp(tasalsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,tasalsantsag)-LookUp(өвчтэй,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalhour)-LookUp(ээлжийнамралт,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalhour)+0,
+tasalsanodor:Round( LookUp(tasalsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,tasalsanodor)+0,0),
+tasalsantsag:LookUp(tasalsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,tasalsantsag)+0,
 'Тайлант өдөр':Day(Date(year_1.Selected.Value,month_2.Selected.Value+1,0)),
 Ажилзөдөр:24,Ажилзцаг:192,
-бүгдөдөр:LookUp(tasalsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,tasalsanodor)+0   + LookUp(choloocoll,faceid=Index(temp6[@faceid],i.Value).faceid && tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalday)+LookUp(өвчтэй,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalday)+LookUp(ээлжийнамралт,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalday) ,
-бүгдцаг:RoundDown( LookUp(tasalsanodor,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,tasalsantsag)+LookUp(choloocoll,faceid=Index(temp6[@faceid],i.Value).faceid && tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalhour)+LookUp(xotsrolt,faceid=Index(temp6[@faceid],i.Value).faceid && tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,xotorsonmin)/60+LookUp(ээлжийнамралт,faceid=Index(temp6[@faceid],i.Value).faceid&&tasag=Index(temp6[@tasag],i.Value).tasag && position=Index(temp6[@position],i.Value).position,totalhour)+0,2)
+бүгдөдөр: 0,
+бүгдцаг: 0
  }
 )
 
 ,j.Value=loopcount,RemoveIf(temp3, true ))));
+
+ForAll(Sequence(CountRows(temp6)) ,
+    UpdateIf(temp9, tasag = Index(temp6[@tasag],Value).tasag && faceid = Index(temp6[@faceid],Value).faceid && position = Index(temp6[@position],Value).position ,
+    {бүгдөдөр:  tasalsanodor + choloodor+eeljinodor+owchteiodor + hotsorsond})
+);
+ForAll(Sequence(CountRows(temp6)) ,
+    UpdateIf(temp9, tasag = Index(temp6[@tasag],Value).tasag && faceid = Index(temp6[@faceid],Value).faceid && position = Index(temp6[@position],Value).position ,
+    {бүгдцаг:  tasalsantsag+cholootsag+eeljintsag+owchteitsag+RoundDown(LookUp(xotsrolt,faceid=Index(temp6[@faceid],Value).faceid && tasag=Index(temp6[@tasag],Value).tasag&& position=Index(temp6[@position],Value).position,xotorsonmin)/60+0,2)})
+);
 //Илүү Өдөр шалгаж план цагтай ижил болгох plan
 Set(shvvxlock,0)

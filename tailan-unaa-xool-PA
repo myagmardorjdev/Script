@@ -431,6 +431,28 @@ If(daysongolt_2.Selected.Value = 16,
         UpdateIf( tasagd3 As d3,1=1,{ firsthour: LookUp(ajilsanodor, faceid = d3.faceid ,ajilsantsag)})
     )
 );
+If(daysongolt_2.Selected.Value = 1,
+    UpdateIf(tasagd3,1=1,{ totaltime: 0});
+    UpdateIf( tasagd3,1=1,{ totaltime: totaltime + day1+day2+day3+day4+day5+day6+day7+day8+day9+day10+day11+day12+day13+day14+day15+day16 });
+    UpdateIf( tasagd3, 1=1,{ totalday: 0}); 
+    UpdateIf( tasagd3, Int(day1) > 0 ,{ totalday: totalday + 1 } );
+     UpdateIf( tasagd3, Int(day2) > 0 ,{ totalday: totalday + 1 } );
+      UpdateIf( tasagd3, Int(day3) > 0 ,{ totalday: totalday + 1 } );
+       UpdateIf( tasagd3, Int(day4) > 0 ,{ totalday: totalday + 1 } );
+        UpdateIf( tasagd3, Int(day5) > 0 ,{ totalday: totalday + 1 } );
+         UpdateIf( tasagd3, Int(day6) > 0 ,{ totalday: totalday + 1 } );
+          UpdateIf( tasagd3, Int(day7) > 0 ,{ totalday: totalday + 1 } );
+           UpdateIf( tasagd3, Int(day8) > 0 ,{ totalday: totalday + 1 } );
+            UpdateIf( tasagd3, Int(day9) > 0 ,{ totalday: totalday + 1 } );
+             UpdateIf( tasagd3, Int(day10) > 0 ,{ totalday: totalday + 1 } );
+              UpdateIf( tasagd3, Int(day11) > 0 ,{ totalday: totalday + 1 } );
+               UpdateIf( tasagd3, Int(day12) > 0 ,{ totalday: totalday + 1 } );
+                UpdateIf( tasagd3, Int(day13) > 0 ,{ totalday: totalday + 1 } );
+                 UpdateIf( tasagd3, Int(day14) > 0 ,{ totalday: totalday + 1 } );
+                  UpdateIf( tasagd3, Int(day15) > 0 ,{ totalday: totalday + 1 } );
+                   UpdateIf( tasagd3, Int(day16) > 0 ,{ totalday: totalday + 1 } );
+
+);
 If(daysongolt_2.Selected.Value = 16,
     UpdateIf( tasagd3 As d3,1=1,{ firstday: LookUp(ajilsanodor, faceid = d3.faceid ,ajilsanodor)});
     UpdateIf( tasagd3,1=1,{ totaltime: secondhour + firsthour});

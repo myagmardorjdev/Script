@@ -1,23 +1,25 @@
 
 $loopstatus = 0
 $backstatus = 0
-$jobstart_hour = 7
-$jobstart_min = 33
+$jobstart_hour = 7 # 22
+$jobstart_min = 0 # 33
 $jobend_hour = 18
-$download_interval = 60 #minute
 $startleepduration = 50
-$scalezerostatus = $jobstart_hour - 1 
+$price_check_row_limit = 250
+$scalezerostatus = 7
 $scalezerostatusmin = 0
 $isrun = 'B:\Scripts\zabbix_scale\isrunmon.txt'
-$logfilemain = "B:\Scripts\scalelogv2.txt"
-$carrefour = @{c88 = 'B:\Scripts\scalepricelist\file88.xlsx','B:\Scripts\plu88.csv', "" , 'B:\Scripts\zabbix_scale\Scale88.txt' ;
-               c21 = 'B:\Scripts\scalepricelist\file21.xlsx','B:\Scripts\plu21.csv', "" , 'B:\Scripts\zabbix_scale\Scale21.txt' ; 
+$logfilemain = "B:\Scripts\scalelogv3.txt"
+$carrefour = @{c88 = 'B:\Scripts\scalepricelist\file88.xlsx','B:\Scripts\plu88.csv', "" , 'B:\Scripts\zabbix_scale\Scale88.txt' ,'10.88.1.240';
+               c21 = 'B:\Scripts\scalepricelist\file21.xlsx','B:\Scripts\plu21.csv', "" , 'B:\Scripts\zabbix_scale\Scale21.txt' ,'10.21.1.240'; 
             }
 #hamgiin bagadaa 2 ip address zooj ogoxiig anxaarna uu
 $ipdevices = @{c88 = '10.88.1.240';
                c21 = '10.21.1.240', '10.21.1.241','10.21.1.242','10.21.1.243'
             }
+
 $onsargvi = @(4028,4071,4061,4054,4066,4060,4052,4248,4246,4246)
+$nofiltered = @("Сироп 10л Cola, Sprite","Өндөг /хоол/","Огурцы 1кг")
 function EXECUTER($v1, $v2,$v3){
     $value = 0
     $SqlAuthLogin = "sa"          # SQL Authentication login
@@ -52,7 +54,7 @@ WITH NOFORMAT, NOINIT,  NAME = N'ZKSoft-Full Database Backup', SKIP, NOREWIND, N
 "
 
 while(1 -eq 1){
-    $tempdate = (Get-Date);
+
     if((Get-Date).Hour -ge $jobstart_hour -and (Get-Date).Hour -le $jobend_hour -and (get-date).Minute -ge $jobstart_min -and $loopstatus -eq 0){
         $loopstatus = 1
         foreach ($z in $carrefour.GetEnumerator()){
@@ -71,6 +73,8 @@ while(1 -eq 1){
                     $plu0uall[$counter].52 = $orig[$i].'Code on Scale' # ingredint шошго
                     $plu0uall[$counter].8 = 1; #sell by time
                     $plu0uall[$counter].9 = 1  #sell by time 
+                    $plu0uall[$counter].16 = 1 # PLU price change
+                    $plu0uall[$counter].15 = 1  # unit price override
                     if($orig[$i].Unit -eq "Kg"){
                         $plu0uall[$counter].3 = 0
                     }else{
@@ -351,7 +355,7 @@ while(1 -eq 1){
                         $temp = $temp.Substring(0,30)
                 }
                     
-                    $plu0uall[$counter].103 = $temp
+                    $plu0uall[$counter].103 = $temp    # барааны нэрийг тайрч байна
                     $plu0uall[$counter].33 = $orig[$i].'Expiration Days'
                     $plu0uall[$counter].105 = ""
                     try {
@@ -764,9 +768,7 @@ while(1 -eq 1){
                                     0 | out-file -FilePath $z.Value[3]
                                 }  
                             }
-                            $tempfname = "B:\Scripts\zabbix_scale\" + (Get-Date -Format "yyyyMMddhhmmss") + "." + $ipdevices.($z.Key)
-                            New-Item -ItemType Directory -Path $tempfname
-                            copy-item "B:\Scripts\plu0uall.csv" -Destination $tempfname
+
                         }else{
                             Write-Output "88 jin shinechilsen bna"
                         }
@@ -787,9 +789,9 @@ while(1 -eq 1){
                                     0 | out-file -FilePath $sliceoflife
                                 }  
                             }
-                            $tempfname = "B:\Scripts\zabbix_scale\" + (Get-Date -Format "yyyyMMddhhmmss") + "." + $ipdevices.($z.Key)[$i]
-                            New-Item -ItemType Directory -Path $tempfname
-                            copy-item "B:\Scripts\plu0uall.csv" -Destination $tempfname
+                            #$tempfname = "B:\Scripts\zabbix_scale\" + (Get-Date -Format "yyyyMMddhhmmss") + "." + $ipdevices.($z.Key)[$i]
+                            #New-Item -ItemType Directory -Path $tempfname
+                            #copy-item "B:\Scripts\plu0uall.csv" -Destination $tempfname
                         }else{
                             Write-Output "21 jin shinechilsen bna"
                         }    
@@ -816,7 +818,7 @@ while(1 -eq 1){
             0 | Out-File -FilePath $logfile
         }
 
-        (get-date) + "all digit scale 0 status" | out-file -FilePath $logfilemain
+        (get-date).toString()+ "all digit scale 0 status" | out-file -FilePath $logfilemain -Append
     }
         
     
@@ -825,17 +827,66 @@ while(1 -eq 1){
         EXECUTER -v1 "192.168.0.25" -v2 "ZKSoft" -v3 $query_zksoftbackup
         Copy-Item  "\\192.168.0.25\mssql\Backup\ZKSoft.bak" -Destination "\\10.0.99.40\Backups\ZkSfot" -Force
         Remove-Item "\\192.168.0.25\mssql\Backup\ZKSoft.bak"
-        (get-date) + "zk time device backup run" | out-file -FilePath $logfilemain
+        (get-date).toString() + "zk time device backup run" | out-file -FilePath $logfilemain -Append
         $backstatus = 1
     }
 
-    # delete log folders scale 
-    deletefolder -v1 "B:\Scripts\zabbix_scale\" -v2 6
+    # carrefour sport odorlogoos bolj loop daxin ajilluulj bna  # RESET ALL SCALES 0 status
+    if((get-date).hour -eq 22 -and (get-date).minute -eq 32){
+        $loopstatus = 0
+        0 | out-file -FilePath 'B:\Scripts\zabbix_scale\Scale88.txt'
 
-    Write-Output 'v3 Sleeping...'
+        for($i =0; $i -lt $ipdevices.($z.Key).Length; $i++){
+            $logfile = 'B:\Scripts\zabbix_scale\' + $ipdevices.($z.Key)[$i] + '.txt'
+            0 | Out-File -FilePath $logfile
+        }
+
+        (get-date).toString() + "all digit scale 0 status 22:30 d" | out-file -FilePath $logfilemain -Append
+    }
+
+    # price check zone, Жингийн PLU -г татаж эксел файлтай тулгалт хийж байна
+    if($loopstatus -eq 1 -and (get-date).Hour -ge $jobstart_hour -and (get-date).hour -le $jobend_hour -and (get-date).minute -ge $jobstart_min){
+        foreach ($z in $carrefour.GetEnumerator()){
+            $origcheck = Import-Excel -Path $z.Value[0]
+            $origcheck = $origcheck | Sort-Object -Property 'Code on Scale'
+            $lfcodeindex = $origcheck.'Code on Scale' -as [string[]]
+            cmd.exe /c 'B:\Scripts\zabbix_scale\yagjinplu\pluget.bat' $z.Value[4]
+            $scaleplu = Import-Csv -Path 'B:\Scripts\plu0uall.csv' -Delimiter "," -Header 'lfcode','flagdelete','weight','col4','selldate','useddate','packeddate','selltime','packedtime','col10','col11','pricebased_per_unit','col13','nutritionprint','unit_price_override_15','PLU_price_change_16','col17','col18','unit_price'
+            Start-sleep -seconds 1
+            Remove-item 'B:\Scripts\plu0uall.csv'
+            # 
+            for($i=10; $i -lt $price_check_row_limit; $i++){
+                if(($scaleplu[$i].'lfcode').Length -eq 1){
+                    $tcode = "000" + $scaleplu[$i].'lfcode'
+                }elseif(($scaleplu[$i].'lfcode').Length -eq 2){
+                    $tcode = "00" + $scaleplu[$i].'lfcode'
+                }elseif(($scaleplu[$i].'lfcode').Length -eq 3){
+                    $tcode = "0" + $scaleplu[$i].'lfcode'
+                }else{
+                    $tcode = $scaleplu[$i].'lfcode'
+                }
+                $tindex = [array]::FindIndex($lfcodeindex,[Predicate[String]]{param($s)$s -eq $tcode})
+                $produectname = $origcheck[$tindex].'Product Name'
+                $ldfcode = $origcheck[$tindex].'Code on Scale'
+                $scaleprice = $scaleplu[$i].'unit_price'
+                $excelprice = $origcheck[$tindex].'Product Price'
+                #Write-Output "scaleprice: $scaleprice excelprice: $excelprice"
+                
+                if($excelprice -ne $scaleprice -and $tindex -ne -1){
+                    (get-date).toString() + " lfcode: $ldfcode product name: $produectname price: $scaleprice vs $excelprice" | out-file -FilePath $logfilemain -Append
+                }
+            }
+        }
+    }
+    
+    Write-Output "DIGI Scale Sleeping..."
     0 | Out-File -FilePath $isrun
     Start-Sleep -Seconds $startleepduration
 
 
 }
+
+
+
+
 

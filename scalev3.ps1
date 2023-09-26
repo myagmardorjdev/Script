@@ -4,8 +4,8 @@ $backstatus = 0
 $jobstart_hour = 7 # 22
 $jobstart_min = 0 # 33
 $jobend_hour = 18
-$startleepduration = 50
-$price_check_row_limit = 250
+$startleepduration = 40
+$price_check_row_limit = 1000
 $scalezerostatus = 7
 $scalezerostatusmin = 0
 $isrun = 'B:\Scripts\zabbix_scale\isrunmon.txt'
@@ -19,7 +19,16 @@ $ipdevices = @{c88 = '10.88.1.240';
             }
 
 $onsargvi = @(4028,4071,4061,4054,4066,4060,4052,4248,4246,4246)
-$nofiltered = @("Сироп 10л Cola, Sprite","Өндөг /хоол/","Огурцы 1кг")
+function resettxt($v1){
+        0 | out-file -FilePath 'B:\Scripts\zabbix_scale\Scale88.txt'
+
+        for($i =0; $i -lt $ipdevices.($z.Key).Length; $i++){
+            $logfile = 'B:\Scripts\zabbix_scale\' + $ipdevices.($z.Key)[$i] + '.txt'
+            0 | Out-File -FilePath $logfile
+        }
+
+        (get-date).toString()+ "all digit scale 0 status" | out-file -FilePath $logfilemain -Append
+}
 function EXECUTER($v1, $v2,$v3){
     $value = 0
     $SqlAuthLogin = "sa"          # SQL Authentication login
@@ -762,7 +771,7 @@ while(1 -eq 1){
                             $testping = $null
                             $testping = Test-Connection -ComputerName $ipdevices.($z.Key) -Count 2 -Quiet  # svljeetei vgvig shalgaj bna
                             if(!$testping){
-                                if((Get-Date).Hour -ge 8 -and (Get-Date).Hour -le 18){
+                                if((Get-Date).Hour -ge $jobstart_hour -and (Get-Date).Hour -le $jobend_hour){
                                     Write-Output "88 jin svljeegvi bnashdee"
                                     $loopstatus = 0
                                     0 | out-file -FilePath $z.Value[3]
@@ -782,10 +791,9 @@ while(1 -eq 1){
                             $testping = $null
                             $testping = Test-Connection -ComputerName $ipdevices.($z.Key)[$i] -Count 2 -Quiet
                             if(!$testping){
-                                if((Get-Date).Hour -ge 8 -and (Get-Date).Hour -le 18){
+                                if((Get-Date).Hour -ge $jobstart_hour -and (Get-Date).Hour -le $jobend_hour){
                                     Write-Output "21 jin svljeegvi bnashdee"
                                     $loopstatus = 0
-                                    
                                     0 | out-file -FilePath $sliceoflife
                                 }  
                             }
@@ -809,16 +817,9 @@ while(1 -eq 1){
     
     # RESET ALL SCALES 0 status
     if((get-date).Hour -eq $scalezerostatus -and (get-date).Minute -le $scalezerostatusmin){
+        resettxt -v1 "a"
         $loopstatus = 0
         $backstatus = 0
-        0 | out-file -FilePath 'B:\Scripts\zabbix_scale\Scale88.txt'
-
-        for($i =0; $i -lt $ipdevices.($z.Key).Length; $i++){
-            $logfile = 'B:\Scripts\zabbix_scale\' + $ipdevices.($z.Key)[$i] + '.txt'
-            0 | Out-File -FilePath $logfile
-        }
-
-        (get-date).toString()+ "all digit scale 0 status" | out-file -FilePath $logfilemain -Append
     }
         
     
@@ -833,19 +834,12 @@ while(1 -eq 1){
 
     # carrefour sport odorlogoos bolj loop daxin ajilluulj bna  # RESET ALL SCALES 0 status
     if((get-date).hour -eq 22 -and (get-date).minute -eq 32){
+        resettxt -v1 "a"
         $loopstatus = 0
-        0 | out-file -FilePath 'B:\Scripts\zabbix_scale\Scale88.txt'
-
-        for($i =0; $i -lt $ipdevices.($z.Key).Length; $i++){
-            $logfile = 'B:\Scripts\zabbix_scale\' + $ipdevices.($z.Key)[$i] + '.txt'
-            0 | Out-File -FilePath $logfile
-        }
-
-        (get-date).toString() + "all digit scale 0 status 22:30 d" | out-file -FilePath $logfilemain -Append
     }
 
-    # price check zone, Жингийн PLU -г татаж эксел файлтай тулгалт хийж байна
-    if($loopstatus -eq 1 -and (get-date).Hour -ge $jobstart_hour -and (get-date).hour -le $jobend_hour -and (get-date).minute -ge $jobstart_min){
+    # ! price check zone, Жингийн PLU -г татаж эксел файлтай тулгалт хийж байна
+    if($loopstatus -eq 1 -and (get-date).Hour -ge $jobstart_hour -and (get-date).hour -le $jobend_hour -and (get-date).minute -ge $jobstart_min -and (get-date).minute -eq 30){
         foreach ($z in $carrefour.GetEnumerator()){
             $origcheck = Import-Excel -Path $z.Value[0]
             $origcheck = $origcheck | Sort-Object -Property 'Code on Scale'
@@ -854,7 +848,7 @@ while(1 -eq 1){
             $scaleplu = Import-Csv -Path 'B:\Scripts\plu0uall.csv' -Delimiter "," -Header 'lfcode','flagdelete','weight','col4','selldate','useddate','packeddate','selltime','packedtime','col10','col11','pricebased_per_unit','col13','nutritionprint','unit_price_override_15','PLU_price_change_16','col17','col18','unit_price'
             Start-sleep -seconds 1
             Remove-item 'B:\Scripts\plu0uall.csv'
-            # 
+            # ! tataj awsan scale csv file iiig excel file tei harituulj bna
             for($i=10; $i -lt $price_check_row_limit; $i++){
                 if(($scaleplu[$i].'lfcode').Length -eq 1){
                     $tcode = "000" + $scaleplu[$i].'lfcode'
@@ -865,15 +859,17 @@ while(1 -eq 1){
                 }else{
                     $tcode = $scaleplu[$i].'lfcode'
                 }
-                $tindex = [array]::FindIndex($lfcodeindex,[Predicate[String]]{param($s)$s -eq $tcode})
+                $tindex = [array]::FindIndex($lfcodeindex,[Predicate[String]]{param($s)$s -eq $tcode}) # ! lfcodeindex gesen string array aas tcode gesen scale codeiig haij bna
                 $produectname = $origcheck[$tindex].'Product Name'
-                $ldfcode = $origcheck[$tindex].'Code on Scale'
                 $scaleprice = $scaleplu[$i].'unit_price'
+                $ldfcode = $origcheck[$tindex].'Code on Scale'
                 $excelprice = $origcheck[$tindex].'Product Price'
-                #Write-Output "scaleprice: $scaleprice excelprice: $excelprice"
-                
+
                 if($excelprice -ne $scaleprice -and $tindex -ne -1){
+                    Write-output "lfcode: $ldfcode product name: $produectname price: $scaleprice vs $excelprice"
                     (get-date).toString() + " lfcode: $ldfcode product name: $produectname price: $scaleprice vs $excelprice" | out-file -FilePath $logfilemain -Append
+                    #resettxt -v1 "a"
+                    #$loopstatus = 0
                 }
             }
         }

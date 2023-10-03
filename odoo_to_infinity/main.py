@@ -62,7 +62,7 @@ for i in list_unique_counter(pos_order_result,9).returnc():
             PayItems[counter2] = PayItems1
             counter2+=1
     if(i == 397345):
-        print(PayItems)
+        
         items_sales_total_output = {
         "SaleItems": [
             {
@@ -71,6 +71,13 @@ for i in list_unique_counter(pos_order_result,9).returnc():
                 "ItemDueAmount": int(item['ItemDueAmount'])
             }
             for item in SaleItems.values()
+        ],
+        "SalePayments": [
+            {
+                "PaymentTypeID": str(item['PaymentTypeID']),
+                "PaymentAmount":item['PaymentAmount']
+            }
+            for item in PayItems.values()
         ]
         }
         items_sales_total_output["TerminalID"] = TerminalID
@@ -78,6 +85,7 @@ for i in list_unique_counter(pos_order_result,9).returnc():
         items_sales_total_output["DDTDNo"] = DDTDNo
         items_sales_total_output["TxnType"] = "IN"
         items_sales_total_output["SalesDate"] = SalesDate
+
         print(items_sales_total_output)
 
 

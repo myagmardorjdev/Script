@@ -3,11 +3,11 @@ import psycopg2
 from collections import Counter # can count unique value
 import os,sys
 import pypyodbc as odbc
+from decimal import Decimal
 sys.path.append(file_running_directory)
 from datetime import datetime,timedelta
 from lesson3.odoo_to_infinity.functions import readtextfile_to_dict
 from lesson3.odoo_to_infinity.functions import list_unique_counter
-from lesson3.odoo_to_infinity.functions import list_unique_count_sum
 
 # ? >>>>>>>>> QUERY functions
 def postg(conn,query):
@@ -33,6 +33,7 @@ pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1
 # ? default variables
 default_config_dict = readtextfile_to_dict(file_running_directory+"configuration.txt").returnc()
 loop_status = 1
+success_bill_orders = {}
 loop_sleeptime = 2 #second
 odoodatabases = {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'}
 
@@ -40,7 +41,30 @@ odoodatabases = {'user': 'readonly_c34','password': 'readonly_c34_password','ser
 conp = psycopg2.connect(database=odoodatabases['database'], user=odoodatabases['user'], password=odoodatabases['password'], host=odoodatabases['server'], port= odoodatabases['port'])
 pos_order_result = postg(conp,pos_orders_query)
 pos_payment_result = postg(conp,pos_payment_query)
-print(pos_order_result[0][3])
+
+# ? cash dr хариулт өгсөн бол хариултын мөрийг арилгаж байна (20000 + -100) = 19900
+for i in list_unique_counter(pos_payment_result,0).returnc():
+    totalvalue = 0
+    maxvalue = 0
+    index_lists = []
+    mainid= i
+    for j in range(len(pos_payment_result)):
+        if (mainid == int(pos_payment_result[j][0]) and pos_payment_result[j][2] == 'Cash'):
+            index_lists.append(j)
+            print("main id ",mainid)
+            print("gg : ", pos_payment_result[j])
+            totalvalue += float(pos_payment_result[j][1])
+            if maxvalue < float(pos_payment_result[j][1]):
+                maxvalue = float(pos_payment_result[j][1]) 
+
+    if maxvalue > totalvalue:
+        pos_payment_result.append((pos_payment_result[index_lists[0]][0], totalvalue, pos_payment_result[index_lists[0]][2], pos_payment_result[index_lists[0]][3], pos_payment_result[index_lists[0]][4]))
+        indexcounter = 0
+        print("indexs ",index_lists)
+        print("listindex> ",index_lists)
+        for kk in index_lists:
+            pos_payment_result.pop(kk-indexcounter)
+            indexcounter+=1
 
 # ? bill iin medeelliig боловсруулж байна
 for i in list_unique_counter(pos_order_result,9).returnc():
@@ -63,32 +87,32 @@ for i in list_unique_counter(pos_order_result,9).returnc():
             PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": pos_payment_result[k][2]}
             PayItems[counter2] = PayItems1
             counter2+=1
-    if(i == 397345):
-        items_sales_total_output = {
-        "SaleItems": [
-            {
-                "Barcode": str(item['Barcode']),
-                "Qty":item['Qty'],
-                "ItemDueAmount": int(item['ItemDueAmount'])
-            }
-            for item in SaleItems.values()
-        ],
-        "SalePayments": [
-            {
-                "PaymentTypeID": str(item['PaymentTypeID']),
-                "PaymentAmount":item['PaymentAmount']
-            }
-            for item in PayItems.values()
-        ]
+    
+    items_sales_total_output = {
+    "SaleItems": [
+        {
+            "Barcode": str(item['Barcode']),
+            "Qty":item['Qty'],
+            "ItemDueAmount": int(item['ItemDueAmount'])
         }
-        items_sales_total_output["TerminalID"] = TerminalID
-        items_sales_total_output["CashierEmpCode"] = CashierEmpCode
-        items_sales_total_output["DDTDNo"] = DDTDNo
-        items_sales_total_output["TxnType"] = "IN"
-        items_sales_total_output["SalesDate"] = SalesDate
-        bill_line["Sales"]=[items_sales_total_output]
-        bill_line["token"]=default_config_dict['TOKEN']
-        #print(bill_line)
+        for item in SaleItems.values()
+    ],
+    "SalePayments": [
+        {
+            "PaymentTypeID": str(item['PaymentTypeID']),
+            "PaymentAmount":item['PaymentAmount']
+        }
+        for item in PayItems.values()
+    ]
+    }
+    items_sales_total_output["TerminalID"] = TerminalID
+    items_sales_total_output["CashierEmpCode"] = CashierEmpCode
+    items_sales_total_output["DDTDNo"] = DDTDNo
+    items_sales_total_output["TxnType"] = "IN"
+    items_sales_total_output["SalesDate"] = SalesDate
+    bill_line["Sales"]=[items_sales_total_output]
+    bill_line["token"]=default_config_dict['TOKEN']
+    #print(bill_line)
 
 
 

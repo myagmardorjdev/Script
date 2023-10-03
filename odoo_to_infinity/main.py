@@ -42,6 +42,7 @@ pos_order_result = postg(conp,pos_orders_query)
 pos_payment_result = postg(conp,pos_payment_query)
 print(pos_order_result[0][3])
 
+# ? bill iin medeelliig боловсруулж байна
 for i in list_unique_counter(pos_order_result,9).returnc():
     bill_line = {}
     counter = 0

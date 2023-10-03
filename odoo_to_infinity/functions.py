@@ -1,6 +1,18 @@
 import time,datetime
 import random,sys
 
+class list_unique_counter():
+    def __init__(self, listname,index):
+        self.content = listname
+        self.index = index
+        self.checkvalues = []
+        for i in range(len(self.content)):
+            if self.content[i][self.index] in self.checkvalues:
+                pass
+            else:
+                self.checkvalues.append(self.content[i][self.index])
+    def returnc(self):
+        return self.checkvalues
 
 class writetextnew():                                                                               
     def __init__(self, content,path):
@@ -30,7 +42,7 @@ class generatepkid():
     def returnc(self):
         return self.value
 
-class readtextfile_to_dict():                                                                               
+class readtextfile_to_dict():                                                                              
     def __init__(self, value):
         self.filename = value
         self.contents = []
@@ -47,3 +59,6 @@ class readtextfile_to_dict():
             if ind != -1:
                 self.configuredict[(self.contents[i].strip()[:ind]).strip()]=(self.contents[i].strip()[ind+1:]).strip()
         return self.configuredict
+    
+
+

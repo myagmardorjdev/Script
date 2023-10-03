@@ -1,10 +1,12 @@
 file_running_directory = "C:/Users/myagmardorj/Git/lesson3/odoo_to_infinity/"
 import psycopg2
+from collections import Counter # can count unique value
 import os,sys
 import pypyodbc as odbc
 sys.path.append(file_running_directory)
 from datetime import datetime,timedelta
 from lesson3.odoo_to_infinity.functions import readtextfile_to_dict
+from lesson3.odoo_to_infinity.functions import list_unique_counter
 
 # ? >>>>>>>>> QUERY functions
 def postg(conn,query):
@@ -43,6 +45,9 @@ SaleItems2 = {"Barcode":qresult[1][2],"Qty":float(qresult[1][6]),"ItemDueAmount"
 
 SaleItems[0] = SaleItems1
 SaleItems[1] = SaleItems2
+print(len(list_unique_counter(qresult,9).returnc()))
+for i in list_unique_counter(qresult,9).returnc():
+    print(i)
 
 
 formatted_output = {

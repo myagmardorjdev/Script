@@ -43,6 +43,7 @@ pos_payment_result = postg(conp,pos_payment_query)
 print(pos_order_result[0][3])
 
 for i in list_unique_counter(pos_order_result,9).returnc():
+    bill_line = {}
     counter = 0
     SaleItems = {}
     counter2 = 0
@@ -58,11 +59,10 @@ for i in list_unique_counter(pos_order_result,9).returnc():
             counter+=1
     for k in range(len(pos_payment_result)):
         if i == pos_payment_result[k][0]:
-            PayItems1 = {"PaymentTypeID": int(pos_payment_result[k][1]), "PaymentAmount": pos_payment_result[k][2]}
+            PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": pos_payment_result[k][2]}
             PayItems[counter2] = PayItems1
             counter2+=1
     if(i == 397345):
-        
         items_sales_total_output = {
         "SaleItems": [
             {
@@ -85,8 +85,9 @@ for i in list_unique_counter(pos_order_result,9).returnc():
         items_sales_total_output["DDTDNo"] = DDTDNo
         items_sales_total_output["TxnType"] = "IN"
         items_sales_total_output["SalesDate"] = SalesDate
-
-        print(items_sales_total_output)
+        bill_line["Sales"]=[items_sales_total_output]
+        bill_line["token"]=default_config_dict['TOKEN']
+        #print(bill_line)
 
 
 

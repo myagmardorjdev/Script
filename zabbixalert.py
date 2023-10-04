@@ -1,13 +1,15 @@
 import requests
 import json
+import os
 import base64
 import psycopg2
 import pypyodbc as odbc
 import time
 from requests.auth import HTTPBasicAuth
-from datetime import datetime
+from datetime import datetime,timedelta
 sleepsecond = 120
-query_error_check = "SELECT * FROM public.action_pull_sync_line where create_date >= CURRENT_DATE and has_error = true"
+
+query_error_check = "SELECT * FROM public.action_pull_sync_line where (current_timestamp - (540 * interval '1 minute')) <= create_date and has_error = true"
 log_path = 'B:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
@@ -38,6 +40,18 @@ def postg(conn,query):
         #print(row)
         #stringa = row;
     return len(data)
+    conn.close()
+def postg_return_value(conn,query):
+    global stringa;
+    cursor = conn.cursor()
+    cursor.execute(query)
+
+    data = cursor.fetchall()
+    #print(len(data))
+    #for row in data:
+        #print(row)
+        #stringa = row;
+    return data
     conn.close()
 
 def createticket(session_token,title,content):
@@ -103,17 +117,25 @@ def get_hosts_with_ip(hostid):
         return response.json()['result'][0]['interfaces'][0]['ip']
     except:
         return '0'
-def log_write(content):
-    with open(log_path, 'a') as f:
+def log_write(content,path):
+    with open(path, 'a') as f:
         now = datetime.now()
         string = '\n'+str(now) + ' '+ content
         f.write(string)
+def log_write_notime(content,path):
+    with open(path, 'w') as f:
+        string = content
+        f.write(string)
+
 odoodatabases = {0: {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'},
                 1: {'user': 'postgres','password': 'postgres','server': '10.13.1.220','port': 5432,'database':'CARREFOURS13_LIVE'},
                 2: {'user': 'readonly_c88','password': 'readonly_c88_password','server': '10.88.1.220','port': 5432,'database':'CARREFOURS88_LIVE'},
-                3: {'user': 'readonly_c21','password': 'readonly_c21_password','server': '10.21.1.220','port': 5432,'database':'CARREFOURS21_LIVE'}
+                3: {'user': 'readonly_c21','password': 'readonly_c21_password','server': '10.21.1.220','port': 5432,'database':'CARREFOURS21_LIVE'},
+                4: {'user': 'readonly_c01','password': 'readonly_c01_password','server': '10.1.1.220',  'port': 5432,'database':'STORE01_LIVE'},
+                5: {'user': 'readonly_c42','password': 'readonly_c42_password','server': '10.12.1.220',  'port': 5432,'database':'STORE42_LIVE'},
+                6: {'user': 'readonly_c06','password': 'readonly_c06_password','server': '10.6.1.220',  'port': 5432,'database':'STORE06_LIVE'}
 }
-server = {"server" : "10.34.1.220","database" :"CARREFOURS34_LIVE","user" : "readonly_c34", "password" : "readonly_c34_password"}
+#server = {"server" : "10.34.1.220","database" :"CARREFOURS34_LIVE","user" : "readonly_c34", "password" : "readonly_c34_password"}
 bannedhosts = ['PowerBI2','AJTPowerBI','AUB_Web','itremote','BackupServer','PowerBI2','Ysoft','BSO-Printer']
 bannedreasons = ['last 24hours','Client','POS_8080_down','CPU util high','MEM util disaster','CPU util disaster','Free disk']
 #loop outsides variables
@@ -123,12 +145,44 @@ createdtickets = {}
 
 while(1==1):
     now = datetime.now()
-    
+
     if now.hour > 8 and now.hour < 20:
+        # ? has error checking 
         for i in range(len(odoodatabases)):
-            conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
-            qresult = postg(conp,query_error_check)
+            try:
+                conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
+                qresult = postg(conp,query_error_check)
+            except:
+                pass   
+            textname = '//192.168.0.25/sync_pull_log/sync_'+ odoodatabases[i]['server'] + '.txt'
+            if(qresult == 0):
+                log_write_notime("0",textname) 
+            else:
+                log_write_notime("1",textname) #error toi ved
             time.sleep(1)
+        # ? is running 30 minute aas ix baiwal
+        seconddate = now + timedelta(days=1)
+        tdate = "'"+ str(now)[:10]+ "' and '" +str(seconddate)[:10] +"'"
+        is_running_query = "SELECT create_date FROM action_pull_sync_line where  state='in_progress' and create_date between" + tdate + "LIMIT 1"   
+        qresult = []
+        for i in range(len(odoodatabases)):
+            textname = '//192.168.0.25/sync_pull_log/isrun_'+ odoodatabases[i]['server'] + '.txt'      
+            try:
+                conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
+                qresult = postg_return_value(conp,is_running_query)
+                if qresult == []:
+                    print('null bna')
+                    log_write_notime("0",textname)
+                else:
+                    print(odoodatabases[i]['database'])
+                    zorvvtsag = now - qresult[0][0]
+                    if zorvvtsag.seconds/60 > 30:
+                        log_write_notime("1",textname) # isrunning more than 30minute
+                    else: 
+                        log_write_notime("0",textname)
+            except:
+                pass
+            qresult = []
 
     if now.hour > 8 and now.hour < 24:
         ZABBIX_API_URL = "http://192.168.0.44:8080/zabbix/api_jsonrpc.php"
@@ -237,7 +291,7 @@ while(1==1):
             # host created ticket dotor baixgvi baiwal shineer vvsgeed, daraa ni vvssen ticket dotor nemj ogj bna
             if isfind == False:
                 tempcontent = allproblemdict[x]['reason'] +' ip:'+ allproblemdict[x]['ip_address'] 
-                createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
+                #createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
                 print("ticket created   ---" , allproblemdict[x]['host'], ' ', allproblemdict[x]['reason'])
                 eachdict1 ={
                     "host" : allproblemdict[x]['host'],
@@ -269,4 +323,4 @@ while(1==1):
     time.sleep(sleepsecond)
     print(now)
     print("sleeping...")
-    log_write("looping ...")
+    log_write("looping ...",log_path)

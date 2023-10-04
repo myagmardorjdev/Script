@@ -1,5 +1,20 @@
 import time,datetime
 import random,sys
+import os
+
+class read_txt_line_by_line_to_list():
+    def __init__(self,value,list,type):
+        if type == 'r':
+            self.filepath = value
+            with open(self.filepath, 'r') as file:
+                self.lines = [line.strip() for line in file.readlines()]
+        else: 
+            self.filepath = value
+            with open(self.filepath, 'w') as file:
+                for line in list:
+                    file.write(line + '\n')
+    def returnc(self):
+        return self.lines
 
 class list_unique_counter():
     def __init__(self, listname,index):
@@ -29,6 +44,7 @@ class writetextappend():
         if not os.path.exists(self.path):
             with open(self.path, 'w') as f:
                 pass
+                print('null')
         with open(self.path, 'a') as f:
             string = self.content
             f.writelines(string)

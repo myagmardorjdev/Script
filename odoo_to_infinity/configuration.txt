@@ -1,7 +1,7 @@
 URL= http://202.126.92.20:3131/UltimateService.asmx/SalesOrder
 REQUEST METHOD= POST
 AUTHENTICATION=Basic
-TOKEN = ''
+TOKEN = aacc7178a7509248a061de627d20656f
 CONTENT-TYPE=Application/Json
 ENCODING=UTF-8
 salbarid = S38

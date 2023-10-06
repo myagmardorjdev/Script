@@ -48,8 +48,6 @@ loop_sleeptime = 30 #second
 odoodatabases = {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'}
 
 
-
-
 #loop inside
 while True:
     now = datetime.now()
@@ -170,7 +168,7 @@ while True:
         items_sales_total_output["TxnType"] = "IN"
         #items_sales_total_output["SalesDate"] = SalesDate
         bill_line["Sales"]=[items_sales_total_output]
-        bill_line["token"]=default_config_dict['TOKEN']
+        bill_line["token"]=urllib.parse.unquote(default_config_dict['TOKEN'])
         #print(bill_line)
         # ? reading pos order_id txt ees unshij bna 
         lines = read_txt_line_by_line_to_list(file_running_directory + 'pos_order_head.txt',[],'r').returnc()
@@ -197,10 +195,14 @@ headers = {
 response = requests.post(default_config_dict['URL'], headers=headers,json=bill_line)
 print("Status Code:", response.status_code)
 if response.status_code == 200:
-    print("connection succeed")
     responsetype = response.json()['retType']
     responseretdesc = response.json()['retDesc']
-    print("Response Content:", responseretdesc)
-
-
+    if responseretdesc == "Succesfull Executed Query":
+        print("amjilttai hadgallaaad")
+        responseaffectedrows = response.json()['affectedRows']
+        print("Response Content:", response.json())
+        print("affected rows: ",responseaffectedrows)
+    elif 'бүртгэлгүй' in  responseretdesc:
+        print('bvrtgelgvi бараа байна')
+        writetextappend(str(now) + " " + responseretdesc,logpath)
 

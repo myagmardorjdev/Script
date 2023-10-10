@@ -5,3 +5,5 @@ TOKEN = R%2FCttOjflqG55XHt9zr3FdX8kjbKlbkQt002zNgsdSs%3D
 CONTENT-TYPE=Application/Json
 ENCODING=UTF-8
 salbarid = S38
+sale_order_textname = pos_order_head.txt
+refund_order_textname = refund_order_head.txt

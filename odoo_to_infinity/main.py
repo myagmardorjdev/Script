@@ -27,24 +27,24 @@ def postg(conn,query):
         #stringa = row;
     return data
     conn.close()                                                          
-
-# ! region QUERY ZONE
+#! QUERY ZONE
+#region 
 now = datetime.now()
 seconddate = now + timedelta(days=1)
 tdate = "'"+ str(now)[:10]+ "' and '" +str(seconddate)[:10] +"'"
-                           #0    #1              #2          #3       #4            #5              #6      #7                #8                      #9            #10                   #11            #12              #13              #14             #15         #16 
-pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between "+tdate
+                           #0    #1              #2          #3       #4            #5              #6      #7                #8                      #9            #10                   #11            #12              #13              #14             #15         #16         #17
+pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between "+tdate
 pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1.is_change FROM pos_payment as p1 inner join pos_payment_method as p2  on p2.id = p1.payment_method_id where p1.payment_date between"+tdate
-
-refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between "+tdate
-
+pos_order_id_query = "SELECT id,bill_id FROM pos_order where name = 'value'"
+refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between "+tdate
+#endregion
 # ? default variables
 default_config_dict = readtextfile_to_dict(file_running_directory+"configuration.txt").returnc()
 loop_status = 1
 success_bill_orders = {}
 lines=[]
 logpath = file_running_directory+"mainlog.txt"
-loop_sleeptime = 30 #second
+loop_sleeptime = 120 #second
 odoodatabases = {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'}
 
 
@@ -66,12 +66,21 @@ while True:
         for j in range(len(refund_pos_order_result)):
             if refund_pos_order_result[j][9] == i:
                 SaleItems1 = {"Barcode":refund_pos_order_result[j][2],"Qty":float(refund_pos_order_result[j][6]),"ItemDueAmount":float(refund_pos_order_result[j][8])}
-                TerminalID = refund_pos_order_result[j][3][:4]
                 CashierEmpCode = refund_pos_order_result[j][14]
-                DDTDNo = refund_pos_order_result[j][16] 
-                SalesDate = (refund_pos_order_result[j][11]).strftime('%Y.%m.%d')
+                #SalesDate = (refund_pos_order_result[j][11]).strftime('%Y.%m.%d')
                 SaleItems[counter] = SaleItems1
                 counter+=1
+                # ? finding үндсэн билл ордерийг хайх гэж байна ,  refund order_id өөрөөр үүсдэг юм байна
+                billdugaar = (refund_pos_order_result[j][17]).split()[0]
+                #found_items = [sublist for sublist in pos_order_result if sublist[17] == billdugaar]
+                pos_order_id_query2 = pos_order_id_query.replace('value',billdugaar)
+                pos_order_id_result = []
+                pos_order_id_result = postg(conp,pos_order_id_query2)
+                # ? бид энэ order_id g ашиглан sales_id дотроос order_id and нубиагаас өгсөн борлуулалтын id-гаар солих боломжтой
+                print("order id: ", pos_order_id_result)
+
+                DDTDNo = pos_order_id_result[0][1] 
+                TerminalID = billdugaar.split('/')[0]
         for k in range(len(pos_payment_result)):
             if i == pos_payment_result[k][0]:
                 PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": pos_payment_result[k][2]}
@@ -103,6 +112,15 @@ while True:
         refund_bill_line["Sales"]=[refund_total_orders]
         refund_bill_line["token"]=default_config_dict['TOKEN']
         #print(bill_line)  
+        # ? буцаалтын биллийг txt data -тай тулгаж , байхгүй бол текстэнд хадгалж байна
+        lines = read_txt_line_by_line_to_list(file_running_directory + default_config_dict['refund_order_textname'],[],'r').returnc()
+        if str(i) in lines:
+            pass 
+        else: 
+            lines.append(str(i))
+            writetextappend(str(now) + " refund;" + str(refund_bill_line) + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
+            read_txt_line_by_line_to_list(file_running_directory + default_config_dict['refund_order_textname'],lines,'w')
+
     # ? cash dr хариулт өгсөн бол хариултын мөрийг арилгаж байна (20000 + -100) = 19900
     for i in list_unique_counter(pos_payment_result,0).returnc():
         totalvalue = 0
@@ -171,21 +189,23 @@ while True:
         bill_line["token"]=urllib.parse.unquote(default_config_dict['TOKEN'])
         #print(bill_line)
         # ? reading pos order_id txt ees unshij bna 
-        lines = read_txt_line_by_line_to_list(file_running_directory + 'pos_order_head.txt',[],'r').returnc()
+        lines = read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],[],'r').returnc()
         if str(i) in lines:
             pass 
         else: 
             lines.append(str(i))
             print("Bill Number: ",len(lines))
-            writetextappend(str(now) + " " + str(bill_line),logpath)
-            read_txt_line_by_line_to_list(file_running_directory + 'pos_order_head.txt',lines,'w')
+            writetextappend(str(now) + " " + str(bill_line) + ";order_id: " +str(i) + ";cashiername: " + str(pos_order_result[j][15]),logpath)
+            read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],lines,'w')
     
     # ! omnox odriin bill vvdiig ustgaj bna
     if now.hour == 0 and now.minute <= (loop_sleeptime/60):
-        os.remove(file_running_directory + 'pos_order_head.txt')
-        with open(file_running_directory + 'pos_order_head.txt', 'w') as f:
+        os.remove(file_running_directory + default_config_dict['sale_order_textname'])
+        with open(file_running_directory + default_config_dict['sale_order_textname'], 'w') as f:
             pass
-
+        os.remove(file_running_directory + default_config_dict['refund_order_textname'])
+        with open(file_running_directory + default_config_dict['refund_order_textname'], 'w') as f:
+            pass   
     time.sleep(loop_sleeptime)
 
 
@@ -205,4 +225,9 @@ if response.status_code == 200:
     elif 'бүртгэлгүй' in  responseretdesc:
         print('bvrtgelgvi бараа байна')
         writetextappend(str(now) + " " + responseretdesc,logpath)
+    elif 'Cannot insert' in responseretdesc:
+        print('cannont insert value null into VATIncluded')
+        writetextappend(str(now) + " " + responseretdesc,logpath)
 
+salesitem = {'Barcode': '8656008550171', 'Qty': '3.000', 'ItemDueAmount': 2190}
+bill_line['Sales'][0]['SaleItems'] = {'Barcode': '8656008550171', 'Qty': '1.000', 'ItemDueAmount': 8190}

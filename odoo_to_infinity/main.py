@@ -7,13 +7,15 @@ from decimal import Decimal
 sys.path.append(file_running_directory)
 import time
 import urllib.parse
-import base64
 import requests
 from datetime import datetime,timedelta
+from lesson3.odoo_to_infinity.functions import find_value_in_list_selected_column
 from lesson3.odoo_to_infinity.functions import readtextfile_to_dict
 from lesson3.odoo_to_infinity.functions import list_unique_counter
 from lesson3.odoo_to_infinity.functions import writetextappend
 from lesson3.odoo_to_infinity.functions import read_txt_line_by_line_to_list
+from lesson3.odoo_to_infinity.functions import database_insert_new_baraa
+
 # ? >>>>>>>>> QUERY functions
 def postg(conn,query):
     global stringa;
@@ -72,7 +74,7 @@ while True:
                 counter+=1
                 # ? finding үндсэн билл ордерийг хайх гэж байна ,  refund order_id өөрөөр үүсдэг юм байна
                 billdugaar = (refund_pos_order_result[j][17]).split()[0]
-                #found_items = [sublist for sublist in pos_order_result if sublist[17] == billdugaar]
+                
                 pos_order_id_query2 = pos_order_id_query.replace('value',billdugaar)
                 pos_order_id_result = []
                 pos_order_id_result = postg(conp,pos_order_id_query2)
@@ -208,26 +210,27 @@ while True:
             pass   
     time.sleep(loop_sleeptime)
 
+if 1 == 1:
+    headers = {
+        "Content-Type": "application/json; charset=utf-8"
+    }
+    response = requests.post(default_config_dict['URL'], headers=headers,json=bill_line)
+    print("Status Code:", response.status_code)
+    if response.status_code == 200:
+        responsetype = response.json()['retType']
+        responseretdesc = response.json()['retDesc']
+        if responseretdesc == "Succesfull Executed Query":
+            print("amjilttai hadgallaaad")
+            responseaffectedrows = response.json()['affectedRows']
+            print("Response Content:", response.json())
+            print("affected rows: ",responseaffectedrows)
+        elif 'бүртгэлгүй' in  responseretdesc:
+            print('bvrtgelgvi бараа байна')
+            writetextappend(str(now) + " " + responseretdesc,logpath)
+        elif 'Cannot insert' in responseretdesc:
+            print('cannont insert value null into VATIncluded')
+            writetextappend(str(now) + " " + responseretdesc,logpath)
 
-headers = {
-    "Content-Type": "application/json; charset=utf-8"
-}
-response = requests.post(default_config_dict['URL'], headers=headers,json=bill_line)
-print("Status Code:", response.status_code)
-if response.status_code == 200:
-    responsetype = response.json()['retType']
-    responseretdesc = response.json()['retDesc']
-    if responseretdesc == "Succesfull Executed Query":
-        print("amjilttai hadgallaaad")
-        responseaffectedrows = response.json()['affectedRows']
-        print("Response Content:", response.json())
-        print("affected rows: ",responseaffectedrows)
-    elif 'бүртгэлгүй' in  responseretdesc:
-        print('bvrtgelgvi бараа байна')
-        writetextappend(str(now) + " " + responseretdesc,logpath)
-    elif 'Cannot insert' in responseretdesc:
-        print('cannont insert value null into VATIncluded')
-        writetextappend(str(now) + " " + responseretdesc,logpath)
+    salesitem = {'Barcode': '6970399920590', 'Qty': '3.000', 'ItemDueAmount': 2190}
+    bill_line['Sales'][0]['SaleItems'] = [{'Barcode': '6970399920590', 'Qty': '1.000', 'ItemDueAmount': 3430}]
 
-salesitem = {'Barcode': '8656008550171', 'Qty': '3.000', 'ItemDueAmount': 2190}
-bill_line['Sales'][0]['SaleItems'] = {'Barcode': '8656008550171', 'Qty': '1.000', 'ItemDueAmount': 8190}

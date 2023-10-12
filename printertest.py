@@ -1,6 +1,7 @@
 import usb.core
 import usb.util
 import win32print
+import sqlite3
 import win32ui
 
 #printers = win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL,None,1)
@@ -36,3 +37,4 @@ hdc.StartPage()
 hdc.WritePrinter(cut_command)
 hdc.EndPage()
 hdc.EndDoc()
+

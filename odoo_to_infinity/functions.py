@@ -1,8 +1,25 @@
-import time,datetime
+import time
 import random,sys
 import os
+import sqlite3
+from datetime import datetime
+import random
+import string
+import pandas as pd
+from typing import Any
 
-class read_txt_line_by_line_to_list():
+class find_value_in_list_selected_column(): # ? 2 хэмжээст листнээс баганаа сонгож тэндээс ХАЙЖ буй тоо байвал мөрөн листыг буцаана
+    def __init__(self,value,listname,index):
+        self.value = value
+        self.index = index
+        self.list = listname
+        self.resultlist = []
+        self.resultlist = [sublist for sublist in self.list if sublist[self.index] == self.value]
+
+    def returnc(self):
+        return self.resultlist
+
+class read_txt_line_by_line_to_list(): # ? доошоо урссан текст тоонуудыг уншиж листэнд хадгалж буцаана
     def __init__(self,value,list,type):
         if type == 'r':
             self.filepath = value
@@ -16,7 +33,7 @@ class read_txt_line_by_line_to_list():
     def returnc(self):
         return self.lines
 
-class list_unique_counter():
+class list_unique_counter(): # ? list байдлаар давтагдахгүй дугааруудыг буцаана.
     def __init__(self, listname,index):
         self.content = listname
         self.index = index
@@ -58,7 +75,7 @@ class generatepkid():
     def returnc(self):
         return self.value
 
-class readtextfile_to_dict():                                                                              
+class readtextfile_to_dict():  #? текст файлыг уншиж dic хэлбэрээр буцаана                                                                             
     def __init__(self, value):
         self.filename = value
         self.contents = []
@@ -75,6 +92,40 @@ class readtextfile_to_dict():
             if ind != -1:
                 self.configuredict[(self.contents[i].strip()[:ind]).strip()]=(self.contents[i].strip()[ind+1:]).strip()
         return self.configuredict
-    
 
+class generate_random_string(): # ? нууц үгийн зориулалтаар санамсаргүй текст үүсгэж өгнө
+    def __init__(self,length):
+        self.lenght = length
+        self.characters = string.ascii_letters + string.digits  # You can customize this string to include more characters if needed
+        self.random_string = ''.join(random.choice(self.characters) for _ in range(self.lenght))
+    def returnc(self):
+        return self.random_string
+
+class creating_default_database_tables():
+    def __init__(self,name):
+        self.databasename= name
+        self.conn = sqlite3.connect(self.databasename)
+        self.query = "CREATE TABLE IF NOT EXISTS baraanuud (barcode        TEXT (15)  NOT NULL UNIQUE,price          INTEGER,name           TEXT (255),relatedbarcode TEXT (255),isActive       INTEGER    DEFAULT (1),isVat          INTEGER    DEFAULT (1),isFraction     INTEGER    DEFAULT (0),Category       TEXT (255) DEFAULT nogroup);"
+        self.conn.execute(self.query)
+        
+        self.conn.close()
+
+class database_insert_new_baraa():
+    def __init__(self,basename,tablename,barcode,price,name,relbarcode,fraction):
+        self.barcode = barcode
+        self.price = price
+        self.name = name
+        self.fraction = fraction
+        self.relbarcode = relbarcode
+        self.tablename = tablename
+        self.databasename= basename
+        self.conn = sqlite3.connect(self.databasename)
+        self.c = self.conn.cursor()
+        self.query = "INSERT INTO " + self.tablename +"(barcode,price,name,relatedbarcode,isFraction) "+ " Values(" +str(self.barcode) + "," + str(self.price) +",'" +self.name +"','" + self.relbarcode+ "'," +str(self.fraction)+  ")"
+        self.c.execute(self.query)
+        print(self.query)
+        self.conn.commit()
+        self.conn.close()
+
+#creating_database_tables("handodatabase")
 

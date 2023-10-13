@@ -69,7 +69,7 @@ class writetextappend():
 class generatepkid():
     def __init__(self):
         self.now = datetime.now()
-        self.genid = random.randint(10000,99999)
+        self.genid = random.randint(100,999)
         self.value = (str(self.now.year) + ("0" if self.now.month < 10 else "") + str(self.now.month)+("0" if self.now.day < 10 else "")+str(self.now.day)+("0" if self.now.hour < 10 else "")+str(self.now.hour)+("0" if self.now.minute < 10 else "")+str(self.now.minute)+("0" if self.now.second < 10 else "")+str(self.now.second)+ str(self.genid))
     
     def returnc(self):
@@ -101,11 +101,21 @@ class generate_random_string(): # ? нууц үгийн зориулалтаар
     def returnc(self):
         return self.random_string
 
+class get_uid_on_selected_table():
+    def __init__(self,db,table,column):
+        self.databasename = db
+        self.table = table 
+        self.column = column
+        self.conn = sqlite3.connect(self.databasename)
+        self.c = self.conn.cursor()
+        self.query = "SELECT " + column + " FROM " + self.table
+        print(self.query)
+
 class creating_default_database_tables():
     def __init__(self,name):
         self.databasename= name
         self.conn = sqlite3.connect(self.databasename)
-        self.query = "CREATE TABLE IF NOT EXISTS baraanuud (barcode        TEXT (15)  NOT NULL UNIQUE,price          INTEGER,name           TEXT (255),relatedbarcode TEXT (255),isActive       INTEGER    DEFAULT (1),isVat          INTEGER    DEFAULT (1),isFraction     INTEGER    DEFAULT (0),Category       TEXT (255) DEFAULT nogroup);"
+        self.query = "CREATE TABLE IF NOT EXISTS baraanuud (barcode        TEXT (16)  NOT NULL UNIQUE,name           TEXT (255),relatedbarcode TEXT (255),isActive       INTEGER    DEFAULT (1),isVat          INTEGER    DEFAULT (1),isFraction     INTEGER    DEFAULT (0),Category       TEXT (255) DEFAULT nogroup,uid  INTEGER);"
         self.conn.execute(self.query)
         
         self.conn.close()
@@ -115,17 +125,19 @@ class database_insert_new_baraa():
         self.barcode = barcode
         self.price = price
         self.name = name
+        self.pkid = generatepkid().returnc()
         self.fraction = fraction
         self.relbarcode = relbarcode
         self.tablename = tablename
         self.databasename= basename
         self.conn = sqlite3.connect(self.databasename)
         self.c = self.conn.cursor()
-        self.query = "INSERT INTO " + self.tablename +"(barcode,price,name,relatedbarcode,isFraction) "+ " Values(" +str(self.barcode) + "," + str(self.price) +",'" +self.name +"','" + self.relbarcode+ "'," +str(self.fraction)+  ")"
-        self.c.execute(self.query)
+        self.query = "INSERT INTO " + self.tablename +"(barcode,name,relatedbarcode,isFraction,uid) "+ " Values(" +str(self.barcode)  +",'" +self.name +"','" + self.relbarcode+ "'," +str(self.fraction)+ ","+str(self.pkid) + ")"
         print(self.query)
+        self.c.execute(self.query)
         self.conn.commit()
         self.conn.close()
 
-#creating_database_tables("handodatabase")
-
+creating_default_database_tables("handodatabase")
+#database_insert_new_baraa("handodatabase","baraanuud",8606004234234,2500,'Сүү','n',0)
+get_uid_on_selected_table("handodatabase","baraanuud",'uid')

@@ -62,7 +62,7 @@ class writetextappend():
             with open(self.path, 'w') as f:
                 pass
                 print('null')
-        with open(self.path, 'a') as f:
+        with open(self.path,'a',encoding="utf-8") as f:
             string = self.content
             f.writelines(string)
 

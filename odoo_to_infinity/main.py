@@ -152,7 +152,7 @@ while True:
         PayItems = {}
         for j in range(len(pos_order_result)):
             if pos_order_result[j][9] == i:
-                SaleItems1 = {"Barcode":pos_order_result[j][2],"Qty":str(pos_order_result[j][6]),"ItemDueAmount":float(pos_order_result[j][8])}
+                SaleItems1 = {"Barcode":pos_order_result[j][2],"Qty":f'{pos_order_result[j][6]:.2f}',"ItemDueAmount":float(pos_order_result[j][8])}
                 TerminalID = pos_order_result[j][3][:4]
                 CashierEmpCode = pos_order_result[j][14]
                 DDTDNo = pos_order_result[j][16] 
@@ -186,19 +186,43 @@ while True:
         items_sales_total_output["CashierEmpCode"] = str(CashierEmpCode)
         items_sales_total_output["DDTDNo"] = DDTDNo
         items_sales_total_output["TxnType"] = "IN"
+        items_sales_total_output["SiteId"] = '08'
         #items_sales_total_output["SalesDate"] = SalesDate
         bill_line["Sales"]=[items_sales_total_output]
-        bill_line["token"]=urllib.parse.unquote(default_config_dict['TOKEN'])
+        bill_line["token"]='R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw=' #bill_line["token"]=urllib.parse.unquote(default_config_dict['TOKEN'])
         #print(bill_line)
         # ? reading pos order_id txt ees unshij bna 
         lines = read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],[],'r').returnc()
         if str(i) in lines:
             pass 
-        else: 
-            lines.append(str(i))
-            print("Bill Number: ",len(lines))
-            writetextappend(str(now) + " " + str(bill_line) + ";order_id: " +str(i) + ";cashiername: " + str(pos_order_result[j][15]),logpath)
-            read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],lines,'w')
+        else:
+            ## ! энэ тестийн мэдээлэл шүү 
+            bill_line['Sales'][0]['SaleItems'] = [{'Barcode': '6970399920590', 'Qty': '1.00', 'ItemDueAmount': 8900}]
+            headers = {
+                "Content-Type": "application/json; charset=utf-8"
+            }
+            response = requests.post(default_config_dict['URL'], headers=headers,json=bill_line)
+            print("Status Code:", response.status_code)
+            if response.status_code == 200:
+                responsetype = response.json()['retType']
+                responseretdesc = response.json()['retDesc']
+                if responseretdesc == "Succesfull Executed Query":
+                    print("amjilttai hadgallaaa")
+                    responseaffectedrows = response.json()['affectedRows']
+                    salesNo = response.json()['retData'][0]['SalesNo']
+                    lines.append(str(i))
+                    print("Bill Number: ",len(lines))
+                    read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],lines,'w')
+                    writetextappend(str(salesNo)+"="+str(i),file_running_directory + 'sales_id.txt')
+                elif 'бүртгэлгүй' in  responseretdesc:
+                    print(' Бүртгэлгүй бараа байна')
+                    errorinfo = 'burtgelgvi baraa bna'
+                elif 'Cannot insert' in responseretdesc:
+                    print('cannont insert value null into VATIncluded')
+                    errorinfo = ' cannont insert value null into VATIncluded'
+            
+            writetextappend(str(now) + " " + str(bill_line) + ";order_id: " +str(i) + ";cashiername: " + str(pos_order_result[j][15]) + errorinfo,logpath)
+            
     
     # ! omnox odriin bill vvdiig ustgaj bna
     if now.hour == 0 and now.minute <= (loop_sleeptime/60):
@@ -210,27 +234,7 @@ while True:
             pass   
     time.sleep(loop_sleeptime)
 
-if 1 == 1:
-    headers = {
-        "Content-Type": "application/json; charset=utf-8"
-    }
-    response = requests.post(default_config_dict['URL'], headers=headers,json=bill_line)
-    print("Status Code:", response.status_code)
-    if response.status_code == 200:
-        responsetype = response.json()['retType']
-        responseretdesc = response.json()['retDesc']
-        if responseretdesc == "Succesfull Executed Query":
-            print("amjilttai hadgallaaad")
-            responseaffectedrows = response.json()['affectedRows']
-            print("Response Content:", response.json())
-            print("affected rows: ",responseaffectedrows)
-        elif 'бүртгэлгүй' in  responseretdesc:
-            print('bvrtgelgvi бараа байна')
-            writetextappend(str(now) + " " + responseretdesc,logpath)
-        elif 'Cannot insert' in responseretdesc:
-            print('cannont insert value null into VATIncluded')
-            writetextappend(str(now) + " " + responseretdesc,logpath)
 
-    salesitem = {'Barcode': '6970399920590', 'Qty': '3.000', 'ItemDueAmount': 2190}
-    bill_line['Sales'][0]['SaleItems'] = [{'Barcode': '6970399920590', 'Qty': '1.000', 'ItemDueAmount': 3430}]
+    
 
+    

@@ -38,3 +38,28 @@ hdc.WritePrinter(cut_command)
 hdc.EndPage()
 hdc.EndDoc()
 
+import openpyxl
+
+# Sample data in a list of lists
+data = [
+    ["Name", "Age", "City"],
+    ["Alice", 30, "New York"],
+    ["Bob", 25, "Chicago"],
+    ["Eve", 35, "Los Angeles"]
+]
+for i in range(10000):
+    value1 = "name" + str(i)
+    value2 = "city" + str(i)
+    data.append([value1, str(i), value2])
+# Create a new Excel workbook and select the active worksheet
+workbook = openpyxl.Workbook()
+sheet = workbook.active
+
+# Iterate through the data and write it to the worksheet
+for row in data:
+    sheet.append(row)
+
+# Save the workbook to a file
+workbook.save("output.xlsx")
+
+print("Data has been written to output.xlsx")

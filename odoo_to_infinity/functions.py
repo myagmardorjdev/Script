@@ -8,6 +8,23 @@ import string
 import pandas as pd
 from typing import Any
 
+
+class getfilesize():
+    def __init__(self,path,size):
+        self.type = size
+        self.divider = 1
+        self.ans = 0
+        self.divider = 1024 if self.type == 'kb' else (1024*1024 if self.type == 'mb' else (1024*1024*1024 if self.type == 'gb' else 1))
+
+        try:
+            self.ans = os.path.getsize(path)/self.divider
+        except FileNotFoundError:
+            print("File not found.")
+        except OSError:
+            print("OS error occurred.")
+    def returnc(self):
+        return self.ans
+    
 class find_value_in_list_selected_column(): # ? 2 хэмжээст листнээс баганаа сонгож тэндээс ХАЙЖ буй тоо байвал мөрөн листыг буцаана
     def __init__(self,value,listname,index):
         self.value = value
@@ -109,7 +126,12 @@ class get_uid_on_selected_table():
         self.conn = sqlite3.connect(self.databasename)
         self.c = self.conn.cursor()
         self.query = "SELECT " + column + " FROM " + self.table
-        print(self.query)
+        self.c.execute(self.query)
+        self.conn.commit()
+        self.conn.close()
+    
+    def returnc(self):
+        return self.c
 
 class creating_default_database_tables():
     def __init__(self,name):
@@ -138,6 +160,8 @@ class database_insert_new_baraa():
         self.conn.commit()
         self.conn.close()
 
+
+
 creating_default_database_tables("handodatabase")
 #database_insert_new_baraa("handodatabase","baraanuud",8606004234234,2500,'Сүү','n',0)
-get_uid_on_selected_table("handodatabase","baraanuud",'uid')
+get_uid_on_selected_table("handodatabase","baraanuud",'uid').returnc()

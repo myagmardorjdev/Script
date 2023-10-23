@@ -47,81 +47,16 @@ success_bill_orders = {}
 lines=[]
 logpath = file_running_directory+"mainlog.txt"
 loop_sleeptime = 120 #second
-odoodatabases = {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'}
+odoodatabases = {'user': 'readonly_c01','password': 'readonly_c01_password','server': '10.1.1.220','port': 5432,'database':'STORE01_LIVE'}
 
 
 #loop inside
 while True:
     now = datetime.now()
-    conp = psycopg2.connect(database=odoodatabases['database'], user=odoodatabases['user'], password=odoodatabases['password'], host=odoodatabases['server'], port= odoodatabases['port'])
+    conp = psycopg2.connect(database=odoodatabases['database'], user=odoodatabases['user'], password=odoodatabases['password'], host=odoodatabases['server'], port= odoodatabases['port'])      
     pos_order_result = postg(conp,pos_orders_query)
     pos_payment_result = postg(conp,pos_payment_query)
     refund_pos_order_result= postg(conp,refund_pos_order_query)
-
-    # ? буцаалтын pos orders 
-    for i in list_unique_counter(refund_pos_order_result,9).returnc():
-        refund_bill_line = {}
-        counter = 0
-        SaleItems = {}
-        counter2 = 0
-        PayItems = {}
-        for j in range(len(refund_pos_order_result)):
-            if refund_pos_order_result[j][9] == i:
-                SaleItems1 = {"Barcode":refund_pos_order_result[j][2],"Qty":float(refund_pos_order_result[j][6]),"ItemDueAmount":float(refund_pos_order_result[j][8])}
-                CashierEmpCode = refund_pos_order_result[j][14]
-                #SalesDate = (refund_pos_order_result[j][11]).strftime('%Y.%m.%d')
-                SaleItems[counter] = SaleItems1
-                counter+=1
-                # ? finding үндсэн билл ордерийг хайх гэж байна ,  refund order_id өөрөөр үүсдэг юм байна
-                billdugaar = (refund_pos_order_result[j][17]).split()[0]
-                
-                pos_order_id_query2 = pos_order_id_query.replace('value',billdugaar)
-                pos_order_id_result = []
-                pos_order_id_result = postg(conp,pos_order_id_query2)
-                # ? бид энэ order_id g ашиглан sales_id дотроос order_id and нубиагаас өгсөн борлуулалтын id-гаар солих боломжтой
-                print("order id: ", pos_order_id_result)
-
-                DDTDNo = pos_order_id_result[0][1] 
-                TerminalID = billdugaar.split('/')[0]
-        for k in range(len(pos_payment_result)):
-            if i == pos_payment_result[k][0]:
-                PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": pos_payment_result[k][2]}
-                PayItems[counter2] = PayItems1
-                counter2+=1
-        
-        refund_total_orders = {
-        "SaleItems": [
-            {
-                "Barcode": str(item['Barcode']),
-                "Qty":item['Qty'],
-                "ItemDueAmount": int(item['ItemDueAmount'])
-            }
-            for item in SaleItems.values()
-        ],
-        "SalePayments": [
-            {
-                "PaymentTypeID": str(item['PaymentTypeID']),
-                "PaymentAmount":item['PaymentAmount']
-            }
-            for item in PayItems.values()
-        ]
-        }
-        refund_total_orders["TerminalID"] = TerminalID
-        refund_total_orders["CashierEmpCode"] = CashierEmpCode
-        refund_total_orders["DDTDNo"] = DDTDNo
-        refund_total_orders["TxnType"] = "CM"
-        #refund_total_orders["SalesDate"] = SalesDate
-        refund_bill_line["Sales"]=[refund_total_orders]
-        refund_bill_line["token"]=default_config_dict['TOKEN']
-        #print(bill_line)  
-        # ? буцаалтын биллийг txt data -тай тулгаж , байхгүй бол текстэнд хадгалж байна
-        lines = read_txt_line_by_line_to_list(file_running_directory + default_config_dict['refund_order_textname'],[],'r').returnc()
-        if str(i) in lines:
-            pass 
-        else: 
-            lines.append(str(i))
-            writetextappend(str(now) + " refund;" + str(refund_bill_line) + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
-            read_txt_line_by_line_to_list(file_running_directory + default_config_dict['refund_order_textname'],lines,'w')
 
     # ? cash dr хариулт өгсөн бол хариултын мөрийг арилгаж байна (20000 + -100) = 19900
     for i in list_unique_counter(pos_payment_result,0).returnc():
@@ -189,7 +124,7 @@ while True:
         items_sales_total_output["SiteId"] = '08'
         #items_sales_total_output["SalesDate"] = SalesDate
         bill_line["Sales"]=[items_sales_total_output]
-        bill_line["token"]='R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw=' #bill_line["token"]=urllib.parse.unquote(default_config_dict['TOKEN'])
+        bill_line["token"]=default_config_dict['TOKEN'] #bill_line["token"]=urllib.parse.unquote(default_config_dict['TOKEN'])
         #print(bill_line)
         # ? reading pos order_id txt ees unshij bna 
         lines = read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],[],'r').returnc()
@@ -213,16 +148,83 @@ while True:
                     lines.append(str(i))
                     print("Bill Number: ",len(lines))
                     read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],lines,'w')
-                    writetextappend(str(salesNo)+"="+str(i),file_running_directory + 'sales_id.txt')
+                    writetextappend(str(i)+"="+str(salesNo),file_running_directory + 'sales_id.txt')
                 elif 'бүртгэлгүй' in  responseretdesc:
                     print(' Бүртгэлгүй бараа байна')
-                    errorinfo = 'burtgelgvi baraa bna'
+                    errorinfo = ' burtgelgvi baraa bna'
                 elif 'Cannot insert' in responseretdesc:
                     print('cannont insert value null into VATIncluded')
                     errorinfo = ' cannont insert value null into VATIncluded'
             
             writetextappend(str(now) + " " + str(bill_line) + ";order_id: " +str(i) + ";cashiername: " + str(pos_order_result[j][15]) + errorinfo,logpath)
+        # ? буцаалтын pos orders 
+        for i in list_unique_counter(refund_pos_order_result,9).returnc():
+            refund_bill_line = {}
+            counter = 0
+            SaleItems = {}
+            counter2 = 0
+            PayItems = {}
+            for j in range(len(refund_pos_order_result)):
+                if refund_pos_order_result[j][9] == i:
+                    SaleItems1 = {"Barcode":refund_pos_order_result[j][2],"Qty":float(refund_pos_order_result[j][6]),"ItemDueAmount":float(refund_pos_order_result[j][8])}
+                    CashierEmpCode = refund_pos_order_result[j][14]
+                    #SalesDate = (refund_pos_order_result[j][11]).strftime('%Y.%m.%d')
+                    SaleItems[counter] = SaleItems1
+                    counter+=1
+                    # ? finding үндсэн билл ордерийг хайх гэж байна ,  refund order_id өөрөөр үүсдэг юм байна
+                    billdugaar = (refund_pos_order_result[j][17]).split()[0]
+                    
+                    pos_order_id_query2 = pos_order_id_query.replace('value',billdugaar)
+                    pos_order_id_result = []
+                    pos_order_id_result = postg(conp,pos_order_id_query2)
+                    sales_id_list = readtextfile_to_dict(file_running_directory+"sales_id.txt").returnc()
+                    # ? бид энэ order_id g ашиглан sales_id дотроос order_id and нубиагаас өгсөн борлуулалтын id-гаар солих боломжтой
+                    print("order id: ", pos_order_id_result)
+                    sales_id = sales_id_list[pos_order_id_result]
+                    DDTDNo = pos_order_id_result[0][1] 
+                    TerminalID = billdugaar.split('/')[0]
+            for k in range(len(pos_payment_result)):
+                if i == pos_payment_result[k][0]:
+                    PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": pos_payment_result[k][2]}
+                    PayItems[counter2] = PayItems1
+                    counter2+=1
             
+            refund_total_orders = {
+            "SaleItems": [
+                {
+                    "Barcode": str(item['Barcode']),
+                    "Qty":item['Qty'],
+                    "ItemDueAmount": int(item['ItemDueAmount'])
+                }
+                for item in SaleItems.values()
+            ],
+            "SalePayments": [
+                {
+                    "PaymentTypeID": str(item['PaymentTypeID']),
+                    "PaymentAmount":item['PaymentAmount']
+                }
+                for item in PayItems.values()
+            ]
+            }
+            refund_total_orders["TerminalID"] = TerminalID
+            refund_total_orders["CashierEmpCode"] = CashierEmpCode
+            refund_total_orders["DDTDNo"] = DDTDNo
+            refund_total_orders["TxnType"] = "CM"
+            refund_total_orders["SalesNo"] = sales_id
+            #refund_total_orders["SalesDate"] = SalesDate
+            refund_bill_line["Sales"]=[refund_total_orders]
+            refund_bill_line["token"]=default_config_dict['TOKEN']
+            #print(bill_line)  
+            # ? буцаалтын биллийг txt data -тай тулгаж , байхгүй бол текстэнд хадгалж байна
+            lines = read_txt_line_by_line_to_list(file_running_directory + default_config_dict['refund_order_textname'],[],'r').returnc()
+            if str(i) in lines:
+                pass 
+            else: 
+                lines.append(str(i))
+                writetextappend(str(now) + " refund;" + str(refund_bill_line) + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
+
+                read_txt_line_by_line_to_list(file_running_directory + default_config_dict['refund_order_textname'],lines,'w')
+        
     
     # ! omnox odriin bill vvdiig ustgaj bna
     if now.hour == 0 and now.minute <= (loop_sleeptime/60):

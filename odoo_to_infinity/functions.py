@@ -147,6 +147,7 @@ class database_insert_new_baraa():
         self.barcode = barcode
         self.price = price
         self.name = name
+        self.stringdate = now_date_to_text_date().returnc()
         self.pkid = generatepkid().returnc()
         self.fraction = fraction
         self.relbarcode = relbarcode
@@ -154,14 +155,27 @@ class database_insert_new_baraa():
         self.databasename= basename
         self.conn = sqlite3.connect(self.databasename)
         self.c = self.conn.cursor()
-        self.query = "INSERT INTO " + self.tablename +"(barcode,name,relatedbarcode,isFraction,uid) "+ " Values(" +str(self.barcode)  +",'" +self.name +"','" + self.relbarcode+ "'," +str(self.fraction)+ ","+str(self.pkid) + ")"
+        self.query = "INSERT INTO " + self.tablename +"(barcode,name,relatedbarcode,isFraction,uid,date) "+ " Values(" +str(self.barcode)  +",'" +self.name +"','" + self.relbarcode+ "'," +str(self.fraction)+ ","+str(self.pkid) +",'"+ self.stringdate +"')"
         print(self.query)
         self.c.execute(self.query)
         self.conn.commit()
         self.conn.close()
+    
+class now_date_to_text_date():
+    def __init__(self):
+        self.now = datetime.now()
+        self.value = str(self.now.year) + "-" + str(self.now.month) +'-'+str(self.now.day)+' '+str(self.now.hour)+':'+str(self.now.minute)+':'+str(self.now.second)
+    def returnc(self):
+        return self.value
 
-
+class text_date_to_now_date():
+    def __init__(self,date):
+        self.date = date
+        self.format = '%Y-%m-%d %H:%M:%S'
+        self.realdate = datetime.strptime(self.date, self.format)
+    def returnc(self):
+        return self.realdate
 
 creating_default_database_tables("handodatabase")
-#database_insert_new_baraa("handodatabase","baraanuud",8606004234234,2500,'Сүү','n',0)
+#database_insert_new_baraa("handodatabase","baraanuud",8606004234634,22300,'Ааруул','n',0)
 get_uid_on_selected_table("handodatabase","baraanuud",'uid').returnc()

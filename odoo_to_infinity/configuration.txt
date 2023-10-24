@@ -7,3 +7,4 @@ ENCODING=UTF-8
 salbarid = 08
 sale_order_textname = pos_order_head.txt
 refund_order_textname = refund_order_head.txt
+sales_id_ref = sales_id_ref.txt

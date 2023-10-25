@@ -27,3 +27,7 @@
 2023-10-24 10:03:55.267532 ;order_id: 33622 burtgelgvi baraa bna
 2023-10-24 15:02:59.445959 ;order_id: 33412 burtgelgvi baraa bna
 2023-10-24 15:02:59.445959 ultimate ruu holbogdoj chadsangvi
+2023-10-25 11:33:19.066428 {'Sales': [{'SaleItems': [{'Barcode': '46103536', 'Qty': '1.00', 'ItemDueAmount': 1430}], 'SalePayments': [{'PaymentTypeID': 'Cash', 'PaymentAmount': 1430}], 'TerminalID': '1701/13077', 'CashierEmpCode': '4', 'DDTDNo': '000002057441017231025001701000090', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 4938;cashiername: Uranbileg
+2023-10-25 11:33:19.066428 ultimate ruu holbogdoj chadsangvi
+2023-10-25 11:37:44.815068 ultimate ruu holbogdoj chadsangvi
+2023-10-25 11:55:00.187666 refund;{'Sales': [{'SaleItems': [{'Barcode': '46103536', 'Qty': -1.0, 'ItemDueAmount': -1430}], 'SalePayments': [{'PaymentTypeID': 'Cash', 'PaymentAmount': -1430}], 'TerminalID': '1701', 'CashierEmpCode': 6, 'DDTDNo': '000002057441017231025001701000090', 'TxnType': 'CM', 'SalesNo': '17012310000001'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 4938

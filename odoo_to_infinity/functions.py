@@ -1,6 +1,7 @@
 import time
 import random,sys
 import os
+import openpyxl
 import sqlite3
 from datetime import datetime
 import random
@@ -194,14 +195,19 @@ class text_date_to_now_date():
     def returnc(self):
         return self.realdate
 
+# ? default dataa vvsgej bna
 creating_default_database_tables("DBMN")
-
-
-for i in range(100):
-    name = 'Ааруул' + str(i)
-    bar = 7606004344637+i
-    une = random.randint(10000,99989)
+defaultbaraa = openpyxl.load_workbook("C:/Users/myagmardorj/Git/default_baraa.xlsx")
+defaultbaraa2 = defaultbaraa.active
+for row in range(1, defaultbaraa2.max_row):
+    newrow = []
+    for col in defaultbaraa2.iter_cols(1, defaultbaraa2.max_column):
+        newrow.append(col[row].value)
+    name = newrow[0]
+    bar = newrow[2]
+    une = newrow[1]
     database_insert_new_baraa("DBMN","baraanuud",bar,une,name,'n',0)
+
 
 print(len(get_uid_on_selected_table("DBMN","baraanuud",'uid').returnc()))
 print(len(set(get_uid_on_selected_table("DBMN","baraanuud",'uid').returnc())))

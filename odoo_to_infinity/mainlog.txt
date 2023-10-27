@@ -54,3 +54,18 @@
 2023-10-26 17:44:51.282771 ;order_id: 5447 burtgelgvi baraa bna
 2023-10-27 09:44:28.992441 {'Sales': [{'SaleItems': [{'Barcode': '8801116001941', 'Qty': '1.00', 'ItemDueAmount': 3510}, {'Barcode': '6936875407030', 'Qty': '1.00', 'ItemDueAmount': 22000}, {'Barcode': '8654000102749', 'Qty': '1.00', 'ItemDueAmount': 1630}], 'SalePayments': [{'PaymentTypeID': 'CASH', 'PaymentAmount': 27140}], 'TerminalID': '1604/13674', 'CashierEmpCode': '4', 'DDTDNo': '000002057441016231027001604000005', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 19703;cashiername: Otgontsetseg
 2023-10-27 09:44:28.992441 refund;{'Sales': [{'SaleItems': [{'Barcode': '6936875407030', 'Qty': 1.0, 'ItemDueAmount': 22000.0}], 'SalePayments': [{'PaymentTypeID': 'CASH', 'PaymentAmount': 22000}], 'TerminalID': '1604', 'CashierEmpCode': 2, 'DDTDNo': '000002057441016231027001604000005', 'TxnType': 'CM', 'SalesNo': '16042310000001'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 19703
+2023-10-27 14:46:22.527565 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:46:40.227364 ;order_id: 429117 burtgelgvi baraa bna
+2023-10-27 14:48:27.929408 ;order_id: 207035 burtgelgvi baraa bna
+2023-10-27 14:51:08.686818 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:08.980823 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:10.457995 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:10.541992 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:10.838720 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:12.329949 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:12.625670 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:12.729159 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:13.033124 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:15.805986 ultimate ruu holbogdoj chadsangvi
+2023-10-27 14:51:28.553692 {'Sales': [{'SaleItems': [{'Barcode': '3560071257576', 'Qty': '1.00', 'ItemDueAmount': 9000}], 'SalePayments': [{'PaymentTypeID': 'QPAY', 'PaymentAmount': 9000}], 'TerminalID': '2108/126961', 'CashierEmpCode': '14', 'DDTDNo': '000002057441021231027002108000545', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 184271;cashiername: Ariunzaya
+2023-10-27 14:51:28.553692 refund;{'Sales': [{'SaleItems': [{'Barcode': '3560071257576', 'Qty': 1.0, 'ItemDueAmount': 9000.0}], 'SalePayments': [{'PaymentTypeID': 'CASH', 'PaymentAmount': 9000}], 'TerminalID': '2108', 'CashierEmpCode': 12, 'DDTDNo': '000002057441021231027002108000545', 'TxnType': 'CM', 'SalesNo': '21082310000001'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 184271

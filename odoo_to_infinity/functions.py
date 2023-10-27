@@ -90,7 +90,7 @@ class generatepkid():
         self.value = (str(self.now.year) + ("0" if self.now.month < 10 else "") + str(self.now.month)+("0" if self.now.day < 10 else "")+str(self.now.day)+("0" if self.now.hour < 10 else "")+str(self.now.hour)+("0" if self.now.minute < 10 else "")+str(self.now.minute)+("0" if self.now.second < 10 else "")+str(self.now.second)+ str(self.genid))
     
     def returnc(self):
-        return self.value
+        return int(self.value)
 
 class readtextfile_to_dict():  #? текст файлыг уншиж dic хэлбэрээр буцаана                                                                             
     def __init__(self, value):
@@ -125,21 +125,25 @@ class get_uid_on_selected_table():
         self.column = column
         self.conn = sqlite3.connect(self.databasename)
         self.c = self.conn.cursor()
-        self.query = "SELECT " + column + " FROM " + self.table
+        self.query = "SELECT " + column + " FROM " + self.table 
         self.c.execute(self.query)
-        self.conn.commit()
+        self.newrow = []
+        self.rows = self.c.fetchall()
+        for row in self.rows:
+            self.newrow.append(row[0])
         self.conn.close()
-    
     def returnc(self):
-        return self.c
+            return self.newrow
 
 class creating_default_database_tables():
     def __init__(self,name):
         self.databasename= name
         self.conn = sqlite3.connect(self.databasename)
-        self.query = "CREATE TABLE IF NOT EXISTS baraanuud (barcode        TEXT (16)  NOT NULL UNIQUE,name           TEXT (255),relatedbarcode TEXT (255),isActive       INTEGER    DEFAULT (1),isVat          INTEGER    DEFAULT (1),isFraction     INTEGER    DEFAULT (0),Category       TEXT (255) DEFAULT nogroup,uid  INTEGER);"
+        self.query = "CREATE TABLE IF NOT EXISTS baraanuud (barcode        TEXT (16)  NOT NULL UNIQUE,name           TEXT (255),relatedbarcode TEXT (255),isActive       INTEGER    DEFAULT (1),isVat          INTEGER    DEFAULT (1),isFraction     INTEGER    DEFAULT (0),Category       TEXT (255) DEFAULT nogroup,uid  INTEGER,modifieddate        TEXT (22));"
+        #price table
+        self.query2 = "CREATE TABLE IF NOT EXISTS saleprice (itemid      INTEGER,price       INTEGER,isMainprice INTEGER,startdate   TEXT (21),enddate     TEXT (21) );"
         self.conn.execute(self.query)
-        
+        self.conn.execute(self.query2)
         self.conn.close()
 
 class database_insert_new_baraa():
@@ -147,19 +151,33 @@ class database_insert_new_baraa():
         self.barcode = barcode
         self.price = price
         self.name = name
-        self.stringdate = now_date_to_text_date().returnc()
-        self.pkid = generatepkid().returnc()
+        self.databasename= basename
         self.fraction = fraction
         self.relbarcode = relbarcode
         self.tablename = tablename
-        self.databasename= basename
+        cond = True
+        while cond:
+            self.pkid = generatepkid().returnc()
+            self.uids = get_uid_on_selected_table(self.databasename,self.tablename,'uid').returnc()
+            if self.pkid not in self.uids:
+                cond = False
+
         self.conn = sqlite3.connect(self.databasename)
         self.c = self.conn.cursor()
-        self.query = "INSERT INTO " + self.tablename +"(barcode,name,relatedbarcode,isFraction,uid,date) "+ " Values(" +str(self.barcode)  +",'" +self.name +"','" + self.relbarcode+ "'," +str(self.fraction)+ ","+str(self.pkid) +",'"+ self.stringdate +"')"
-        print(self.query)
-        self.c.execute(self.query)
-        self.conn.commit()
-        self.conn.close()
+        self.query = f"INSERT INTO {self.tablename} (barcode, name, relatedbarcode, isFraction, uid, modifieddate) VALUES ({self.barcode}, '{self.name}', '{self.relbarcode}', {self.fraction}, {self.pkid}, '{now_date_to_text_date().returnc()}')"
+        #une query 
+        self.queryune = f"INSERT INTO saleprice (itemid, price, isMainprice, startdate, enddate) VALUES ({self.pkid}, {self.price}, 1, '', '')"
+        try:
+            self.c.execute(self.queryune)
+        except Exception as e:
+            print ("une aldaa bol: ",e)
+        try:
+            self.c.execute(self.query)
+            self.conn.commit()
+            self.conn.close()
+        except Exception as e:
+            print ("baraa aldaa bol: ",e)
+            self.conn.close()
     
 class now_date_to_text_date():
     def __init__(self):
@@ -176,6 +194,16 @@ class text_date_to_now_date():
     def returnc(self):
         return self.realdate
 
-creating_default_database_tables("handodatabase")
-#database_insert_new_baraa("handodatabase","baraanuud",8606004234634,22300,'Ааруул','n',0)
-get_uid_on_selected_table("handodatabase","baraanuud",'uid').returnc()
+creating_default_database_tables("DBMN")
+
+
+for i in range(100):
+    name = 'Ааруул' + str(i)
+    bar = 7606004344637+i
+    une = random.randint(10000,99989)
+    database_insert_new_baraa("DBMN","baraanuud",bar,une,name,'n',0)
+
+print(len(get_uid_on_selected_table("DBMN","baraanuud",'uid').returnc()))
+print(len(set(get_uid_on_selected_table("DBMN","baraanuud",'uid').returnc())))
+
+

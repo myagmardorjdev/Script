@@ -51,7 +51,7 @@ loop_sleeptime = 120 #second
 odoodatabases = {'user': 'readonly_c17','password': 'readonly_c17_password','server': '10.17.1.220','port': 5432,'database':'STORE17_LIVE'}
 headers = {"Content-Type": "application/json; charset=utf-8"}
 # ! test orchin 
-pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE ord.bill_id='000002057441017231025001701000090'"
+#pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE ord.bill_id='000002057441017231026001701000218'"
 
 #loop inside
 while True:
@@ -102,7 +102,20 @@ while True:
                 counter+=1
         for k in range(len(pos_payment_result)):
             if i == pos_payment_result[k][0]:
-                PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": pos_payment_result[k][2]}
+                # ? Bankii ner oorchilj bna 
+                if pos_payment_result[k][2] == "Golomt Bank":
+                    paymenttypeid = "GOLOMTCARD"
+                elif pos_payment_result[k][2] == "Khan Bank":
+                    paymenttypeid = "KHAANCARD"
+                elif pos_payment_result[k][2] == "SocialPay":
+                    paymenttypeid = "SOCIAL"
+                elif pos_payment_result[k][2] == "QPay":
+                    paymenttypeid = "QPAY"
+                elif pos_payment_result[k][2] == "Cash":
+                    paymenttypeid = "CASH"
+                else:
+                    paymenttypeid = "OTHER"
+                PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": paymenttypeid}
                 PayItems[counter2] = PayItems1
                 counter2+=1
         
@@ -190,7 +203,20 @@ while True:
                 TerminalID = billdugaar.split('/')[0]
         for k in range(len(pos_payment_result)):
             if i == pos_payment_result[k][0]:
-                PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": pos_payment_result[k][2]}
+                 # ? Bankii ner oorchilj bna 
+                if pos_payment_result[k][2] == "Golomt Bank":
+                    paymenttypeid = "GOLOMTCARD"
+                elif pos_payment_result[k][2] == "Khan Bank":
+                    paymenttypeid = "KHAANCARD"
+                elif pos_payment_result[k][2] == "SocialPay":
+                    paymenttypeid = "SOCIAL"
+                elif pos_payment_result[k][2] == "QPay":
+                    paymenttypeid = "QPAY"
+                elif pos_payment_result[k][2] == "Cash":
+                    paymenttypeid = "CASH"
+                else:
+                    paymenttypeid = "OTHER"
+                PayItems1 = {"PaymentAmount": int(pos_payment_result[k][1]), "PaymentTypeID": paymenttypeid}
                 PayItems[counter2] = PayItems1
                 counter2+=1
         
@@ -198,15 +224,15 @@ while True:
         "SaleItems": [
             {
                 "Barcode": str(item['Barcode']),
-                "Qty":item['Qty'],
-                "ItemDueAmount": int(item['ItemDueAmount'])
+                "Qty":item['Qty'] if item['Qty'] > 0 else item['Qty']*-1,
+                "ItemDueAmount": int(item['ItemDueAmount']) if item['ItemDueAmount'] > 0 else item['ItemDueAmount']*-1
             }
             for item in SaleItems.values()
         ],
         "SalePayments": [
             {
                 "PaymentTypeID": str(item['PaymentTypeID']),
-                "PaymentAmount":item['PaymentAmount']
+                "PaymentAmount":item['PaymentAmount'] if item['PaymentAmount'] > 0 else item['PaymentAmount']*-1
             }
             for item in PayItems.values()
         ]
@@ -225,7 +251,7 @@ while True:
         if str(i) in lines:
             pass 
         else:
-            response = requests.post(default_config_dict['URL'], headers=headers,json=bill_line)
+            response = requests.post(default_config_dict['URL'], headers=headers,json=refund_bill_line)
             print("Status Code:", response.status_code)
             if response.status_code == 200:
                 responsetype = response.json()['retType']

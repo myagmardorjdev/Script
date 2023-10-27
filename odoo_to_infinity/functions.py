@@ -8,7 +8,7 @@ import random
 import string
 import pandas as pd
 from typing import Any
-
+from zipfile import ZipFile 
 
 class getfilesize():
     def __init__(self,path,size):
@@ -208,8 +208,12 @@ for row in range(1, defaultbaraa2.max_row):
     une = newrow[1]
     database_insert_new_baraa("DBMN","baraanuud",bar,une,name,'n',0)
 
+class zip_file(): 
+    def __init__(self,directory):
+        self.directory = directory
+        self.file_name = now_date_to_text_date().returnc()[:10] + '.zip'
+        with ZipFile(self.file_name,'w') as zip: 
+            zip.write(self.directory)          
+    
 
-print(len(get_uid_on_selected_table("DBMN","baraanuud",'uid').returnc()))
-print(len(set(get_uid_on_selected_table("DBMN","baraanuud",'uid').returnc())))
-
-
+zip_file('C:/Users/myagmardorj/Git/backup/DBMN')

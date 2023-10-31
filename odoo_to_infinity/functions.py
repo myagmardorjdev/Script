@@ -1,6 +1,7 @@
 import time
 import random,sys
 import os
+import pyodbc
 import openpyxl
 import sqlite3
 from datetime import datetime
@@ -119,67 +120,6 @@ class generate_random_string(): # ? нууц үгийн зориулалтаар
     def returnc(self):
         return self.random_string
 
-class get_uid_on_selected_table():
-    def __init__(self,db,table,column):
-        self.databasename = db
-        self.table = table 
-        self.column = column
-        self.conn = sqlite3.connect(self.databasename)
-        self.c = self.conn.cursor()
-        self.query = "SELECT " + column + " FROM " + self.table 
-        self.c.execute(self.query)
-        self.newrow = []
-        self.rows = self.c.fetchall()
-        for row in self.rows:
-            self.newrow.append(row[0])
-        self.conn.close()
-    def returnc(self):
-            return self.newrow
-
-class creating_default_database_tables():
-    def __init__(self,name):
-        self.databasename= name
-        self.conn = sqlite3.connect(self.databasename)
-        self.query = "CREATE TABLE IF NOT EXISTS baraanuud (barcode        TEXT (16)  NOT NULL UNIQUE,name           TEXT (255),relatedbarcode TEXT (255),isActive       INTEGER    DEFAULT (1),isVat          INTEGER    DEFAULT (1),isFraction     INTEGER    DEFAULT (0),Category       TEXT (255) DEFAULT nogroup,uid  INTEGER,modifieddate        TEXT (22));"
-        #price table
-        self.query2 = "CREATE TABLE IF NOT EXISTS saleprice (itemid      INTEGER,price       INTEGER,isMainprice INTEGER,startdate   TEXT (21),enddate     TEXT (21) );"
-        self.conn.execute(self.query)
-        self.conn.execute(self.query2)
-        self.conn.close()
-
-class database_insert_new_baraa():
-    def __init__(self,basename,tablename,barcode,price,name,relbarcode,fraction):
-        self.barcode = barcode
-        self.price = price
-        self.name = name
-        self.databasename= basename
-        self.fraction = fraction
-        self.relbarcode = relbarcode
-        self.tablename = tablename
-        cond = True
-        while cond:
-            self.pkid = generatepkid().returnc()
-            self.uids = get_uid_on_selected_table(self.databasename,self.tablename,'uid').returnc()
-            if self.pkid not in self.uids:
-                cond = False
-
-        self.conn = sqlite3.connect(self.databasename)
-        self.c = self.conn.cursor()
-        self.query = f"INSERT INTO {self.tablename} (barcode, name, relatedbarcode, isFraction, uid, modifieddate) VALUES ({self.barcode}, '{self.name}', '{self.relbarcode}', {self.fraction}, {self.pkid}, '{now_date_to_text_date().returnc()}')"
-        #une query 
-        self.queryune = f"INSERT INTO saleprice (itemid, price, isMainprice, startdate, enddate) VALUES ({self.pkid}, {self.price}, 1, '', '')"
-        try:
-            self.c.execute(self.queryune)
-        except Exception as e:
-            print ("une aldaa bol: ",e)
-        try:
-            self.c.execute(self.query)
-            self.conn.commit()
-            self.conn.close()
-        except Exception as e:
-            print ("baraa aldaa bol: ",e)
-            self.conn.close()
-    
 class now_date_to_text_date():
     def __init__(self):
         self.now = datetime.now()
@@ -195,25 +135,46 @@ class text_date_to_now_date():
     def returnc(self):
         return self.realdate
 
-# ? default dataa vvsgej bna
-creating_default_database_tables("DBMN")
-defaultbaraa = openpyxl.load_workbook("C:/Users/myagmardorj/Git/default_baraa.xlsx")
-defaultbaraa2 = defaultbaraa.active
-for row in range(1, defaultbaraa2.max_row):
-    newrow = []
-    for col in defaultbaraa2.iter_cols(1, defaultbaraa2.max_column):
-        newrow.append(col[row].value)
-    name = newrow[0]
-    bar = newrow[2]
-    une = newrow[1]
-    database_insert_new_baraa("DBMN","baraanuud",bar,une,name,'n',0)
+class connect_sql_server_select():
+    def __init__(self,server,database,table,username,password):
+        self.server = server  # Replace 'server_name' with the name or IP address of your SQL Server
+        self.database = database  # Replace 'database_name' with the name of your database
+        self.username = username # Replace 'username' with your SQL Server username
+        self.password = password  # Replace 'password' with your SQL Server password
+        self.table = table
+        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + self.server + ';DATABASE=' + self.database + ';UID=' + self.username + ';PWD=' + self.password)
 
-class zip_file(): 
-    def __init__(self,directory):
-        self.directory = directory
-        self.file_name = now_date_to_text_date().returnc()[:10] + '.zip'
-        with ZipFile(self.file_name,'w') as zip: 
-            zip.write(self.directory)          
+        # Create a cursor object using the cursor() method
+        cursor = conn.cursor()
+        print('SELECT * FROM '+self.table + 'WHere isTicket = 0')
+        # Execute SQL queries
+        cursor.execute('SELECT * FROM '+self.table + ' WHere isTicket = 0')  # Replace 'your_table_name' with the name of your table
+        self.result = cursor.fetchall()
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    def returnc(self):
+        return self.result
+class connect_sql_server_insert():
+    def __init__(self,server,database,table,username,password,column,compare):
+        self.server = server  # Replace 'server_name' with the name or IP address of your SQL Server
+        self.database = database  # Replace 'database_name' with the name of your database
+        self.username = username # Replace 'username' with your SQL Server username
+        self.password = password  # Replace 'password' with your SQL Server password
+        self.table = table
+        self.column= column 
+        self.compare = compare
+        self.conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + self.server + ';DATABASE=' + self.database + ';UID=' + self.username + ';PWD=' + self.password)
+
+        # Create a cursor object using the cursor() method
+        self.cursor = self.conn.cursor()
+        print("update calllogs set isTicket = 1 where " + self.column + " = '" +self.compare+"'")
+        # Execute SQL queries
+        self.cursor.execute("update calllogs set isTicket = 1 where " + self.column + " = '" +self.compare+"'")  # Replace 'your_table_name' with the name of your table
+        self.conn.commit()
+
+        # Close the cursor and connection
+        self.cursor.close()
+        self.close()
     
-
-zip_file('C:/Users/myagmardorj/Git/backup/DBMN')

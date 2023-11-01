@@ -8,18 +8,19 @@ import base64
 import psycopg2
 import pypyodbc as odbc
 import time
+from classes import *
 from requests.auth import HTTPBasicAuth
 from datetime import datetime,timedelta
 sleepsecond = 180
 
-query_error_check = "SELECT * FROM public.action_pull_sync_line where (current_timestamp - (20 * interval '1 minute')) <= create_date and has_error = true and now()>=create_date"
+query_error_check = "SELECT * FROM public.action_pull_sync_line where (current_timestamp - (30 * interval '1 minute')) <= create_date and has_error = true and now()>=create_date"
 queue_job_error_query = "SELECT * FROM queue_job where state = 'failed'"
-
+query_glpi_id_get= "SELECT id  FROM glpi_tickets ORDER BY id desc LIMIT 1"
 log_path = 'B:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
     username = 'zabbix'
-    password = 'Aa123456!0@'
+    password = 'Aa1234%^'
     headers = {
         'Content-Type': 'application/json',
         #'Authorization': 'user_token Lu0XOm1Bm9Aheza2mPsXyEUfa2jP2renomp2P0hD', #zabbix token
@@ -56,14 +57,15 @@ def postg_return_value(conn,query):
     #for row in data:
         #print(row)
         #stringa = row;
-    return data
     conn.close()
+    return data
+    
 def createticket(session_token,title,content,category):
     url = 'http://10.0.0.14/apirest.php/Ticket/'
 
     # Replace 'your_username' and 'your_password' with your actual GLPI credentials
     username = 'zabbix'
-    password = 'Aa123456!0@'
+    password = 'Aa1234%^'#'Aa123456!0@'
     headers = {
         'Content-Type': 'application/json',
         'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP',
@@ -77,7 +79,7 @@ def createticket(session_token,title,content,category):
             'priority': 3,  # Replace with the appropriate priority level
             'itemtype': 'Ticket',  # If you are creating a ticket
             'itilcategories_id' : category, #42
-            'requesttypes_id' : 12,
+            'requesttypes_id' : 12
             # Add other relevant data based on your GLPI setup and requirements
         }
     }
@@ -130,51 +132,9 @@ def log_write_notime(content,path):
     with open(path, 'w') as f:
         string = content
         f.write(string)
-class connect_sql_server_select():
-    def __init__(self,server,database,table,username,password):
-        self.server = server  # Replace 'server_name' with the name or IP address of your SQL Server
-        self.database = database  # Replace 'database_name' with the name of your database
-        self.username = username # Replace 'username' with your SQL Server username
-        self.password = password  # Replace 'password' with your SQL Server password
-        self.table = table
-        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + self.server + ';DATABASE=' + self.database + ';UID=' + self.username + ';PWD=' + self.password)
 
-        # Create a cursor object using the cursor() method
-        cursor = conn.cursor()
-        print('SELECT * FROM '+self.table + 'WHere isTicket = 0')
-        # Execute SQL queries
-        cursor.execute('SELECT * FROM '+self.table + ' WHere isTicket = 0')  # Replace 'your_table_name' with the name of your table
-        self.result = cursor.fetchall()
 
-        # Close the cursor and connection
-        cursor.close()
-        conn.close()
-    def returnc(self):
-        return self.result
-class connect_sql_server_insert():
-    def __init__(self,server,database,table,username,password,column,compare):
-        self.server = server  # Replace 'server_name' with the name or IP address of your SQL Server
-        self.database = database  # Replace 'database_name' with the name of your database
-        self.username = username # Replace 'username' with your SQL Server username
-        self.password = password  # Replace 'password' with your SQL Server password
-        self.table = table
-        self.column= column 
-        self.compare = compare
-        self.conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + self.server + ';DATABASE=' + self.database + ';UID=' + self.username + ';PWD=' + self.password)
-
-        # Create a cursor object using the cursor() method
-        self.cursor = self.conn.cursor()
-        print("update calllogs set isTicket = 1 where " + self.column + " = '" +self.compare+"'")
-        # Execute SQL queries
-        self.cursor.execute("update calllogs set isTicket = 1 where " + self.column + " = '" +self.compare+"'")  # Replace 'your_table_name' with the name of your table
-        self.conn.commit()
-
-        # Close the cursor and connection
-        self.cursor.close()
-        self.close()
-    
-    
-
+salbariinid = readtextfile_to_dict('zabbixphone.txt').returnc()
 odoodatabases = {'34': {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'},
                 '13': {'user': 'postgres','password': 'postgres','server': '10.13.1.220','port': 5432,'database':'CARREFOURS13_LIVE'},
                 '88': {'user': 'readonly_c88','password': 'readonly_c88_password','server': '10.88.1.220','port': 5432,'database':'CARREFOURS88_LIVE'},
@@ -197,6 +157,10 @@ bannedreasons = ['last 24hours']#bannedreasons = ['last 24hours','Client','POS_8
 sessiontoken = initsession()
 createdtickets = {}
 
+# ? test 
+is_running_query = "SELECT create_date FROM action_pull_sync_line where  state='in_progress'"
+conp = psycopg2.connect(database=odoodatabases['13']['database'], user=odoodatabases['13']['user'], password=odoodatabases['13']['password'], host=odoodatabases['13']['server'], port= odoodatabases['13']['port'])
+qresult = postg_return_value(conp,is_running_query)
 
 while(1==1):
     now = datetime.now()
@@ -206,31 +170,39 @@ while(1==1):
             sessiontoken = initsession()
         except:
             pass
-    
+    # ! callpro call to GLPI ticket bolgoj bna
     if now.hour >=8 and now.hour < 22:
         callprolist=connect_sql_server_select('10.0.99.40','callpro','calllogs','sa','SpawnGG123').returnc()
         for i in range(len(callprolist)):
+            last_id = ticket_mysql_select(query_glpi_id_get).returnc()[0][0]+1
+            salbarid = 0
             if 'Left' in callprolist[i][0]:
                 #zvvnrvv 
                 tdata = callprolist[0][1][:62]
                 numbers = re.findall(r'\d+', tdata)
                 numbers = list(map(int, numbers)) # list shvv
-                tempcontent = "Call Pro-гоос : "  + numbers[0]
-                createticket(sessiontoken,"ЗҮҮН",tempcontent,85)
+                tempcontent = "Call Pro-гоос : "  + str(numbers[0])
+                #createticket(sessiontoken,"ЗҮҮН",tempcontent,85)
+                if str(numbers[0]) in salbariinid:
+                    salbarid = salbariinid[str(numbers[0])]
+                ticket_mysql_insert(last_id,"ЗҮҮН",tempcontent,salbarid,85)
                 connect_sql_server_insert('10.0.99.40','callpro','calllogs','sa','SpawnGG123','Value1',callprolist[i][4])
                
             else:
                 tdata = callprolist[i][1][:62]
                 numbers = re.findall(r'\d+', tdata)
                 numbers = list(map(int, numbers))
-                tempcontent = "Call Pro-гоос : "  + numbers[0]
-                createticket(sessiontoken,"БАРУУН",tempcontent,85)
+                tempcontent = "Call Pro-гоос : "  + str(numbers[0])
+                #createticket(sessiontoken,"ЗҮҮН",tempcontent,85)
+                if str(numbers[0]) in salbariinid:
+                    salbarid = salbariinid[str(numbers[0])]
+                ticket_mysql_insert(last_id,"БАРУУН",tempcontent,salbarid,85)
 
                 connect_sql_server_insert('10.0.99.40','callpro','calllogs','sa','SpawnGG123','Value1',callprolist[i][4])
                 
-                #baruun  
-
+               
     if now.hour >= 8 and now.hour < 22:
+        print('Odooo')
         # ? has queue error checking 
         for i in odoodatabases:
             try:
@@ -270,7 +242,7 @@ while(1==1):
                 conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
                 qresult = postg_return_value(conp,is_running_query)
                 if qresult == []:
-                    print('null bna')
+                    print(odoodatabases[i]['database'] + ' null bna')
                     log_write_notime("0",textname)
                 else:
                     print(odoodatabases[i]['database'])

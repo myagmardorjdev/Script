@@ -69,3 +69,13 @@
 2023-10-27 14:51:15.805986 ultimate ruu holbogdoj chadsangvi
 2023-10-27 14:51:28.553692 {'Sales': [{'SaleItems': [{'Barcode': '3560071257576', 'Qty': '1.00', 'ItemDueAmount': 9000}], 'SalePayments': [{'PaymentTypeID': 'QPAY', 'PaymentAmount': 9000}], 'TerminalID': '2108/126961', 'CashierEmpCode': '14', 'DDTDNo': '000002057441021231027002108000545', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 184271;cashiername: Ariunzaya
 2023-10-27 14:51:28.553692 refund;{'Sales': [{'SaleItems': [{'Barcode': '3560071257576', 'Qty': 1.0, 'ItemDueAmount': 9000.0}], 'SalePayments': [{'PaymentTypeID': 'CASH', 'PaymentAmount': 9000}], 'TerminalID': '2108', 'CashierEmpCode': 12, 'DDTDNo': '000002057441021231027002108000545', 'TxnType': 'CM', 'SalesNo': '21082310000001'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 184271
+2023-10-31 15:11:37.429882 {'Sales': [{'SaleItems': [{'Barcode': '8656019887174', 'Qty': '1.00', 'ItemDueAmount': 9600}, {'Barcode': '8656020761357', 'Qty': '1.00', 'ItemDueAmount': 7760}], 'SalePayments': [{'PaymentTypeID': 'KHAANCARD', 'PaymentAmount': 17360}], 'TerminalID': '2108/134490', 'CashierEmpCode': '13', 'DDTDNo': '000002057441021231031002108000001', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 189846;cashiername: Adya
+2023-10-31 15:11:37.429882 ;order_id: 189848 burtgelgvi baraa bna
+2023-10-31 15:11:37.429882 ;order_id: 189856 burtgelgvi baraa bna
+2023-10-31 15:11:37.429882 {'Sales': [{'SaleItems': [{'Barcode': '4000607851001', 'Qty': '1.00', 'ItemDueAmount': 5760}, {'Barcode': '8936036027020', 'Qty': '1.00', 'ItemDueAmount': 5930}], 'SalePayments': [{'PaymentTypeID': 'QPAY', 'PaymentAmount': 11690}], 'TerminalID': '2101/204718', 'CashierEmpCode': '17', 'DDTDNo': '000002057441021231031002101000025', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 189861;cashiername: Adya
+2023-10-31 15:11:37.429882 ;order_id: 189864 burtgelgvi baraa bna
+2023-10-31 15:11:37.429882 {'Sales': [{'SaleItems': [{'Barcode': '6972890394689', 'Qty': '1.00', 'ItemDueAmount': 15000}], 'SalePayments': [{'PaymentTypeID': 'QPAY', 'PaymentAmount': 15000}], 'TerminalID': '2108/134491', 'CashierEmpCode': '13', 'DDTDNo': '000002057441021231031002108000002', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 189847;cashiername: Adya
+2023-11-01 09:27:16.152930 ;order_id: 189864 burtgelgvi baraa bna
+2023-11-01 09:27:16.152930 ;order_id: 189848 burtgelgvi baraa bna
+2023-11-01 09:27:16.152930 ;order_id: 189856 burtgelgvi baraa bna
+2023-11-01 09:27:16.152930 ;order_id: 189853 burtgelgvi baraa bna

@@ -1,15 +1,20 @@
 import requests
 import json
+import pyodbc
 import os
+import re
+from datetime import date 
 import base64
 import psycopg2
 import pypyodbc as odbc
 import time
 from requests.auth import HTTPBasicAuth
 from datetime import datetime,timedelta
-sleepsecond = 120
+sleepsecond = 180
 
-query_error_check = "SELECT * FROM public.action_pull_sync_line where (current_timestamp - (540 * interval '1 minute')) <= create_date and has_error = true"
+query_error_check = "SELECT * FROM public.action_pull_sync_line where (current_timestamp - (20 * interval '1 minute')) <= create_date and has_error = true and now()>=create_date"
+queue_job_error_query = "SELECT * FROM queue_job where state = 'failed'"
+
 log_path = 'B:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
@@ -53,8 +58,7 @@ def postg_return_value(conn,query):
         #stringa = row;
     return data
     conn.close()
-
-def createticket(session_token,title,content):
+def createticket(session_token,title,content,category):
     url = 'http://10.0.0.14/apirest.php/Ticket/'
 
     # Replace 'your_username' and 'your_password' with your actual GLPI credentials
@@ -72,7 +76,7 @@ def createticket(session_token,title,content):
             'content': content,
             'priority': 3,  # Replace with the appropriate priority level
             'itemtype': 'Ticket',  # If you are creating a ticket
-            'itilcategories_id' : 42,
+            'itilcategories_id' : category, #42
             'requesttypes_id' : 12,
             # Add other relevant data based on your GLPI setup and requirements
         }
@@ -126,18 +130,69 @@ def log_write_notime(content,path):
     with open(path, 'w') as f:
         string = content
         f.write(string)
+class connect_sql_server_select():
+    def __init__(self,server,database,table,username,password):
+        self.server = server  # Replace 'server_name' with the name or IP address of your SQL Server
+        self.database = database  # Replace 'database_name' with the name of your database
+        self.username = username # Replace 'username' with your SQL Server username
+        self.password = password  # Replace 'password' with your SQL Server password
+        self.table = table
+        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + self.server + ';DATABASE=' + self.database + ';UID=' + self.username + ';PWD=' + self.password)
 
-odoodatabases = {0: {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'},
-                1: {'user': 'postgres','password': 'postgres','server': '10.13.1.220','port': 5432,'database':'CARREFOURS13_LIVE'},
-                2: {'user': 'readonly_c88','password': 'readonly_c88_password','server': '10.88.1.220','port': 5432,'database':'CARREFOURS88_LIVE'},
-                3: {'user': 'readonly_c21','password': 'readonly_c21_password','server': '10.21.1.220','port': 5432,'database':'CARREFOURS21_LIVE'},
-                4: {'user': 'readonly_c01','password': 'readonly_c01_password','server': '10.1.1.220',  'port': 5432,'database':'STORE01_LIVE'},
-                5: {'user': 'readonly_c42','password': 'readonly_c42_password','server': '10.12.1.220',  'port': 5432,'database':'STORE42_LIVE'},
-                6: {'user': 'readonly_c06','password': 'readonly_c06_password','server': '10.6.1.220',  'port': 5432,'database':'STORE06_LIVE'}
+        # Create a cursor object using the cursor() method
+        cursor = conn.cursor()
+        print('SELECT * FROM '+self.table + 'WHere isTicket = 0')
+        # Execute SQL queries
+        cursor.execute('SELECT * FROM '+self.table + ' WHere isTicket = 0')  # Replace 'your_table_name' with the name of your table
+        self.result = cursor.fetchall()
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    def returnc(self):
+        return self.result
+class connect_sql_server_insert():
+    def __init__(self,server,database,table,username,password,column,compare):
+        self.server = server  # Replace 'server_name' with the name or IP address of your SQL Server
+        self.database = database  # Replace 'database_name' with the name of your database
+        self.username = username # Replace 'username' with your SQL Server username
+        self.password = password  # Replace 'password' with your SQL Server password
+        self.table = table
+        self.column= column 
+        self.compare = compare
+        self.conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + self.server + ';DATABASE=' + self.database + ';UID=' + self.username + ';PWD=' + self.password)
+
+        # Create a cursor object using the cursor() method
+        self.cursor = self.conn.cursor()
+        print("update calllogs set isTicket = 1 where " + self.column + " = '" +self.compare+"'")
+        # Execute SQL queries
+        self.cursor.execute("update calllogs set isTicket = 1 where " + self.column + " = '" +self.compare+"'")  # Replace 'your_table_name' with the name of your table
+        self.conn.commit()
+
+        # Close the cursor and connection
+        self.cursor.close()
+        self.close()
+    
+    
+
+odoodatabases = {'34': {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'},
+                '13': {'user': 'postgres','password': 'postgres','server': '10.13.1.220','port': 5432,'database':'CARREFOURS13_LIVE'},
+                '88': {'user': 'readonly_c88','password': 'readonly_c88_password','server': '10.88.1.220','port': 5432,'database':'CARREFOURS88_LIVE'},
+                '21': {'user': 'readonly_c21','password': 'readonly_c21_password','server': '10.21.1.220','port': 5432,'database':'CARREFOURS21_LIVE'},
+                '01': {'user': 'readonly_c01','password': 'readonly_c01_password','server': '10.1.1.220',  'port': 5432,'database':'STORE01_LIVE'},
+                '12': {'user': 'readonly_c42','password': 'readonly_c42_password','server': '10.12.1.220',  'port': 5432,'database':'STORE42_LIVE'},
+                '06': {'user': 'readonly_c06','password': 'readonly_c06_password','server': '10.6.1.220',  'port': 5432,'database':'STORE06_LIVE'},
+                '17': {'user': 'readonly_c17','password': 'readonly_c17_password','server': '10.17.1.220',  'port': 5432,'database':'STORE17_LIVE'},
+                '38': {'user': 'readonly_c38','password': 'readonly_c38_password','server': '10.38.1.220',  'port': 5432,'database':'STORE38_LIVE'},
+                '25': {'user': 'readonly_c25','password': 'readonly_c25_password','server': '10.25.1.220',  'port': 5432,'database':'STORE25_LIVE'},
+                '26': {'user': 'readonly_c26','password': 'readonly_c26_password','server': '10.26.1.220',  'port': 5432,'database':'STORE26_LIVE'},
+                '16': {'user': 'readonly_c16','password': 'readonly_c16_password','server': '10.16.1.220',  'port': 5432,'database':'STORE16_LIVE'},
+                '22': {'user': 'readonly_c22','password': 'readonly_c22_password','server': '10.22.1.220',  'port': 5432,'database':'STORE22_LIVE'},
+                '08': {'user': 'readonly_c08','password': 'readonly_c08_password','server': '10.8.1.220',  'port': 5432,'database':'STORE08_LIVE'},
 }
 #server = {"server" : "10.34.1.220","database" :"CARREFOURS34_LIVE","user" : "readonly_c34", "password" : "readonly_c34_password"}
-bannedhosts = ['PowerBI2','AJTPowerBI','AUB_Web','itremote','BackupServer','PowerBI2','Ysoft','BSO-Printer']
-bannedreasons = ['last 24hours','Client','POS_8080_down','CPU util high','MEM util disaster','CPU util disaster','Free disk']
+bannedhosts = ['AUB_Web']#bannedhosts = ['AJTPowerBI','AUB_Web','itremote','BackupServer','Ysoft','BSO-Printer']
+bannedreasons = ['last 24hours']#bannedreasons = ['last 24hours','Client','POS_8080_down','CPU util high','MEM util disaster','CPU util disaster','Free disk']
 #loop outsides variables
 sessiontoken = initsession()
 createdtickets = {}
@@ -145,14 +200,58 @@ createdtickets = {}
 
 while(1==1):
     now = datetime.now()
+    #print(json.dumps(r2.json(), indent=4, sort_keys=True))
+    if now.minute % 10 == 0:
+        try:
+            sessiontoken = initsession()
+        except:
+            pass
+    
+    if now.hour >=8 and now.hour < 22:
+        callprolist=connect_sql_server_select('10.0.99.40','callpro','calllogs','sa','SpawnGG123').returnc()
+        for i in range(len(callprolist)):
+            if 'Left' in callprolist[i][0]:
+                #zvvnrvv 
+                tdata = callprolist[0][1][:62]
+                numbers = re.findall(r'\d+', tdata)
+                numbers = list(map(int, numbers)) # list shvv
+                tempcontent = "Call Pro-гоос : "  + numbers[0]
+                createticket(sessiontoken,"ЗҮҮН",tempcontent,85)
+                connect_sql_server_insert('10.0.99.40','callpro','calllogs','sa','SpawnGG123','Value1',callprolist[i][4])
+               
+            else:
+                tdata = callprolist[i][1][:62]
+                numbers = re.findall(r'\d+', tdata)
+                numbers = list(map(int, numbers))
+                tempcontent = "Call Pro-гоос : "  + numbers[0]
+                createticket(sessiontoken,"БАРУУН",tempcontent,85)
 
-    if now.hour > 8 and now.hour < 20:
+                connect_sql_server_insert('10.0.99.40','callpro','calllogs','sa','SpawnGG123','Value1',callprolist[i][4])
+                
+                #baruun  
+
+    if now.hour >= 8 and now.hour < 22:
+        # ? has queue error checking 
+        for i in odoodatabases:
+            try:
+                conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
+                qresult = postg(conp,queue_job_error_query)
+            except:
+                qresult=0
+                pass   
+            textname = '//192.168.0.25/sync_pull_log/queuejob_'+ odoodatabases[i]['server'] + '.txt'
+            if(qresult == 0):
+                log_write_notime("0",textname) 
+            else:
+                log_write_notime("1",textname) #error toi ved
+            time.sleep(1)
         # ? has error checking 
-        for i in range(len(odoodatabases)):
+        for i in odoodatabases:
             try:
                 conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
                 qresult = postg(conp,query_error_check)
             except:
+                qresult = 0
                 pass   
             textname = '//192.168.0.25/sync_pull_log/sync_'+ odoodatabases[i]['server'] + '.txt'
             if(qresult == 0):
@@ -163,9 +262,9 @@ while(1==1):
         # ? is running 30 minute aas ix baiwal
         seconddate = now + timedelta(days=1)
         tdate = "'"+ str(now)[:10]+ "' and '" +str(seconddate)[:10] +"'"
-        is_running_query = "SELECT create_date FROM action_pull_sync_line where  state='in_progress' and create_date between" + tdate + "LIMIT 1"   
+        is_running_query = "SELECT create_date FROM action_pull_sync_line where  state='in_progress'"# and create_date between" + tdate + "LIMIT 1"   
         qresult = []
-        for i in range(len(odoodatabases)):
+        for i in odoodatabases:
             textname = '//192.168.0.25/sync_pull_log/isrun_'+ odoodatabases[i]['server'] + '.txt'      
             try:
                 conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
@@ -176,7 +275,7 @@ while(1==1):
                 else:
                     print(odoodatabases[i]['database'])
                     zorvvtsag = now - qresult[0][0]
-                    if zorvvtsag.seconds/60 > 30:
+                    if zorvvtsag.seconds/60 > 40:
                         log_write_notime("1",textname) # isrunning more than 30minute
                     else: 
                         log_write_notime("0",textname)
@@ -185,45 +284,49 @@ while(1==1):
             qresult = []
 
     if now.hour > 8 and now.hour < 24:
-        ZABBIX_API_URL = "http://192.168.0.44:8080/zabbix/api_jsonrpc.php"
+        ZABBIX_API_URL = "http://192.168.0.44:8080/api_jsonrpc.php"
         UNAME = "myagmardorj"
         PWORD = "Az123456!0@"
-        AUTHTOKEN = "56bc1ff73deb2c79145b1e8315a064e8e967251e2d4b60f0d1207c077ea2a5ef"
-
-        r = requests.post(ZABBIX_API_URL,
-                        json={
-                            "jsonrpc": "2.0",
-                            "method": "user.login",
-                            "params": {
-                                "user": UNAME,
-                                "password": PWORD},
-                            "id": 1
-                        })
-
-        AUTHTOKEN = r.json()["result"]
-        r2 = requests.post(ZABBIX_API_URL,
-                        json={     
-                            "jsonrpc": "2.0",     
-                            "method":"problem.get",     
-                            "params": {         
-                                #"output": "extend",         "selectDServices": "extend",         "druleids": "19"
-                                    "output": "extend",
-                                    "selectHosts": ["host", "name",'allowed_hosts','hostid','clock','itemid'],
-                                    "interfaces" : ['ip','allowed_hosts','hostid'],
-                                    "selectAcknowledges": "extend",
-                                    "recent": "true",
-                                    "sortfield": ["eventid"],
-                                    "sortorder": "ASC",
-                                    "severity": 5,
-                                }  ,
-                            
-                                "id": 2 ,
-                                "auth": AUTHTOKEN
-                        })
-        #print(json.dumps(r2.json(), indent=4, sort_keys=True))
-        if now.minute % 10 == 0:
-            sessiontoken = initsession()
-        jarray = r2.json()["result"]
+        AUTHTOKEN = "5bdfed41876263450731478cb62c9826b591bf5c0bba12c0c79eee5e8ec8a979"
+        try:
+            r = requests.post(ZABBIX_API_URL,
+                            json={
+                                "jsonrpc": "2.0",
+                                "method": "user.login",
+                                "params": {
+                                    "user": UNAME,
+                                    "password": PWORD},
+                                "id": 1
+                            })
+            AUTHTOKEN = r.json()["result"]
+        except:
+            pass
+        
+        try:
+            r2 = requests.post(ZABBIX_API_URL,
+                            json={     
+                                "jsonrpc": "2.0",     
+                                "method":"problem.get",     
+                                "params": {         
+                                    #"output": "extend",         "selectDServices": "extend",         "druleids": "19"
+                                        "output": "extend",
+                                        "selectHosts": ["host", "name",'allowed_hosts','hostid','clock','itemid'],
+                                        "interfaces" : ['ip','allowed_hosts','hostid'],
+                                        "selectAcknowledges": "extend",
+                                        "recent": "true",
+                                        "sortfield": ["eventid"],
+                                        "sortorder": "ASC",
+                                        "severity": 5,
+                                    }  ,
+                                
+                                    "id": 2 ,
+                                    "auth": AUTHTOKEN
+                            })
+            jarray = r2.json()["result"]
+        except: 
+            pass
+        
+        
         #Possible values:0 - not classified;1 - information;2 - warning;3 - average;4 - high;5 - disaster.
         severvalue = 4
         counter=0
@@ -232,53 +335,57 @@ while(1==1):
         for i in range(len(jarray)):
             tmp = int(jarray[i]['severity'])
             if tmp > severvalue:
-                r3 = requests.post(ZABBIX_API_URL,
-                            json={     
-                                "jsonrpc": "2.0",     
-                                "method":"event.get",     
-                                "params": {         
-                                        "output": ['eventid', 'hostid','name','clock','severity','ip'],
-                                        'selectHosts': ['hostid', 'host'],
-                                        "select_acknowledges": "extend",         
-                                        "selectTags": "extend",        
-                                        "eventids": jarray[i]['eventid'] 
-                                    }  ,     
-                                    "id": 2 ,
-                                    "auth": AUTHTOKEN
-                            })
-                #print(json.dumps(r3.json(), indent=4, sort_keys=True))
-                
-                eventclock = datetime.fromtimestamp(int(r3.json().get('result')[0]['clock']))
-                zorvvtsag = now - eventclock
-                # Enabled Disabled item shalgaj bna
-                enedisabled = 0
-                tempip = get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
-                if tempip == '0':
-                    enedisabled = 1
-
-                if all(word not in r3.json().get('result')[0].get('hosts')[0]['host']for word in bannedhosts) and all(word not in r3.json().get('result')[0]['name'] for word in bannedreasons) and zorvvtsag.total_seconds()/60 >= 20 and enedisabled == 0:   # 20 minutaas ix durationtai problem orj irne
-                    eachdict = {
-                        "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
-                        "reason" : r3.json().get('result')[0]['name'],
-                        "ip_address" : tempip
-                    }
-                   
-                    hostname = eachdict['host'][:6]    # salbaraar yalgaj bna
-                    if hostname.find('NVR') != -1:     # NVR iig neg salbart olon garj irwel 1 eer duudlaga bvrtgene
-                        itsbna = 0
-                        for z1 in allproblemdict:
-                            if hostname in allproblemdict[z1]['host']:
-                                itsbna = 1
-                                print("host dawxardsan ---- ",hostname," versus ",allproblemdict[z1]['host'])
-                                allproblemdict[z1]['reason'] = allproblemdict[z1]['reason'] + " another host ip:" + eachdict['host']
-                                break
-                        if itsbna == 0:
+                try:
+                    r3 = requests.post(ZABBIX_API_URL,
+                                json={     
+                                    "jsonrpc": "2.0",     
+                                    "method":"event.get",     
+                                    "params": {         
+                                            "output": ['eventid', 'hostid','name','clock','severity','ip'],
+                                            'selectHosts': ['hostid', 'host'],
+                                            "select_acknowledges": "extend",         
+                                            "selectTags": "extend",        
+                                            "eventids": jarray[i]['eventid'] 
+                                        }  ,     
+                                        "id": 2 ,
+                                        "auth": AUTHTOKEN
+                                })
+                    #print(json.dumps(r3.json(), indent=4, sort_keys=True))
+                    
+                    eventclock = datetime.fromtimestamp(int(r3.json().get('result')[0]['clock']))
+                    zorvvtsag = now - eventclock
+                    print (zorvvtsag.seconds)
+                    print(zorvvtsag.total_seconds())
+                    print(r3.json().get('result')[0]['name'])
+                    # Enabled Disabled item shalgaj bna
+                    enedisabled = 0
+                    tempip = get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
+                    if tempip == '0':
+                        enedisabled = 1                                                                                                                                                                                                     #enedisabled == 0:
+                    if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and all(word not in r3.json().get('result')[0]['name'] for word in bannedreasons) and zorvvtsag.seconds/60 >= 15 and zorvvtsag.total_seconds() >= 900:  # 15 minutaas ix duration problem orj irne
+                        eachdict = {
+                            "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
+                            "reason" : r3.json().get('result')[0]['name'],
+                            "ip_address" : tempip
+                        }
+                    
+                        hostname = eachdict['host'][:6]    # salbaraar yalgaj bna
+                        if hostname.find('NVR') != -1:     # NVR iig neg salbart olon garj irwel 1 eer duudlaga bvrtgene
+                            itsbna = 0
+                            for z1 in allproblemdict:
+                                if hostname in allproblemdict[z1]['host']:
+                                    itsbna = 1
+                                    print("host dawxardsan ---- ",hostname," versus ",allproblemdict[z1]['host'])
+                                    allproblemdict[z1]['reason'] = allproblemdict[z1]['reason'] + " another host ip:" + eachdict['host']
+                                    break
+                            if itsbna == 0:
+                                counter+=1
+                                allproblemdict[counter] = eachdict
+                        else:
                             counter+=1
                             allproblemdict[counter] = eachdict
-                    else:
-                        counter+=1
-                        allproblemdict[counter] = eachdict
-
+                except:
+                    pass
         counter = len(createdtickets)
         isfind = False
         for x in allproblemdict:
@@ -289,9 +396,13 @@ while(1==1):
                     break
 
             # host created ticket dotor baixgvi baiwal shineer vvsgeed, daraa ni vvssen ticket dotor nemj ogj bna
-            if isfind == False:
+            if isfind == False and ('sync has' in allproblemdict[x]['reason'] or 'isrunning' in allproblemdict[x]['reason']):
                 tempcontent = allproblemdict[x]['reason'] +' ip:'+ allproblemdict[x]['ip_address'] 
-                #createticket(sessiontoken,allproblemdict[x]['host'],tempcontent)
+                if 'sync has' in allproblemdict[x]['reason'] or 'isrunning' in allproblemdict[x]['reason']:
+                    title = allproblemdict[x]['reason']
+                else: 
+                    title = allproblemdict[x]['host']
+                #createticket(sessiontoken,title,tempcontent,42)
                 print("ticket created   ---" , allproblemdict[x]['host'], ' ', allproblemdict[x]['reason'])
                 eachdict1 ={
                     "host" : allproblemdict[x]['host'],

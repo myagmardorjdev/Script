@@ -177,4 +177,76 @@ class connect_sql_server_insert():
         # Close the cursor and connection
         self.cursor.close()
         self.close()
-    
+
+class ticket_mysql_select():
+    def __init__(self,query):
+        self.query_get_lastid_glpi = query
+        self.data = []
+        config = {
+            'user': 'it',
+            'password': 'password',
+            'host': '10.0.0.14',
+            'database': 'glpidb',
+            'raise_on_warnings': True
+        }
+        try:
+            connection = mysql.connector.connect(**config)
+            # Create a cursor object
+            cursor = connection.cursor()
+ 
+            connection.commit()
+            # Fetch and print the inserted data
+            cursor.execute(self.query_get_lastid_glpi)
+            records = cursor.fetchall()
+            for row in records:
+                self.data.append(row)
+        except mysql.connector.Error as error:
+            print("Error: {}".format(error))
+ 
+        finally:
+            # Close the cursor and connection
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+ 
+    def returnc(self):
+        return self.data
+        pass
+ 
+class ticket_mysql_insert():
+    def __init__(self,item_id,title,content,entity,category):
+        #self.query_get_lastid_glpi = query
+        self.title = title
+        now = datetime.now()
+        self.content = content
+        self.entity = entity
+        self.id = item_id
+        self.category = category
+        config = {
+            'user': 'it',
+            'password': 'password',
+            'host': '10.0.0.14',
+            'database': 'glpidb',
+            'raise_on_warnings': True
+        }
+        try:
+            connection = mysql.connector.connect(**config)
+            # Create a cursor object
+            cursor = connection.cursor()
+            insert_query = "INSERT INTO glpi_tickets (id, name, content, entities_id, itilcategories_id,date,date_mod,priority) VALUES (%s,%s, %s, %s, %s,%s,%s,%s)"
+ 
+ 
+            cursor.execute(insert_query, (self.id,self.title,self.content,self.entity,self.category,now_date_to_text_date().returnc(),now_date_to_text_date().returnc(),3))
+ 
+ 
+            connection.commit()
+            # Fetch and print the inserted data
+           
+        except mysql.connector.Error as error:
+            print("Error: {}".format(error))
+ 
+        finally:
+            # Close the cursor and connection
+            if connection.is_connected():
+                cursor.close()
+                connection.close()    

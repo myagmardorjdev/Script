@@ -135,28 +135,7 @@ class text_date_to_now_date():
     def returnc(self):
         return self.realdate
 
-class connect_sql_server_select():
-    def __init__(self,server,database,table,username,password):
-        self.server = server  # Replace 'server_name' with the name or IP address of your SQL Server
-        self.database = database  # Replace 'database_name' with the name of your database
-        self.username = username # Replace 'username' with your SQL Server username
-        self.password = password  # Replace 'password' with your SQL Server password
-        self.table = table
-        conn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + self.server + ';DATABASE=' + self.database + ';UID=' + self.username + ';PWD=' + self.password)
 
-        # Create a cursor object using the cursor() method
-        cursor = conn.cursor()
-        print('SELECT * FROM '+self.table + 'WHere isTicket = 0')
-        # Execute SQL queries
-        cursor.execute('SELECT * FROM '+self.table + ' WHere isTicket = 0')  # Replace 'your_table_name' with the name of your table
-        self.result = cursor.fetchall()
-
-        # Close the cursor and connection
-        cursor.close()
-        conn.close()
-    def returnc(self):
-        return self.result
-class connect_sql_server_insert():
     def __init__(self,server,database,table,username,password,column,compare):
         self.server = server  # Replace 'server_name' with the name or IP address of your SQL Server
         self.database = database  # Replace 'database_name' with the name of your database
@@ -178,42 +157,7 @@ class connect_sql_server_insert():
         self.cursor.close()
         self.close()
 
-class ticket_mysql_select():
-    def __init__(self,query):
-        self.query_get_lastid_glpi = query
-        self.data = []
-        config = {
-            'user': 'it',
-            'password': 'password',
-            'host': '10.0.0.14',
-            'database': 'glpidb',
-            'raise_on_warnings': True
-        }
-        try:
-            connection = mysql.connector.connect(**config)
-            # Create a cursor object
-            cursor = connection.cursor()
- 
-            connection.commit()
-            # Fetch and print the inserted data
-            cursor.execute(self.query_get_lastid_glpi)
-            records = cursor.fetchall()
-            for row in records:
-                self.data.append(row)
-        except mysql.connector.Error as error:
-            print("Error: {}".format(error))
- 
-        finally:
-            # Close the cursor and connection
-            if connection.is_connected():
-                cursor.close()
-                connection.close()
- 
-    def returnc(self):
-        return self.data
-        pass
- 
-class ticket_mysql_insert():
+
     def __init__(self,item_id,title,content,entity,category):
         #self.query_get_lastid_glpi = query
         self.title = title

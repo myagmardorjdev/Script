@@ -1,3 +1,4 @@
+file_running_directory = "C:/Users/myagmardorj/Git/lesson3/odoo_to_infinity/"
 import time
 import random,sys
 import os
@@ -157,7 +158,7 @@ class text_date_to_now_date():
         self.cursor.close()
         self.close()
 
-
+class ticket_mysql_insert():
     def __init__(self,item_id,title,content,entity,category):
         #self.query_get_lastid_glpi = query
         self.title = title
@@ -194,3 +195,15 @@ class text_date_to_now_date():
             if connection.is_connected():
                 cursor.close()
                 connection.close()    
+
+class dict_to_text_file_save():                                                                               
+    def __init__(self, filename,dictname):
+        self.path = filename
+        self.dic = dictname
+        with open(self.path, 'w') as f:
+                pass
+        for key,i in self.dic.items():
+            self.dt = "\n"+key + "=" + i 
+            with open(self.path,'a',encoding="utf-8") as f:
+                f.writelines(self.dt)
+

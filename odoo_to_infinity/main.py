@@ -48,10 +48,11 @@ success_bill_orders = {}
 lines=[]
 logpath = file_running_directory+"mainlog.txt"
 loop_sleeptime = 120 #second
-odoodatabases = {'user': 'readonly_c17','password': 'readonly_c17_password','server': '10.17.1.220','port': 5432,'database':'STORE17_LIVE'}
+odoodatabases = {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'}
+
 headers = {"Content-Type": "application/json; charset=utf-8"}
 # ! test orchin 
-#pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE ord.bill_id='000002057441017231026001701000218'"
+#pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE ord.bill_id='000002057441021231027002108000545'"
 
 #loop inside
 while True:
@@ -276,7 +277,7 @@ while True:
         os.remove(file_running_directory + default_config_dict['refund_order_textname'])
         with open(file_running_directory + default_config_dict['refund_order_textname'], 'w') as f:
             pass   
-    print("sleeping...")
+    print("sleeping... " , now)
     time.sleep(loop_sleeptime)
 
 

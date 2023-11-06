@@ -12,7 +12,6 @@ from classes import *
 from requests.auth import HTTPBasicAuth
 from datetime import datetime,timedelta
 sleepsecond = 180
-
 query_error_check = "SELECT * FROM public.action_pull_sync_line where (current_timestamp - (30 * interval '1 minute')) <= create_date and has_error = true and now()>=create_date"
 queue_job_error_query = "SELECT * FROM queue_job where state = 'failed'"
 query_glpi_id_get= "SELECT id  FROM glpi_tickets ORDER BY id desc LIMIT 1"
@@ -149,10 +148,12 @@ odoodatabases = {'34': {'user': 'readonly_c34','password': 'readonly_c34_passwor
                 '16': {'user': 'readonly_c16','password': 'readonly_c16_password','server': '10.16.1.220',  'port': 5432,'database':'STORE16_LIVE'},
                 '22': {'user': 'readonly_c22','password': 'readonly_c22_password','server': '10.22.1.220',  'port': 5432,'database':'STORE22_LIVE'},
                 '08': {'user': 'readonly_c08','password': 'readonly_c08_password','server': '10.8.1.220',  'port': 5432,'database':'STORE08_LIVE'},
+                '39': {'user': 'readonly_c39','password': 'readonly_c39_password','server': '10.39.1.220',  'port': 5432,'database':'STORE39_LIVE'},
+                '32': {'user': 'readonly_c32','password': 'readonly_c32_password','server': '10.32.1.220',  'port': 5432,'database':'STORE32_LIVE'},
 }
 #server = {"server" : "10.34.1.220","database" :"CARREFOURS34_LIVE","user" : "readonly_c34", "password" : "readonly_c34_password"}
 bannedhosts = ['AUB_Web']#bannedhosts = ['AJTPowerBI','AUB_Web','itremote','BackupServer','Ysoft','BSO-Printer']
-bannedreasons = ['last 24hours']#bannedreasons = ['last 24hours','Client','POS_8080_down','CPU util high','MEM util disaster','CPU util disaster','Free disk']
+bannedreasons = ['last 24hours']#bannedreasons = ['last 24hours','Client','POS_8320_down','CPU util high','MEM util disaster','CPU util disaster','Free disk']
 #loop outsides variables
 sessiontoken = initsession()
 createdtickets = {}
@@ -242,12 +243,13 @@ while(1==1):
                 conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
                 qresult = postg_return_value(conp,is_running_query)
                 if qresult == []:
-                    print(odoodatabases[i]['database'] + ' null bna')
                     log_write_notime("0",textname)
                 else:
                     print(odoodatabases[i]['database'])
-                    zorvvtsag = now - qresult[0][0]
-                    if zorvvtsag.seconds/60 > 40:
+                    # ! baaziin tsag 8 tsagiin zorvvtei baidag bolxoor teriig arilgaj bna
+                    qresult2 = qresult[0][0] + timedelta(hours=8)
+                    zorvvtsag = now - qresult2
+                    if zorvvtsag.seconds/60 > 50:
                         log_write_notime("1",textname) # isrunning more than 30minute
                     else: 
                         log_write_notime("0",textname)
@@ -326,15 +328,17 @@ while(1==1):
                     
                     eventclock = datetime.fromtimestamp(int(r3.json().get('result')[0]['clock']))
                     zorvvtsag = now - eventclock
-                    print (zorvvtsag.seconds)
-                    print(zorvvtsag.total_seconds())
-                    print(r3.json().get('result')[0]['name'])
+                    print(r3.json().get('result')[0]['name'] + ">>>>>>>")
+                    print("zorvvtsag seconds: ",zorvvtsag.seconds)
+                    print("zorvvtsag total seconds: ", zorvvtsag.total_seconds())
+                    print("zorvvtsag minute: ", zorvvtsag.seconds/60)
                     # Enabled Disabled item shalgaj bna
                     enedisabled = 0
                     tempip = get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
                     if tempip == '0':
                         enedisabled = 1                                                                                                                                                                                                     #enedisabled == 0:
                     if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and all(word not in r3.json().get('result')[0]['name'] for word in bannedreasons) and zorvvtsag.seconds/60 >= 15 and zorvvtsag.total_seconds() >= 900:  # 15 minutaas ix duration problem orj irne
+                        print("noxtolrvv orj bna")
                         eachdict = {
                             "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
                             "reason" : r3.json().get('result')[0]['name'],

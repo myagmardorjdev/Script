@@ -82,3 +82,19 @@
 2023-11-03 09:17:05.014178 ;order_id: 194332 burtgelgvi baraa bna
 2023-11-03 09:40:27.749907 ;order_id: 437727 burtgelgvi baraa bna
 2023-11-03 09:40:27.749907 ;order_id: 437776 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 ;order_id: 441780 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 {'Sales': [{'SaleItems': [{'Barcode': '4600680008158', 'Qty': '1.00', 'ItemDueAmount': 24190}, {'Barcode': '8658000627035', 'Qty': '1.00', 'ItemDueAmount': 6520}], 'SalePayments': [{'PaymentTypeID': 'GOLOMTCARD', 'PaymentAmount': 30710}], 'TerminalID': '3406 - AM/225785', 'CashierEmpCode': '193', 'DDTDNo': '000002057441034231106003406000037', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 441808;cashiername: Sainzaya
+2023-11-06 12:31:14.975626 ;order_id: 441842 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 {'Sales': [{'SaleItems': [{'Barcode': '4680040410180', 'Qty': '1.00', 'ItemDueAmount': 2250}], 'SalePayments': [{'PaymentTypeID': 'GOLOMTCARD', 'PaymentAmount': 2250}], 'TerminalID': '3406 - AM/225668', 'CashierEmpCode': '193', 'DDTDNo': '000002057441034231106003406000001', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 441777;cashiername: Sainzaya
+2023-11-06 12:31:14.975626 ;order_id: 441779 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 {'Sales': [{'SaleItems': [{'Barcode': '8656170005356', 'Qty': '1.00', 'ItemDueAmount': 4500}], 'SalePayments': [{'PaymentTypeID': 'QPAY', 'PaymentAmount': 4500}], 'TerminalID': '3406 - AM/225770', 'CashierEmpCode': '193', 'DDTDNo': '000002057441034231106003406000030', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 441801;cashiername: Sainzaya
+2023-11-06 12:31:14.975626 ;order_id: 441848 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 ;order_id: 441789 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 ;order_id: 441791 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 {'Sales': [{'SaleItems': [{'Barcode': '8654000550366', 'Qty': '1.00', 'ItemDueAmount': 13300}, {'Barcode': '4607046120059', 'Qty': '1.00', 'ItemDueAmount': 3990}, {'Barcode': '8654000551233', 'Qty': '1.00', 'ItemDueAmount': 16610}], 'SalePayments': [{'PaymentTypeID': 'KHAANCARD', 'PaymentAmount': 33900}], 'TerminalID': '3406 - AM/225803', 'CashierEmpCode': '193', 'DDTDNo': '000002057441034231106003406000046', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 441817;cashiername: Sainzaya
+2023-11-06 12:31:14.975626 ;order_id: 441821 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 ;order_id: 441786 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 ;order_id: 441794 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 ;order_id: 441788 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 ;order_id: 441835 burtgelgvi baraa bna
+2023-11-06 12:31:14.975626 {'Sales': [{'SaleItems': [{'Barcode': '7891024149102', 'Qty': '1.00', 'ItemDueAmount': 4920}, {'Barcode': '8654170103034', 'Qty': '1.00', 'ItemDueAmount': 6980}, {'Barcode': '2331322301', 'Qty': '5.00', 'ItemDueAmount': 2300}], 'SalePayments': [{'PaymentTypeID': 'GOLOMTCARD', 'PaymentAmount': 14200}], 'TerminalID': '3407/172331', 'CashierEmpCode': '222', 'DDTDNo': '000002057441034231106003407000139', 'TxnType': 'IN', 'SiteId': '08'}], 'token': 'R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw='};order_id: 441885;cashiername: Sainzaya

@@ -1,5 +1,7 @@
 
 URL=http://202.131.232.101:9999/UltimateService.asmx/SalesOrder
+URLinv=http://202.131.232.101:9999/UltimateService.asmx/InventoryInfo
+URLventory=http://202.131.232.101:9999/UltimateService.asmx/INInventory
 REQUEST METHOD=POST
 AUTHENTICATION=Basic
 TOKEN=R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw=

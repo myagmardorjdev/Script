@@ -1,7 +1,10 @@
 file_running_directory = "C:/Users/myagmardorj/Git/lesson3/odoo_to_infinity/"
 import time
 import random,sys
+import requests
 import os
+from requests.auth import HTTPBasicAuth
+import json
 import pyodbc
 import openpyxl
 import sqlite3
@@ -11,6 +14,8 @@ import string
 import pandas as pd
 from typing import Any
 from zipfile import ZipFile 
+
+
 
 class getfilesize():
     def __init__(self,path,size):
@@ -28,7 +33,7 @@ class getfilesize():
     def returnc(self):
         return self.ans
     
-class find_value_in_list_selected_column(): # ? 2 хэмжээст листнээс баганаа сонгож тэндээс ХАЙЖ буй тоо байвал мөрөн листыг буцаана
+class find_value_in_list_selected_column(): # ? 2 хэмжээст листнээс баганаа сонгож тэндээс ХАЙЖ буй тоо байвал мөрөн листыг бүтнээр нь буцаана
     def __init__(self,value,listname,index):
         self.value = value
         self.index = index
@@ -39,6 +44,19 @@ class find_value_in_list_selected_column(): # ? 2 хэмжээст листнэ�
     def returnc(self):
         return self.resultlist
 
+class get_index_list_selected_column(): # ? 2 хэмжээст листнээс баганаа сонгож тэндээс ХАЙЖ буй тоо байвал index -ыг буцаана 
+    def __init__(self,value,listname,index):
+        self.value = value 
+        self.listname = listname 
+        self.index = index 
+        self.returnvalue = -1
+        for i in range(len(self.listname)):
+            if self.listname[i][index] == self.value:
+                self.returnvalue = i 
+                break
+    def returnc(self):
+        return self.returnvalue 
+    
 class read_txt_line_by_line_to_list(): # ? доошоо урссан текст тоонуудыг уншиж листэнд хадгалж буцаана
     def __init__(self,value,list,type):
         if type == 'r':
@@ -207,3 +225,75 @@ class dict_to_text_file_save():
             with open(self.path,'a',encoding="utf-8") as f:
                 f.writelines(self.dt)
 
+default_config_dict = readtextfile_to_dict(file_running_directory+"configuration.txt").returnc()
+
+
+class add_new_baraa_to_ultimate_pos_api():
+    def __init__(self, barcode,taxbarcode,itemname,MaterialType,ClassID,SalesUnitID,PSprice,SOPrice,isNoatus,NoatRegister):
+        self.barcode = barcode
+        self.taxbarcode = taxbarcode # Такс код "ДОТООД КОД байж болно"
+        self.Descr = itemname # Барааны нэр 
+        self.MaterialType = '001' # Ангилал код  # department id gaar oruulya
+        self.ClassID = ClassID #Категори ID  "product_template # Group Category 
+        self.VendID = '0004' # Нийлүүлэгч код  DEFAULT '0004'
+        self.PrimaryBinCode = '001' # Үндсэн байршил DEFAULT '001'
+        self.SalesUnitID = SalesUnitID #Хэмжих нэгж   , Шир EA,KG   # uom_id = 1 EA , 12 KG
+        self.PSPrice = PSprice # Борлуулалтын үнэ 
+        self.SOPrice = SOPrice # Худалдан авалтын үнэ  
+        self.isNoatus = isNoatus # Нөат төлөгч эсэх  Y , N  tax_id = 4 baiwal нөатгүй
+        self.NoatRegister = NoatRegister # Байгууллагын регистер 
+        self.headers = {"Content-Type": "application/json; charset=utf-8"}
+        self.mainjson = {}
+        self.mainjson['token'] = default_config_dict['TOKEN']
+        self.inv2 = {}
+        self.inv2['BarCode'] = self.barcode
+        self.inv2['TaxBarCode'] = self.taxbarcode
+        self.inv2['Descr'] = self.Descr
+        self.inv2['MaterialType'] = self.MaterialType
+        self.inv2['ClassID'] = self.ClassID
+        self.inv2['VendID'] = self.VendID 
+        self.inv2['PrimaryBinCode'] = self.PrimaryBinCode
+        self.inv2['SalesUnitID'] = self.SalesUnitID
+        self.inv2['PSPrice'] = self.PSPrice
+        self.inv2['SOPrice'] = self.SOPrice
+        self.inv2['isNoatus'] = 'Y'
+        self.inv2['NoatRegister'] = self.NoatRegister
+        self.inv = [self.inv2]
+        self.mainjson['Inventory'] = self.inv 
+        print('---------------------------')
+        try:
+            self.response = requests.post(default_config_dict['URLventory'], headers=self.headers,json=self.mainjson)
+            self.data_dict = json.loads(self.response.text)
+        except:
+            self.data_dict = []
+            pass
+        print(self.data_dict)
+    def returnc(self):
+        return self.data_dict
+
+class get_baraa_info_ultimate_pos_api():
+    def __init__(self, fieldname,barcode,withfilter):
+        self.fieldname = fieldname
+        self.barcode = barcode
+        self.isyes = 'Y' if withfilter > 0 else 'N'
+        self.url = default_config_dict['URLinv'] + '?token='
+        
+        if self.isyes == 'Y':
+            self.url = self.url + default_config_dict['TOKEN']+'&IsFilter=Y&FieldName='+self.fieldname+'&Value='+self.barcode
+        else:
+            self.url = self.url + default_config_dict['TOKEN']+'&IsFilter=N&FieldName='+self.fieldname+'&Value='+self.barcode
+
+        try:
+            self.response = requests.get(self.url)
+            self.data_dict = json.loads(self.response.text)
+
+            self.ret_type = self.data_dict['retType']
+            self.ret_desc = self.data_dict['retDesc']
+            self.ret_data = self.data_dict['retData']
+            print(self.ret_data)
+        except:
+            self.ret_data = []
+            pass
+        
+    def returnc(self):
+        return self.ret_data

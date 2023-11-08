@@ -86,11 +86,14 @@ while True:
                 all_products_odoo_result[get_index_list_selected_column(newlist[2],all_products_odoo_result,2).returnc()] = newlist
             counter=counter+1
             # ! baraa bvrtgelgvi bol add hiine 
-        for i in range(10):#len(all_products_odoo_result)):
+        for i in range(len(all_products_odoo_result)):
             baraa = get_baraa_info_ultimate_pos_api('Barcode',all_products_odoo_result[i][2],2).returnc()
-            print('baraalen: ',len(baraa))
             if len(baraa) == 0:
-                add_new_baraa_to_ultimate_pos_api(all_products_odoo_result[i][2],all_products_odoo_result[i][3],all_products_odoo_result[i][4],all_products_odoo_result[i][5],all_products_odoo_result[i][6],'EA' if all_products_odoo_result[i][9]==1 else 'KG',int(all_products_odoo_result[i][8]),0,'N' if all_products_odoo_result[i][0]==4 else 'Y',all_products_odoo_result[i][7])
+                print('add item------------------')
+                add_new_baraa_to_ultimate_pos_api(all_products_odoo_result[i][2],all_products_odoo_result[i][3],all_products_odoo_result[i][4],all_products_odoo_result[i][5],all_products_odoo_result[i][6],'EA' if all_products_odoo_result[i][9]==1 else 'KG',int(all_products_odoo_result[i][8]),0,'N' if all_products_odoo_result[i][0]==4 else 'Y','2057441' if not all_products_odoo_result[i][7] else all_products_odoo_result[i][7])
+            else:
+                print('price update--------------')
+                UpdateBaraaPriceToUltimatePosAPI(baraa[0]['InvtID'], baraa[0]['SalesUnitID'], '0', str(int(all_products_odoo_result[i][8])), '2')
 
     # ? cash dr хариулт өгсөн бол хариултын мөрийг арилгаж байна (20000 + -100) = 19900
     for i in list_unique_counter(pos_payment_result,0).returnc():

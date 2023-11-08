@@ -233,7 +233,7 @@ class add_new_baraa_to_ultimate_pos_api():
         self.barcode = barcode
         self.taxbarcode = taxbarcode # Такс код "ДОТООД КОД байж болно"
         self.Descr = itemname # Барааны нэр 
-        self.MaterialType = '001' # Ангилал код  # department id gaar oruulya
+        self.MaterialType = '2052041' # Ангилал код  # department id gaar oruulya # 2052041
         self.ClassID = ClassID #Категори ID  "product_template # Group Category 
         self.VendID = '0004' # Нийлүүлэгч код  DEFAULT '0004'
         self.PrimaryBinCode = '001' # Үндсэн байршил DEFAULT '001'
@@ -297,3 +297,34 @@ class get_baraa_info_ultimate_pos_api():
         
     def returnc(self):
         return self.ret_data
+
+class UpdateBaraaPriceToUltimatePosAPI():
+    def __init__(self, invtid, Unitid, nnewcost, nstandardprice, versionid):
+        self.invtid = invtid  # барааны код
+        self.unitid = Unitid  # хэмжих нэгж
+        self.nnewcost = '0' # nnewcost should be an integer, convert it from string
+        self.versionid = versionid  # versionid should be an integer, convert it from string
+        self.nstandardprice = nstandardprice  # ПОС-ын үнэ should be an integer, convert it from string
+        self.mainjson = {}
+        self.mainjson['token'] = default_config_dict['TOKEN']
+        self.mainjson['VersionID'] = self.versionid
+        self.psSalesPrice = {}
+        self.psSalesPrice['InvtID'] = self.invtid
+        self.psSalesPrice['UnitID'] = self.unitid
+        self.psSalesPrice['NNewCost'] = self.nnewcost
+        self.psSalesPrice['NStandardPrice'] = self.nstandardprice
+        self.inve2 = {}
+        self.inve2['psSalesPrice'] = self.psSalesPrice
+        self.mainjson['InventoryProduct'] = [self.inve2]
+        print('---------------------------')
+        try:
+            self.response = requests.post(default_config_dict['URLchange'], headers=self.headers,json=self.mainjson)
+            self.data_dict = json.loads(self.response.text)
+        except:
+            self.data_dict = []
+            pass
+        print(self.data_dict)
+    def returnc(self):
+        return self.data_dict
+# Create an instance of the class with appropriate arguments
+

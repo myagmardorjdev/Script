@@ -327,4 +327,14 @@ class UpdateBaraaPriceToUltimatePosAPI():
     def returnc(self):
         return self.data_dict
 # Create an instance of the class with appropriate arguments
+class RemoveTopLineOnTextFile():
+    def __init__(self, filename,limit):
+        print(filename)
+        self.file = filename
+        self.limit = limit    
+        with open(self.file, 'r') as file:
+            lines = file.readlines()
+        lines = lines[self.limit:]
+        with open(self.file, 'w') as file:
+            file.writelines(lines)
 

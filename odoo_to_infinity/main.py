@@ -29,17 +29,17 @@ def postg(conn,query):
 #region 
 now = datetime.now()
 seconddate = now + timedelta(days=1)
-onoodroos_omnox = 0
+onoodroos_omnox = 3
 tdate = "'"+ str(now-timedelta(days=onoodroos_omnox))[:10]+ "' and '" +str(seconddate)[:10] +"'"
                            #0    #1              #2          #3       #4            #5              #6      #7                #8                      #9            #10                   #11            #12              #13              #14             #15         #16         #17
 pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between "+tdate
-onoodroos_omnox_payment = 0
+onoodroos_omnox_payment = 3
 tdate = "'"+ str(now-timedelta(days=onoodroos_omnox_payment))[:10]+ "' and '" +str(seconddate)[:10] +"'"
 pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1.is_change FROM pos_payment as p1 inner join pos_payment_method as p2  on p2.id = p1.payment_method_id where p1.payment_date between"+tdate
 pos_order_id_query = "SELECT id,bill_id FROM pos_order where name = 'value'"
 get_all_extra_prices_query = "select product_tmpl_id,date_start , date_end , fixed_price from product_pricelist_item where min_quantity = 0 and date_end >= CURRENT_DATE"
 get_all_products_odoo_query = "select r.tax_id ,t.id as product_tmpl_id, p.barcode,p.full_internal_code, t.name, t.department_id as Materialid , t.group_category_id as classid,t.vendor_vat,t.list_price,t.uom_id FROM product_product as p inner join product_template as t on p.product_tmpl_id = t.id left join product_taxes_rel as r on r.prod_id = t.id where p.active = true and p.barcode is not null"
-onoodroos_omnox_refund = 0
+onoodroos_omnox_refund = 3
 tdate = "'"+ str(now-timedelta(days=onoodroos_omnox_refund))[:10]+ "' and '" +str(seconddate)[:10] +"'"
 refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between "+tdate
 #endregion
@@ -54,9 +54,9 @@ odoodatabases = {'user': 'readonly_c17','password': 'readonly_c17_password','ser
 
 headers = {"Content-Type": "application/json; charset=utf-8"}
 # ! test orchin 
-pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
-pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1.is_change FROM pos_payment as p1 inner join pos_payment_method as p2  on p2.id = p1.payment_method_id where p1.payment_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
-refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
+#pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
+#pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1.is_change FROM pos_payment as p1 inner join pos_payment_method as p2  on p2.id = p1.payment_method_id where p1.payment_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
+#refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
 
 while True:
     now = datetime.now()
@@ -71,7 +71,10 @@ while True:
         #all_products_odoo_result = postg(conp, get_all_products_odoo_query)
         #all_products_on_ultimate = get_baraa_info_ultimate_pos_api('asdf','asdfasdf',0).returnc()
     except:
-        writetextappend(str(now) + " " + "ultimate ruu holbogdoj chadsangvi",logpath)  
+        writetextappend(str(now) + " " + "odooo ruu holbogdoj chadsangvi",logpath)  
+        pos_order_result = []
+        pos_payment_result = []
+        refund_pos_order_result = []
 
     # ? бараа бүртгэлийн хэсэг , барааг байвал бүртгэхгүй алгасах болно
         # ! extra price une baiwal all_products_odoo_result pricelist dr oorchilj ogj bna
@@ -212,8 +215,7 @@ while True:
                     errorinfo = ' cannont insert value null into VATIncluded'
                     writetextappend(str(now) + " " + ";order_id: " +str(i) + errorinfo,logpath)
                 else:
-                    errorinfo = response.json()['retDesc']
-                    writetextappend(str(now) + " " + ";order_id: " +str(i) + errorinfo,logpath)
+                    writetextappend(str(now) + " " + ";order_id: " +str(i) + 'JSON Data: '+ str(response.json()),logpath)
                     
         
     # ? буцаалтын pos orders 
@@ -297,25 +299,48 @@ while True:
             if response.status_code == 200:
                 responsetype = response.json()['retType']
                 responseretdesc = response.json()['retDesc']
-                if responseretdesc == "Succesfull Executed Query":
+                if responseretdesc == "Succesfull Executed Query" and response.json()['affectedRows'] == 1:
                     print("amjilttai hadgallaaa")
                     responseaffectedrows = response.json()['affectedRows']
                     salesNo = response.json()['retData'][0]['SalesNo'] 
                     lines.append(str(i))
-                    writetextappend(str(now) + " refund;" + str(refund_bill_line) + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
+                    writetextappend(str(now) + " Refund:" + str(refund_bill_line) + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
                     writetextappend(str(i)+"="+str(salesNo),file_running_directory + 'sales_id_ref.txt')
                 else:
                     writetextappend(str(now) + " refund aldaa " + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
+                    writetextappend(str(now) + " refund aldaa " + ' JSON data: ' + str(response.json()),logpath)
             read_txt_line_by_line_to_list(file_running_directory + 'refund_order_head.txt',lines,'w')
           
         
     # ! 7 xonogiin dawtamjtai billiig ni ustgaj bna
-    if now.hour == 1 and loop_status == 1 and now.day/7 == 1.0:
-        RemoveTopLineOnTextFile(file_running_directory + 'pos_order_head.txt',100) 
-        RemoveTopLineOnTextFile(file_running_directory + 'refund_order_head.txt',100) 
-        RemoveTopLineOnTextFile(file_running_directory + 'sales_id.txt',100) 
-        RemoveTopLineOnTextFile(file_running_directory + 'sales_id_ref.txt',100)  
-        loop_status = 0
+    if now.hour == 1 and loop_status == 1:
+        now = datetime.now()
+        seconddate = now + timedelta(days=1)
+        onoodroos_omnox = 6
+        tdate = "'"+ str(now-timedelta(days=onoodroos_omnox))[:10]+ "' and '" +str(seconddate)[:10] +"'"
+                                #0    #1              #2          #3       #4            #5              #6      #7                #8                      #9            #10                   #11            #12              #13              #14             #15         #16         #17
+        pos_orders_query = "1Select pos.order_id FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between "+tdate
+        try:
+            conp = psycopg2.connect(database=odoodatabases['database'], user=odoodatabases['user'], password=odoodatabases['password'], host=odoodatabases['server'], port= odoodatabases['port'])      
+        
+            pos_order_result = postg(conp,pos_orders_query)
+            awchvldex = len(list_unique_counter(pos_order_result,0).returnc())
+        except:
+            awchvldex = 10000
+            print('aldaa ogloo')
+            pass
+        file_path = file_running_directory + 'pos_order_head.txt'  # Replace 'your_file.txt' with the path to your text file
+        line_count = 0
+        with open(file_path, 'r') as file:
+            line_count = sum(1 for line in file)
+        print(line_count)
+        if line_count - awchvldex > 0:
+            RemoveTopLineOnTextFile(file_running_directory + 'pos_order_head.txt',line_count - awchvldex) 
+            #RemoveTopLineOnTextFile(file_running_directory + 'refund_order_head.txt',line_count - awchvldex) 
+            RemoveTopLineOnTextFile(file_running_directory + 'sales_id.txt',line_count - awchvldex) 
+            #RemoveTopLineOnTextFile(file_running_directory + 'sales_id_ref.txt',line_count - awchvldex)
+            writetextappend(str(now) + " " + "log data ustgaj bna: " + str(line_count - awchvldex),logpath) 
+            loop_status = 0
     print("sleeping... " , now)
     time.sleep(loop_sleeptime)
 

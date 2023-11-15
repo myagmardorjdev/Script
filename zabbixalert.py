@@ -15,6 +15,10 @@ sleepsecond = 180
 query_error_check = "SELECT * FROM public.action_pull_sync_line where (current_timestamp - (30 * interval '1 minute')) <= create_date and has_error = true and now()>=create_date"
 queue_job_error_query = "SELECT * FROM queue_job where state = 'failed'"
 query_glpi_id_get= "SELECT id  FROM glpi_tickets ORDER BY id desc LIMIT 1"
+now = datetime.now()
+seconddate = now + timedelta(days=1)
+tdate = "'"+ str(now)[:10]+ "' and '" +str(seconddate)[:10] +"'"
+query_glpi_tickets = "SELECT t.id, t.NAME, t.solvedate, t.content , u.name as mail FROM glpi_tickets AS t RIGHT JOIN glpi_users AS u ON t.users_id_recipient = u.id WHERE t.is_deleted = 0 and t.solvedate between " + tdate
 log_path = 'B:/zabbixlog.txt'
 def initsession():
     url = 'http://10.0.0.14/apirest.php/initSession'
@@ -58,7 +62,38 @@ def postg_return_value(conn,query):
         #stringa = row;
     conn.close()
     return data
-    
+def closeticket(session_token, ticket_id):
+    url = f'http://10.0.0.14/apirest.php/Ticket/{ticket_id}'
+
+    # Replace 'your_username' and 'your_password' with your actual GLPI credentials
+    username = 'zabbix'
+    password = 'Aa1234%^'  # Replace with your actual password
+    headers = {
+        'Content-Type': 'application/json',
+        'App-Token': 'dgoT8fOH3UYbYV1bz49N2PrFUhKY6Bqp8bJgrGRP',
+        'Session-Token': session_token
+    }
+
+    # Data for closing the ticket (if additional data is required, modify this accordingly)
+    close_data = {
+        'input': {
+            'status': 6,  # Status code for "Closed" (adjust based on your GLPI configuration)
+            # You may include other relevant data for closing the ticket
+        }
+    }
+
+    try:
+        response = requests.put(url, json=close_data, headers=headers, auth=HTTPBasicAuth(username, password))
+
+        # Check if the request was successful (status code 200 for OK)
+        if response.status_code == 200:
+            print(f"Ticket {ticket_id} closed successfully.")
+        else:
+            print(f"Failed to close ticket. Status code: {response.status_code}")
+            print(response.json())
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")     
 def createticket(session_token,title,content,category):
     url = 'http://10.0.0.14/apirest.php/Ticket/'
 
@@ -149,7 +184,9 @@ odoodatabases = {'34': {'user': 'readonly_c34','password': 'readonly_c34_passwor
                 '22': {'user': 'readonly_c22','password': 'readonly_c22_password','server': '10.22.1.220',  'port': 5432,'database':'STORE22_LIVE'},
                 '08': {'user': 'readonly_c08','password': 'readonly_c08_password','server': '10.8.1.220',  'port': 5432,'database':'STORE08_LIVE'},
                 '39': {'user': 'readonly_c39','password': 'readonly_c39_password','server': '10.39.1.220',  'port': 5432,'database':'STORE39_LIVE'},
-                '32': {'user': 'readonly_c32','password': 'readonly_c32_password','server': '10.32.1.220',  'port': 5432,'database':'STORE32_LIVE'},
+                '32': {'user': 'itid','password': 'it#2016','server': '10.32.1.220',  'port': 5432,'database':'STORE32_LIVE'},
+                '61': {'user': 'itid','password': 'it#2016','server': '10.61.1.220',  'port': 5432,'database':'STORE61_LIVE'},
+                '62': {'user': 'itid','password': 'it#2016','server': '10.62.1.220',  'port': 5432,'database':'STORE62_LIVE'},
 }
 #server = {"server" : "10.34.1.220","database" :"CARREFOURS34_LIVE","user" : "readonly_c34", "password" : "readonly_c34_password"}
 bannedhosts = ['AUB_Web']#bannedhosts = ['AJTPowerBI','AUB_Web','itremote','BackupServer','Ysoft','BSO-Printer']
@@ -157,11 +194,8 @@ bannedreasons = ['last 24hours']#bannedreasons = ['last 24hours','Client','POS_8
 #loop outsides variables
 sessiontoken = initsession()
 createdtickets = {}
-
+isrunning_aldaa = {'13':0 , '01':0, '06':0, '08':0 , '16':0 , '17':0 , '21':0, '22':0, '25':0, '26':0, '32':0 , '33':0 , '34':0, '38':0, '39':0,'42':0, '61':0, '62':0}
 # ? test 
-is_running_query = "SELECT create_date FROM action_pull_sync_line where  state='in_progress'"
-conp = psycopg2.connect(database=odoodatabases['13']['database'], user=odoodatabases['13']['user'], password=odoodatabases['13']['password'], host=odoodatabases['13']['server'], port= odoodatabases['13']['port'])
-qresult = postg_return_value(conp,is_running_query)
 
 while(1==1):
     now = datetime.now()
@@ -171,6 +205,19 @@ while(1==1):
             sessiontoken = initsession()
         except:
             pass
+    # ! glpi solved ticket to teams notifiction 
+    if now.hour >=8 and now.hour < 22:
+        glpi_tickets_result = ticket_mysql_select(query_glpi_tickets).returnc()
+        for i in glpi_tickets_result:
+            ticket_title=i[1]
+            ticket_content = (i[3]).split(';')[2]
+            ticket_mail = i[4] + "@altanjoloo.mn"
+            tquery = "select id from dbo.glpi_solved_tickets where id = " + str(i[0])
+            tresult = execute_sql_server_select('WIN-3RGEU5J9BNE','callpro','glpi_solved_tickets','sa','SpawnGG123',tquery).returnc()
+            if len(tresult) == 0:
+                tinsertquery = f"INSERT INTO dbo.glpi_solved_tickets (usermail, title, isSend, body, id,solveddate) VALUES ('" + ticket_mail +"',N'"+i[1]+"',0,N'"+ticket_content+"',"+str(i[0])+",'" +str(now)[:10] +" "+ str(now.hour) + ":"+str(now.minute) +"')"
+                execute_sql_server_insert('WIN-3RGEU5J9BNE','callpro','sa','SpawnGG123',tinsertquery)
+
     # ! callpro call to GLPI ticket bolgoj bna
     if now.hour >=8 and now.hour < 22:
         callprolist=connect_sql_server_select('10.0.99.40','callpro','calllogs','sa','SpawnGG123').returnc()
@@ -179,15 +226,15 @@ while(1==1):
             salbarid = 0
             if 'Left' in callprolist[i][0]:
                 #zvvnrvv 
-                tdata = callprolist[0][1][:62]
+                tdata = callprolist[i][1][:62]
                 numbers = re.findall(r'\d+', tdata)
                 numbers = list(map(int, numbers)) # list shvv
                 tempcontent = "Call Pro-гоос : "  + str(numbers[0])
-                #createticket(sessiontoken,"ЗҮҮН",tempcontent,85)
+                createticket(sessiontoken,"ЗҮҮН",tempcontent,85)
                 if str(numbers[0]) in salbariinid:
                     salbarid = salbariinid[str(numbers[0])]
                 ticket_mysql_insert(last_id,"ЗҮҮН",tempcontent,salbarid,85)
-                connect_sql_server_insert('10.0.99.40','callpro','calllogs','sa','SpawnGG123','Value1',callprolist[i][4])
+                connect_sql_server_update('10.0.99.40','callpro','calllogs','sa','SpawnGG123','Value1',callprolist[i][4])
                
             else:
                 tdata = callprolist[i][1][:62]
@@ -199,9 +246,8 @@ while(1==1):
                     salbarid = salbariinid[str(numbers[0])]
                 ticket_mysql_insert(last_id,"БАРУУН",tempcontent,salbarid,85)
 
-                connect_sql_server_insert('10.0.99.40','callpro','calllogs','sa','SpawnGG123','Value1',callprolist[i][4])
-                
-               
+                connect_sql_server_update('10.0.99.40','callpro','calllogs','sa','SpawnGG123','Value1',callprolist[i][4])
+                            
     if now.hour >= 8 and now.hour < 22:
         print('Odooo')
         # ? has queue error checking 
@@ -233,23 +279,25 @@ while(1==1):
                 log_write_notime("1",textname) #error toi ved
             time.sleep(1)
         # ? is running 30 minute aas ix baiwal
-        seconddate = now + timedelta(days=1)
-        tdate = "'"+ str(now)[:10]+ "' and '" +str(seconddate)[:10] +"'"
         is_running_query = "SELECT create_date FROM action_pull_sync_line where  state='in_progress'"# and create_date between" + tdate + "LIMIT 1"   
-        qresult = []
+
         for i in odoodatabases:
-            textname = '//192.168.0.25/sync_pull_log/isrun_'+ odoodatabases[i]['server'] + '.txt'      
+            now = datetime.now()
+            textname = '//192.168.0.25/sync_pull_log/isrun_'+ odoodatabases[i]['server'] + '.txt'     
             try:
                 conp = psycopg2.connect(database=odoodatabases[i]['database'], user=odoodatabases[i]['user'], password=odoodatabases[i]['password'], host=odoodatabases[i]['server'], port= odoodatabases[i]['port'])
                 qresult = postg_return_value(conp,is_running_query)
                 if qresult == []:
                     log_write_notime("0",textname)
                 else:
-                    print(odoodatabases[i]['database'])
                     # ! baaziin tsag 8 tsagiin zorvvtei baidag bolxoor teriig arilgaj bna
                     qresult2 = qresult[0][0] + timedelta(hours=8)
                     zorvvtsag = now - qresult2
-                    if zorvvtsag.seconds/60 > 50:
+                    if zorvvtsag.total_seconds()/60 >= 5:  # isrunning more than 30minute
+                        print("is run for 6 minute: C",i)
+                        isrunning_aldaa[i] = isrunning_aldaa[i] + 1
+
+                    if isrunning_aldaa[i] > 10:
                         log_write_notime("1",textname) # isrunning more than 30minute
                     else: 
                         log_write_notime("0",textname)
@@ -327,18 +375,17 @@ while(1==1):
                     #print(json.dumps(r3.json(), indent=4, sort_keys=True))
                     
                     eventclock = datetime.fromtimestamp(int(r3.json().get('result')[0]['clock']))
+                    now = datetime.now()
                     zorvvtsag = now - eventclock
-                    print(r3.json().get('result')[0]['name'] + ">>>>>>>")
-                    print("zorvvtsag seconds: ",zorvvtsag.seconds)
-                    print("zorvvtsag total seconds: ", zorvvtsag.total_seconds())
-                    print("zorvvtsag minute: ", zorvvtsag.seconds/60)
+                    #print(r3.json().get('result')[0]['name'] + ">>>>>>>")
+
                     # Enabled Disabled item shalgaj bna
                     enedisabled = 0
                     tempip = get_hosts_with_ip( r3.json().get('result')[0].get('hosts')[0].get('hostid'))
                     if tempip == '0':
                         enedisabled = 1                                                                                                                                                                                                     #enedisabled == 0:
-                    if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and all(word not in r3.json().get('result')[0]['name'] for word in bannedreasons) and zorvvtsag.seconds/60 >= 15 and zorvvtsag.total_seconds() >= 900:  # 15 minutaas ix duration problem orj irne
-                        print("noxtolrvv orj bna")
+                    if all(word not in r3.json().get('result')[0].get('hosts')[0]['host'] for word in bannedhosts) and all(word not in r3.json().get('result')[0]['name'] for word in bannedreasons) and zorvvtsag.total_seconds()/60 >= 15:  # 15 minutaas ix duration problem orj irne
+                    
                         eachdict = {
                             "host" : r3.json().get('result')[0].get('hosts')[0]['host'],
                             "reason" : r3.json().get('result')[0]['name'],
@@ -406,8 +453,11 @@ while(1==1):
                cc+=1
         createdtickets = temptickets  # tempticketiig tickets rvv hadgalj bna
                 
-            
+           
     time.sleep(sleepsecond)
     print(now)
     print("sleeping...")
     log_write("looping ...",log_path)
+
+    if now.hour <= 8:
+         isrunning_aldaa = {'13':0 , '01':0, '06':0, '08':0 , '16':0 , '17':0 , '21':0, '22':0, '25':0, '26':0, '32':0 , '33':0 , '34':0, '38':0, '39':0,'42':0, '61':0, '62':0}

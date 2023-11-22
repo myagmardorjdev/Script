@@ -1,13 +1,47 @@
+﻿##[Ps1 To Exe]
+##
+##Kd3HDZOFADWE8uK1
+##Nc3NCtDXThU=
+##Kd3HFJGZHWLWoLaVvnQnhQ==
+##LM/RF4eFHHGZ7/K1
+##K8rLFtDXTiSJ0g==
+##OsHQCZGeTiiZ4NI=
+##OcrLFtDXTiS5
+##LM/BD5WYTiiZ4tI=
+##McvWDJ+OTiiZ4tI=
+##OMvOC56PFnzN8u+Vs1Q=
+##M9jHFoeYB2Hc8u+Vs1Q=
+##PdrWFpmIG2HcofKIo2QX
+##OMfRFJyLFzWE8uO1
+##KsfMAp/KUzWJ0g==
+##OsfOAYaPHGbQvbyVvnQX
+##LNzNAIWJGmPcoKHc7Do3uAuO
+##LNzNAIWJGnvYv7eVvnQX
+##M9zLA5mED3nfu77Q7TV64AuzAgg=
+##NcDWAYKED3nfu77Q7TV64AuzAgg=
+##OMvRB4KDHmHQvbyVvnQX
+##P8HPFJGEFzWE8tI=
+##KNzDAJWHD2fS8u+Vgw==
+##P8HSHYKDCX3N8u+Vgw==
+##LNzLEpGeC3fMu77Ro2k3hQ==
+##L97HB5mLAnfMu77Ro2k3hQ==
+##P8HPCZWEGmaZ7/K1
+##L8/UAdDXTlaDjofG5iZk2Ub3Q28mb9eftqSt+Ka169bgvjbKRpRHdUd0lyX5EhjzXOoXNQ==
+##Kc/BRM3KXxU=
+##
+##
+##fd6a9f26a06ea3bc99616d4851b372ba
 
 $loopstatus = 0
 $backstatus = 0
 $jobstart_hour = 7 # 22
-$jobstart_min = 0 # 33
-$jobend_hour = 18
-$startleepduration = 40
-$price_check_row_limit = 1000
+$jobstart_min = 15 # 33
+$jobend_hour = 23
+$job_check_price_end_hour = 15 #scale, price vne tulgalt shalgaj duusax tsag
+$startleepduration = 120
+$price_check_row_limit = 1200
 $scalezerostatus = 7
-$scalezerostatusmin = 0
+$scalezerostatusmin = 2 #2
 $isrun = 'B:\Scripts\zabbix_scale\isrunmon.txt'
 $logfilemain = "B:\Scripts\scalelogv3.txt"
 $carrefour = @{c88 = 'B:\Scripts\scalepricelist\file88.xlsx','B:\Scripts\plu88.csv', "" , 'B:\Scripts\zabbix_scale\Scale88.txt' ,'10.88.1.240';
@@ -29,6 +63,7 @@ function resettxt($v1){
 
         (get-date).toString()+ "all digit scale 0 status" | out-file -FilePath $logfilemain -Append
 }
+resettxt -v1 "a"
 function EXECUTER($v1, $v2,$v3){
     $value = 0
     $SqlAuthLogin = "sa"          # SQL Authentication login
@@ -400,6 +435,10 @@ while(1 -eq 1){
                             $m = $onsargvi.Length + 1
                         }         
                     }
+                    # ! duusax on sar dr baraa songon arilgaj bna
+                    if($orig[$i].'Code on Scale' -eq 4250  -or $orig[$i].'Code on Scale' -eq 4015){
+                        $plu0uall[$counter].7 = 0 # duusax ognoo
+                    }
                     $cod = $null
                     
                     $counter++;
@@ -697,7 +736,7 @@ while(1 -eq 1){
                     }else{
                         $scalecode = $orig[$i].'Code on Scale'
                     }     
-                    $ingcollimit = 50
+                    $ingcollimit = 44
                     if($temp.Length -gt $ingcollimit ){
                         $linecounter = 1
                         $sum= 0
@@ -815,7 +854,7 @@ while(1 -eq 1){
         } # for leep end
     } # dict loop end
     
-    # RESET ALL SCALES 0 status
+    #? RESET ALL SCALES 0 status
     if((get-date).Hour -eq $scalezerostatus -and (get-date).Minute -le $scalezerostatusmin){
         resettxt -v1 "a"
         $loopstatus = 0
@@ -823,7 +862,7 @@ while(1 -eq 1){
     }
         
     
-    #ZK time device baaz backup
+    #?ZK time device baaz backup
     if((get-date).hour -eq 12 -and $backstatus -eq 0){
         EXECUTER -v1 "192.168.0.25" -v2 "ZKSoft" -v3 $query_zksoftbackup
         Copy-Item  "\\192.168.0.25\mssql\Backup\ZKSoft.bak" -Destination "\\10.0.99.40\Backups\ZkSfot" -Force
@@ -839,7 +878,8 @@ while(1 -eq 1){
     }
 
     # ! price check zone, Жингийн PLU -г татаж эксел файлтай тулгалт хийж байна
-    if($loopstatus -eq 1 -and (get-date).Hour -ge $jobstart_hour -and (get-date).hour -le $jobend_hour -and (get-date).minute -ge $jobstart_min -and (get-date).minute -eq 30){
+    if($loopstatus -eq 1 -and (get-date).Hour -ge $jobstart_hour -and (get-date).hour -le $job_check_price_end_hour){
+        Write-Host " price check" + (get-date)
         foreach ($z in $carrefour.GetEnumerator()){
             $origcheck = Import-Excel -Path $z.Value[0]
             $origcheck = $origcheck | Sort-Object -Property 'Code on Scale'
@@ -848,7 +888,7 @@ while(1 -eq 1){
             $scaleplu = Import-Csv -Path 'B:\Scripts\plu0uall.csv' -Delimiter "," -Header 'lfcode','flagdelete','weight','col4','selldate','useddate','packeddate','selltime','packedtime','col10','col11','pricebased_per_unit','col13','nutritionprint','unit_price_override_15','PLU_price_change_16','col17','col18','unit_price'
             Start-sleep -seconds 1
             Remove-item 'B:\Scripts\plu0uall.csv'
-            # ! tataj awsan scale csv file iiig excel file tei harituulj bna
+            # ! tataj awsan scale csv file iiig excel file tei haritsuulj bna
             for($i=10; $i -lt $price_check_row_limit; $i++){
                 if(($scaleplu[$i].'lfcode').Length -eq 1){
                     $tcode = "000" + $scaleplu[$i].'lfcode'
@@ -865,11 +905,12 @@ while(1 -eq 1){
                 $ldfcode = $origcheck[$tindex].'Code on Scale'
                 $excelprice = $origcheck[$tindex].'Product Price'
 
-                if($excelprice -ne $scaleprice -and $tindex -ne -1){
-                    Write-output "lfcode: $ldfcode product name: $produectname price: $scaleprice vs $excelprice"
-                    (get-date).toString() + " lfcode: $ldfcode product name: $produectname price: $scaleprice vs $excelprice" | out-file -FilePath $logfilemain -Append
-                    #resettxt -v1 "a"
-                    #$loopstatus = 0
+                if($excelprice -ne $scaleprice -and $tindex -ne -1 -and $ldfcode -ne '0161'){ # ban code, алгасах кодоо энд оруулав.
+                    Write-output "excel-lfcode: $ldfcode product name: $produectname pricecsv: $scaleprice vs "excel " $excelprice"
+                    $salbarname = $z.Key
+                    (get-date).toString() + "salbar: $salbarname lfcode: $ldfcode product name: $produectname scaleprice: $scaleprice vs excelprice: $excelprice" | out-file -FilePath $logfilemain -Append
+                    resettxt -v1 "a"
+                    $loopstatus = 0
                 }
             }
         }
@@ -886,3 +927,4 @@ while(1 -eq 1){
 
 
 
+{���

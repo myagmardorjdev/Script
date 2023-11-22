@@ -2,15 +2,13 @@ file_running_directory = "C:/Users/myagmardorj/Git/lesson3/odoo_to_infinity/"
 import psycopg2
 from collections import Counter # can count unique value
 import os,sys
-import pypyodbc as odbc
+#import pypyodbc as odbc
 from decimal import Decimal
 sys.path.append(file_running_directory)
 import time
-import urllib.parse
 import requests
 from datetime import datetime,timedelta
 from lesson3.odoo_to_infinity.functions import *
-
 
 # ? >>>>>>>>> QUERY functions
 def postg(conn,query):
@@ -54,9 +52,9 @@ odoodatabases = {'user': 'readonly_c17','password': 'readonly_c17_password','ser
 
 headers = {"Content-Type": "application/json; charset=utf-8"}
 # ! test orchin 
-#pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
-#pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1.is_change FROM pos_payment as p1 inner join pos_payment_method as p2  on p2.id = p1.payment_method_id where p1.payment_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
-#refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between '2023-11-14 02:00' and '2023-11-14 06:00'"
+pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between '2023-11-15 02:00' and '2023-11-15 06:00'"
+pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1.is_change FROM pos_payment as p1 inner join pos_payment_method as p2  on p2.id = p1.payment_method_id where p1.payment_date between '2023-11-15 02:00' and '2023-11-15 06:00'"
+refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between '2023-11-15 02:00' and '2023-11-15 06:00'"
 
 while True:
     now = datetime.now()
@@ -327,15 +325,16 @@ while True:
             awchvldex = len(list_unique_counter(pos_order_result,0).returnc())
         except:
             awchvldex = 10000
-            print('aldaa ogloo')
+            
             pass
         file_path = file_running_directory + 'pos_order_head.txt'  # Replace 'your_file.txt' with the path to your text file
         line_count = 0
         with open(file_path, 'r') as file:
             line_count = sum(1 for line in file)
-        print(line_count)
+
         if line_count - awchvldex > 0:
             RemoveTopLineOnTextFile(file_running_directory + 'pos_order_head.txt',line_count - awchvldex) 
+            RemoveTopLineOnTextFile(file_running_directory + 'mainlog.txt',line_count - awchvldex) 
             #RemoveTopLineOnTextFile(file_running_directory + 'refund_order_head.txt',line_count - awchvldex) 
             RemoveTopLineOnTextFile(file_running_directory + 'sales_id.txt',line_count - awchvldex) 
             #RemoveTopLineOnTextFile(file_running_directory + 'sales_id_ref.txt',line_count - awchvldex)

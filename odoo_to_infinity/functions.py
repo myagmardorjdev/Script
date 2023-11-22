@@ -5,7 +5,7 @@ import requests
 import os
 from requests.auth import HTTPBasicAuth
 import json
-import pyodbc
+#import pyodbc
 import openpyxl
 import sqlite3
 from datetime import datetime

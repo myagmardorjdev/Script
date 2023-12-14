@@ -1,10 +1,11 @@
-URL= http://202.131.232.101:9999/UltimateService.asmx/SalesOrder
-REQUEST METHOD= POST
+
+URL=http://202.131.251.68:3131/UltimateService.asmx/SalesOrder
+URLinv=http://202.131.251.68:3131/UltimateService.asmx/InventoryInfo
+URLventory=http://202.131.251.68:3131/UltimateService.asmx/INInventory
+URLchange=http://202.131.251.68:3131/UltimateService.asmx/changePrice
+REQUEST METHOD=POST
 AUTHENTICATION=Basic
-TOKEN = R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw=
+TOKEN=R/CttOjflqG55XHt9zr3FSiBrd8r8v3FPKJ5rsqENrw=
 CONTENT-TYPE=Application/Json
 ENCODING=UTF-8
-salbarid = 08
-sale_order_textname = pos_order_head.txt
-refund_order_textname = refund_order_head.txt
-sales_id_ref = sales_id_ref.txt
+salbarid=08

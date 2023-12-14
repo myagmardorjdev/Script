@@ -2,20 +2,13 @@ file_running_directory = "C:/Users/myagmardorj/Git/lesson3/odoo_to_infinity/"
 import psycopg2
 from collections import Counter # can count unique value
 import os,sys
-import pypyodbc as odbc
+#import pypyodbc as odbc
 from decimal import Decimal
 sys.path.append(file_running_directory)
 import time
-import urllib.parse
 import requests
 from datetime import datetime,timedelta
-from lesson3.odoo_to_infinity.functions import find_value_in_list_selected_column
-from lesson3.odoo_to_infinity.functions import readtextfile_to_dict
-from lesson3.odoo_to_infinity.functions import list_unique_counter
-from lesson3.odoo_to_infinity.functions import writetextappend
-from lesson3.odoo_to_infinity.functions import read_txt_line_by_line_to_list
-from lesson3.odoo_to_infinity.functions import database_insert_new_baraa
-
+from lesson3.odoo_to_infinity.functions import *
 
 # ? >>>>>>>>> QUERY functions
 def postg(conn,query):
@@ -34,11 +27,18 @@ def postg(conn,query):
 #region 
 now = datetime.now()
 seconddate = now + timedelta(days=1)
-tdate = "'"+ str(now)[:10]+ "' and '" +str(seconddate)[:10] +"'"
+onoodroos_omnox = 3
+tdate = "'"+ str(now-timedelta(days=onoodroos_omnox))[:10]+ "' and '" +str(seconddate)[:10] +"'"
                            #0    #1              #2          #3       #4            #5              #6      #7                #8                      #9            #10                   #11            #12              #13              #14             #15         #16         #17
 pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between "+tdate
+onoodroos_omnox_payment = 3
+tdate = "'"+ str(now-timedelta(days=onoodroos_omnox_payment))[:10]+ "' and '" +str(seconddate)[:10] +"'"
 pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1.is_change FROM pos_payment as p1 inner join pos_payment_method as p2  on p2.id = p1.payment_method_id where p1.payment_date between"+tdate
 pos_order_id_query = "SELECT id,bill_id FROM pos_order where name = 'value'"
+get_all_extra_prices_query = "select product_tmpl_id,date_start , date_end , fixed_price from product_pricelist_item where min_quantity = 0 and date_end >= CURRENT_DATE"
+get_all_products_odoo_query = "select r.tax_id ,t.id as product_tmpl_id, p.barcode,p.full_internal_code, t.name, t.department_id as Materialid , t.group_category_id as classid,t.vendor_vat,t.list_price,t.uom_id FROM product_product as p inner join product_template as t on p.product_tmpl_id = t.id left join product_taxes_rel as r on r.prod_id = t.id where p.active = true and p.barcode is not null"
+onoodroos_omnox_refund = 3
+tdate = "'"+ str(now-timedelta(days=onoodroos_omnox_refund))[:10]+ "' and '" +str(seconddate)[:10] +"'"
 refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between "+tdate
 #endregion
 # ? default variables
@@ -47,22 +47,59 @@ loop_status = 1
 success_bill_orders = {}
 lines=[]
 logpath = file_running_directory+"mainlog.txt"
-loop_sleeptime = 120 #second
+loop_sleeptime = 600 #second
 odoodatabases = {'user': 'readonly_c17','password': 'readonly_c17_password','server': '10.17.1.220','port': 5432,'database':'STORE17_LIVE'}
+
 headers = {"Content-Type": "application/json; charset=utf-8"}
 # ! test orchin 
-#pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE ord.bill_id='000002057441017231026001701000218'"
 
-#loop inside
 while True:
     now = datetime.now()
+    if loop_status == 0 and now.hour == 5:
+        loop_status = 1
     try:
         conp = psycopg2.connect(database=odoodatabases['database'], user=odoodatabases['user'], password=odoodatabases['password'], host=odoodatabases['server'], port= odoodatabases['port'])      
         pos_order_result = postg(conp,pos_orders_query)
         pos_payment_result = postg(conp,pos_payment_query)
         refund_pos_order_result= postg(conp,refund_pos_order_query)
+        #extra_prices_result = postg(conp, get_all_extra_prices_query)
+        #all_products_odoo_result = postg(conp, get_all_products_odoo_query)
+        #all_products_on_ultimate = get_baraa_info_ultimate_pos_api('asdf','asdfasdf',0).returnc()
     except:
-        writetextappend(str(now) + " " + "ultimate ruu holbogdoj chadsangvi",logpath)  
+        writetextappend(str(now) + " " + "odooo ruu holbogdoj chadsangvi",logpath)  
+        pos_order_result = []
+        pos_payment_result = []
+        refund_pos_order_result = []
+
+    # ? бараа бүртгэлийн хэсэг , барааг байвал бүртгэхгүй алгасах болно
+        # ! extra price une baiwal all_products_odoo_result pricelist dr oorchilj ogj bna
+    if now.hour < 0 and now.minute <= (loop_sleeptime/60):
+        counter = 0
+        for i in list_unique_counter(extra_prices_result,0).returnc():
+            newlist = []
+            newlist = find_value_in_list_selected_column(i,all_products_odoo_result,1).returnc()
+            if not newlist:
+                pass 
+            else:
+                startdate = extra_prices_result[counter][1] + timedelta(hours=8)
+                enddate = extra_prices_result[counter][2] + timedelta(hours=8)
+                now1 = datetime.now() - startdate
+                now2 = datetime.now() - enddate
+                newlist = [*newlist[0],]   # tuple data g list data bolgoj bna
+                if (now1.total_seconds()/360 >= 0 and now2.total_seconds()/360 <=0):
+                    newlist[8] = extra_prices_result[counter][3] # extra price une iiig undsen une dr replace hiiij bna
+                # ? extra price update hiij bna
+                all_products_odoo_result[get_index_list_selected_column(newlist[2],all_products_odoo_result,2).returnc()] = newlist
+            counter=counter+1
+            # ! baraa bvrtgelgvi bol add hiine baiwal update price hiiij bna
+        for i in range(len(all_products_odoo_result)):
+            baraa = get_baraa_info_ultimate_pos_api('Barcode',all_products_odoo_result[i][2],2).returnc()
+            if len(baraa) == 0:
+                print('add item------------------')
+                add_new_baraa_to_ultimate_pos_api(all_products_odoo_result[i][2],all_products_odoo_result[i][3],all_products_odoo_result[i][4],all_products_odoo_result[i][5],all_products_odoo_result[i][6],'EA' if all_products_odoo_result[i][9]==1 else 'KG',int(all_products_odoo_result[i][8]),0,'N' if all_products_odoo_result[i][0]==4 else 'Y','2057441' if not all_products_odoo_result[i][7] else all_products_odoo_result[i][7])
+            else:
+                print('price update--------------')
+                UpdateBaraaPriceToUltimatePosAPI(baraa[0]['InvtID'], baraa[0]['SalesUnitID'], '0', str(int(all_products_odoo_result[i][8])), '2')
 
     # ? cash dr хариулт өгсөн бол хариултын мөрийг арилгаж байна (20000 + -100) = 19900
     for i in list_unique_counter(pos_payment_result,0).returnc():
@@ -126,7 +163,7 @@ while True:
                 "Qty":item['Qty'],
                 "ItemDueAmount": int(item['ItemDueAmount'])
             }
-            for item in SaleItems.values()
+            for item in SaleItems.values() if item['Qty'] != '0.00'
         ],
         "SalePayments": [
             {
@@ -146,7 +183,7 @@ while True:
         bill_line["token"]=default_config_dict['TOKEN'] #bill_line["token"]=urllib.parse.unquote(default_config_dict['TOKEN'])
         #print(bill_line)
         # ? reading pos order_id txt ees unshij bna 
-        lines = read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],[],'r').returnc()
+        lines = read_txt_line_by_line_to_list(file_running_directory + 'pos_order_head.txt',[],'r').returnc()
         if str(i) in lines:
             pass 
         else:
@@ -155,13 +192,13 @@ while True:
             if response.status_code == 200:
                 responsetype = response.json()['retType']
                 responseretdesc = response.json()['retDesc']
-                if responseretdesc == "Succesfull Executed Query":
+                if responseretdesc == "Succesfull Executed Query" and response.json()['affectedRows'] == 1:
                     print("amjilttai hadgallaaa")
                     responseaffectedrows = response.json()['affectedRows']
                     salesNo = response.json()['retData'][0]['SalesNo']
                     lines.append(str(i))
                     print("Bill Number: ",len(lines))
-                    read_txt_line_by_line_to_list(file_running_directory + default_config_dict['sale_order_textname'],lines,'w')
+                    read_txt_line_by_line_to_list(file_running_directory + 'pos_order_head.txt',lines,'w')
                     writetextappend(str(i)+"="+str(salesNo),file_running_directory + 'sales_id.txt')
                     writetextappend(str(now) + " " + str(bill_line) + ";order_id: " +str(i) + ";cashiername: " + str(pos_order_result[j][15]),logpath)
                 elif 'бүртгэлгүй' in  responseretdesc:
@@ -172,8 +209,9 @@ while True:
                     print('cannont insert value null into VATIncluded')
                     errorinfo = ' cannont insert value null into VATIncluded'
                     writetextappend(str(now) + " " + ";order_id: " +str(i) + errorinfo,logpath)
-            
-            
+                else:
+                    writetextappend(str(now) + " " + ";order_id: " +str(i) + 'JSON Data: '+ str(response.json()),logpath)
+                    
         
     # ? буцаалтын pos orders 
     for i in list_unique_counter(refund_pos_order_result,9).returnc():
@@ -247,7 +285,7 @@ while True:
         refund_bill_line["token"]=default_config_dict['TOKEN']
         #print(bill_line)  
         # ? буцаалтын биллийг txt data -тай тулгаж , байхгүй бол текстэнд хадгалж байна
-        lines = read_txt_line_by_line_to_list(file_running_directory + default_config_dict['refund_order_textname'],[],'r').returnc()
+        lines = read_txt_line_by_line_to_list(file_running_directory + 'refund_order_head.txt',[],'r').returnc()
         if str(i) in lines:
             pass 
         else:
@@ -256,30 +294,51 @@ while True:
             if response.status_code == 200:
                 responsetype = response.json()['retType']
                 responseretdesc = response.json()['retDesc']
-                if responseretdesc == "Succesfull Executed Query":
+                if responseretdesc == "Succesfull Executed Query" and response.json()['affectedRows'] == 1:
                     print("amjilttai hadgallaaa")
                     responseaffectedrows = response.json()['affectedRows']
                     salesNo = response.json()['retData'][0]['SalesNo'] 
                     lines.append(str(i))
-                    writetextappend(str(now) + " refund;" + str(refund_bill_line) + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
-                    writetextappend(str(i)+"="+str(salesNo),file_running_directory + default_config_dict['sales_id_ref'])
+                    writetextappend(str(now) + " Refund:" + str(refund_bill_line) + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
+                    writetextappend(str(i)+"="+str(salesNo),file_running_directory + 'sales_id_ref.txt')
                 else:
                     writetextappend(str(now) + " refund aldaa " + ';order_id: ' + str(pos_order_id_result[0][0]),logpath)
-            read_txt_line_by_line_to_list(file_running_directory + default_config_dict['refund_order_textname'],lines,'w')
+                    writetextappend(str(now) + " refund aldaa " + ' JSON data: ' + str(response.json()),logpath)
+            read_txt_line_by_line_to_list(file_running_directory + 'refund_order_head.txt',lines,'w')
           
         
-    # ! omnox odriin bill vvdiig ustgaj bna
-    if now.hour == 0 and now.minute <= (loop_sleeptime/60):
-        os.remove(file_running_directory + default_config_dict['sale_order_textname'])
-        with open(file_running_directory + default_config_dict['sale_order_textname'], 'w') as f:
+    # ! 7 xonogiin dawtamjtai billiig ni ustgaj bna
+    if now.hour == 1 and loop_status == 1:
+        now = datetime.now()
+        seconddate = now + timedelta(days=1)
+        onoodroos_omnox = 6
+        tdate = "'"+ str(now-timedelta(days=onoodroos_omnox))[:10]+ "' and '" +str(seconddate)[:10] +"'"
+                                #0    #1              #2          #3       #4            #5              #6      #7                #8                      #9            #10                   #11            #12              #13              #14             #15         #16         #17
+        pos_orders_query = "Select pos.order_id FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between "+tdate
+        try:
+            conp = psycopg2.connect(database=odoodatabases['database'], user=odoodatabases['user'], password=odoodatabases['password'], host=odoodatabases['server'], port= odoodatabases['port'])      
+        
+            pos_order_result = postg(conp,pos_orders_query)
+            awchvldex = len(list_unique_counter(pos_order_result,0).returnc())
+        except:
+            awchvldex = 10000
+            
             pass
-        os.remove(file_running_directory + default_config_dict['refund_order_textname'])
-        with open(file_running_directory + default_config_dict['refund_order_textname'], 'w') as f:
-            pass   
-    print("sleeping...")
+        file_path = file_running_directory + 'pos_order_head.txt'  # Replace 'your_file.txt' with the path to your text file
+        line_count = 0
+        with open(file_path, 'r') as file:
+            line_count = sum(1 for line in file)
+
+        if line_count - awchvldex > 0:
+            RemoveTopLineOnTextFile(file_running_directory + 'pos_order_head.txt',line_count - awchvldex) 
+            RemoveTopLineOnTextFile(file_running_directory + 'mainlog.txt',line_count - awchvldex) 
+            #RemoveTopLineOnTextFile(file_running_directory + 'refund_order_head.txt',line_count - awchvldex) 
+            RemoveTopLineOnTextFile(file_running_directory + 'sales_id.txt',line_count - awchvldex) 
+            #RemoveTopLineOnTextFile(file_running_directory + 'sales_id_ref.txt',line_count - awchvldex)
+            writetextappend(str(now) + " " + "log data ustgaj bna: " + str(line_count - awchvldex),logpath) 
+            loop_status = 0
+    print("sleeping... " , now)
     time.sleep(loop_sleeptime)
 
-
-    
 
     

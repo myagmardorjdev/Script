@@ -1,0 +1,299 @@
+Set(loopcount,If(daysongolt_3.Selected.Value=1,16,32));
+Set(shvvxlock,1);
+Clear(exceltitle);Collect(exceltitle,{name : Label46_16.Text});Collect(exceltitle,{name : Label46_17.Text});Collect(exceltitle,{name : Label46_18.Text});Collect(exceltitle,{name : Label46_19.Text});Collect(exceltitle,{name : Label46_20.Text});Collect(exceltitle,{name : Label46_21.Text});Collect(exceltitle,{name : Label46_22.Text});Collect(exceltitle,{name : Label46_23.Text});Collect(exceltitle,{name : Label46_24.Text});Collect(exceltitle,{name : Label46_25.Text});Collect(exceltitle,{name : Label46_26.Text});Collect(exceltitle,{name : Label46_27.Text});Collect(exceltitle,{name : Label46_28.Text});Collect(exceltitle,{name : Label46_29.Text});Collect(exceltitle,{name : Label46_30.Text});Collect(exceltitle,{name : Label46_31.Text}); Collect(exceltitle,{name : "Он сар : " & (year_7.Selected.Value)&"/"&month_8.Selected.Value&"/"&If(daysongolt_3.Selected.Value=1,"1","16")& " - " & (year_7.Selected.Value)&"/"&month_8.Selected.Value&"/"&If(daysongolt_3.Selected.Value=1,"15", Text(Day(DateAdd(Date(year_7.Selected.Value,month_8.Selected.Value+1,1),-1,TimeUnit.Days))))});
+Collect(exceltitle,{name : "Газар нэгж: " &ComboBox6_1.Selected.dep});
+If(daysongolt_3.Selected.Value = 1,
+Clear(tasagd4);
+ForAll(Sequence(CountRows(tasagd3)) As i,
+    ForAll(Sequence(3) As j,
+        If(j.Value = 1 ,
+            Collect(tasagd4,{
+                row : i.Value,
+                'Ажилтны нэр':Index(tasagd3[@fullname],i.Value).fullname,
+                'Албан тушаал': Index(tasagd3[@position],i.Value).position,
+                Тасаг : Index(tasagd3[@tasag],i.Value).tasag,
+                '01' : Substitute(Index(tasagd3[@pday1],i.Value).pday1,";","-"),
+                '02' : Substitute(Index(tasagd3[@pday2],i.Value).pday2,";","-"),
+                '03' : Substitute(Index(tasagd3[@pday3],i.Value).pday3,";","-"),
+                '04' : Substitute(Index(tasagd3[@pday4],i.Value).pday4,";","-"),
+                '05' : Substitute(Index(tasagd3[@pday5],i.Value).pday5,";","-"),
+                '06' : Substitute(Index(tasagd3[@pday6],i.Value).pday6,";","-"),
+                '07' : Substitute(Index(tasagd3[@pday7],i.Value).pday7,";","-"),
+                '08' : Substitute(Index(tasagd3[@pday8],i.Value).pday8,";","-"),
+                '09' : Substitute(Index(tasagd3[@pday9],i.Value).pday9,";","-"),
+                '10' : Substitute(Index(tasagd3[@pday10],i.Value).pday10,";","-"),
+                '11' : Substitute(Index(tasagd3[@pday11],i.Value).pday11,";","-"),
+                '12' : Substitute(Index(tasagd3[@pday12],i.Value).pday12,";","-"),
+                '13' : Substitute(Index(tasagd3[@pday13],i.Value).pday13,";","-"),
+                '14' : Substitute(Index(tasagd3[@pday14],i.Value).pday14,";","-"),
+                '15' : Substitute(Index(tasagd3[@pday15],i.Value).pday15,";","-"),
+                '16' : Substitute(Index(tasagd3[@pday16],i.Value).pday16,";","-"),
+                'Бүх Өдөр': If(IsBlank(Index(tasagd3[@totalday],i.Value).totalday),0,Index(tasagd3[@totalday],i.Value).totalday),
+                'Бүх Цаг': If(IsBlank(Index(tasagd3[@totaltime],i.Value).totaltime),0,Index(tasagd3[@totaltime],i.Value).totaltime)
+            }
+            )
+        ,j.Value = 2 ,
+             Collect(tasagd4,{
+                 row : i.Value,
+                'Ажилтны нэр':"n",
+                'Албан тушаал': "n",
+                Тасаг : "Нийт цаг",
+                '01' : Text(Index(tasagd3[@day1],i.Value).day1),
+                '02' : Text(Index(tasagd3[@day2],i.Value).day2),
+                '03' : Text(Index(tasagd3[@day3],i.Value).day3),
+                '04' : Text(Index(tasagd3[@day4],i.Value).day4),
+                '05' : Text(Index(tasagd3[@day5],i.Value).day5),
+                '06' : Text(Index(tasagd3[@day6],i.Value).day6),
+                '07' : Text(Index(tasagd3[@day7],i.Value).day7),
+                '08' : Text(Index(tasagd3[@day8],i.Value).day8),
+                '09' : Text(Index(tasagd3[@day9],i.Value).day9),
+                '10' : Text(Index(tasagd3[@day10],i.Value).day10),
+                '11' : Text(Index(tasagd3[@day11],i.Value).day11),
+                '12' : Text(Index(tasagd3[@day12],i.Value).day12),
+                '13' : Text(Index(tasagd3[@day13],i.Value).day13),
+                '14' : Text(Index(tasagd3[@day14],i.Value).day14),
+                '15' : Text(Index(tasagd3[@day15],i.Value).day15),
+                '16' : Text(Index(tasagd3[@day16],i.Value).day16),
+                'Бүх Өдөр': 0,
+                'Бүх Цаг': 0
+            }
+            )
+        ,j.Value = 3 , 
+             Collect(tasagd4,{
+                 row : i.Value,
+                'Ажилтны нэр':"n",
+                'Албан тушаал': "n",
+                Тасаг : "Бодит Цаг",
+                '01' : If(Title6_49.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_49.Text,"-").Value).Value)-(Int(Last(Split(Title6_49.Text,"-").Value).Value)-Int(First(Split(Title6_49.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_49.Text,"-").Value).Value)-(Int(Last(Split(Title6_49.Text,"-").Value).Value)-Int(First(Split(Title6_49.Text,"-").Value).Value))/2  <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_49.Text,"-").Value).Value)-(Int(Last(Split(Title6_49.Text,"-").Value).Value)-Int(First(Split(Title6_49.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date),12,5))),
+                '02': If(Title6_52.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_52.Text,"-").Value).Value)-(Int(Last(Split(Title6_52.Text,"-").Value).Value)-Int(First(Split(Title6_52.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_52.Text,"-").Value).Value)-(Int(Last(Split(Title6_52.Text,"-").Value).Value)-Int(First(Split(Title6_52.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_52.Text,"-").Value).Value)-(Int(Last(Split(Title6_52.Text,"-").Value).Value)-Int(First(Split(Title6_52.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date),12,5))),
+                '03': If(Title6_53.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_53.Text,"-").Value).Value)-(Int(Last(Split(Title6_53.Text,"-").Value).Value)-Int(First(Split(Title6_53.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_53.Text,"-").Value).Value)-(Int(Last(Split(Title6_53.Text,"-").Value).Value)-Int(First(Split(Title6_53.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_53.Text,"-").Value).Value)-(Int(Last(Split(Title6_53.Text,"-").Value).Value)-Int(First(Split(Title6_53.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date),12,5))),
+                '04':If(Title6_54.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_54.Text,"-").Value).Value)-(Int(Last(Split(Title6_54.Text,"-").Value).Value)-Int(First(Split(Title6_54.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_54.Text,"-").Value).Value)-(Int(Last(Split(Title6_54.Text,"-").Value).Value)-Int(First(Split(Title6_54.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_54.Text,"-").Value).Value)-(Int(Last(Split(Title6_54.Text,"-").Value).Value)-Int(First(Split(Title6_54.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date),12,5))),
+                '05': If(Title6_65.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_65.Text,"-").Value).Value)-(Int(Last(Split(Title6_65.Text,"-").Value).Value)-Int(First(Split(Title6_65.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_65.Text,"-").Value).Value)-(Int(Last(Split(Title6_65.Text,"-").Value).Value)-Int(First(Split(Title6_65.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_65.Text,"-").Value).Value)-(Int(Last(Split(Title6_65.Text,"-").Value).Value)-Int(First(Split(Title6_65.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date),12,5))),
+                '06':If(Title6_66.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_66.Text,"-").Value).Value)-(Int(Last(Split(Title6_66.Text,"-").Value).Value)-Int(First(Split(Title6_66.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_66.Text,"-").Value).Value)-(Int(Last(Split(Title6_66.Text,"-").Value).Value)-Int(First(Split(Title6_66.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_66.Text,"-").Value).Value)-(Int(Last(Split(Title6_66.Text,"-").Value).Value)-Int(First(Split(Title6_66.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date),12,5))),
+                '07':If(Title6_67.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_67.Text,"-").Value).Value)-(Int(Last(Split(Title6_67.Text,"-").Value).Value)-Int(First(Split(Title6_67.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_67.Text,"-").Value).Value)-(Int(Last(Split(Title6_67.Text,"-").Value).Value)-Int(First(Split(Title6_67.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_67.Text,"-").Value).Value)-(Int(Last(Split(Title6_67.Text,"-").Value).Value)-Int(First(Split(Title6_67.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date),12,5))),
+                '08':If(Title6_68.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_68.Text,"-").Value).Value)-(Int(Last(Split(Title6_68.Text,"-").Value).Value)-Int(First(Split(Title6_68.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_68.Text,"-").Value).Value)-(Int(Last(Split(Title6_68.Text,"-").Value).Value)-Int(First(Split(Title6_68.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_68.Text,"-").Value).Value)-(Int(Last(Split(Title6_68.Text,"-").Value).Value)-Int(First(Split(Title6_68.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date),12,5))),
+                '09': If(Title6_69.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_69.Text,"-").Value).Value)-(Int(Last(Split(Title6_69.Text,"-").Value).Value)-Int(First(Split(Title6_69.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_69.Text,"-").Value).Value)-(Int(Last(Split(Title6_69.Text,"-").Value).Value)-Int(First(Split(Title6_69.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_69.Text,"-").Value).Value)-(Int(Last(Split(Title6_69.Text,"-").Value).Value)-Int(First(Split(Title6_69.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date),12,5))),
+                '10':If(Title6_70.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_70.Text,"-").Value).Value)-(Int(Last(Split(Title6_70.Text,"-").Value).Value)-Int(First(Split(Title6_70.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_70.Text,"-").Value).Value)-(Int(Last(Split(Title6_70.Text,"-").Value).Value)-Int(First(Split(Title6_70.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_70.Text,"-").Value).Value)-(Int(Last(Split(Title6_70.Text,"-").Value).Value)-Int(First(Split(Title6_70.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date),12,5))),
+                '11':If(Title6_71.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_71.Text,"-").Value).Value)-(Int(Last(Split(Title6_71.Text,"-").Value).Value)-Int(First(Split(Title6_71.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_71.Text,"-").Value).Value)-(Int(Last(Split(Title6_71.Text,"-").Value).Value)-Int(First(Split(Title6_71.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_71.Text,"-").Value).Value)-(Int(Last(Split(Title6_71.Text,"-").Value).Value)-Int(First(Split(Title6_71.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date),12,5))),
+                '12':If(Title6_72.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_72.Text,"-").Value).Value)-(Int(Last(Split(Title6_72.Text,"-").Value).Value)-Int(First(Split(Title6_72.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_72.Text,"-").Value).Value)-(Int(Last(Split(Title6_72.Text,"-").Value).Value)-Int(First(Split(Title6_72.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_72.Text,"-").Value).Value)-(Int(Last(Split(Title6_72.Text,"-").Value).Value)-Int(First(Split(Title6_72.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date),12,5))),
+                '13':If(Title6_73.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_73.Text,"-").Value).Value)-(Int(Last(Split(Title6_73.Text,"-").Value).Value)-Int(First(Split(Title6_73.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_73.Text,"-").Value).Value)-(Int(Last(Split(Title6_73.Text,"-").Value).Value)-Int(First(Split(Title6_73.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_73.Text,"-").Value).Value)-(Int(Last(Split(Title6_73.Text,"-").Value).Value)-Int(First(Split(Title6_73.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date),12,5))),
+                '14':If(Title6_74.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date),12,5)
+, Mid(LookUp(zkrealdata,Int(Last(Split(Title6_74.Text,"-").Value).Value)-(Int(Last(Split(Title6_74.Text,"-").Value).Value)-Int(First(Split(Title6_74.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_74.Text,"-").Value).Value)-(Int(Last(Split(Title6_74.Text,"-").Value).Value)-Int(First(Split(Title6_74.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_74.Text,"-").Value).Value)-(Int(Last(Split(Title6_74.Text,"-").Value).Value)-Int(First(Split(Title6_74.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date),12,5))
+),
+                '15': If(Title6_75.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_75.Text,"-").Value).Value)-(Int(Last(Split(Title6_75.Text,"-").Value).Value)-Int(First(Split(Title6_75.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_75.Text,"-").Value).Value)-(Int(Last(Split(Title6_75.Text,"-").Value).Value)-Int(First(Split(Title6_75.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_75.Text,"-").Value).Value)-(Int(Last(Split(Title6_75.Text,"-").Value).Value)-Int(First(Split(Title6_75.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date),12,5))),
+                '16': If(Title6_61.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_61.Text,"-").Value).Value)-(Int(Last(Split(Title6_61.Text,"-").Value).Value)-Int(First(Split(Title6_61.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_61.Text,"-").Value).Value)-(Int(Last(Split(Title6_61.Text,"-").Value).Value)-Int(First(Split(Title6_61.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_61.Text,"-").Value).Value)-(Int(Last(Split(Title6_61.Text,"-").Value).Value)-Int(First(Split(Title6_61.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date),12,5))),
+                'Бүх Өдөр': 0,
+                'Бүх Цаг': 0
+            }
+            )
+        )
+    )
+
+);
+,Clear(tasagd4);
+ForAll(Sequence(CountRows(tasagd3)) As i,
+    ForAll(Sequence(3) As j,
+        If(j.Value = 1 ,
+            Collect(tasagd4,{
+                row : i.Value,
+                'Ажилтны нэр':Index(tasagd3[@fullname],i.Value).fullname,
+                'Албан тушаал': Index(tasagd3[@position],i.Value).position,
+                Тасаг : Index(tasagd3[@tasag],i.Value).tasag,
+                '16' : Substitute(Index(tasagd3[@pday1],i.Value).pday1,";","-"),
+                '17' : Substitute(Index(tasagd3[@pday2],i.Value).pday2,";","-"),
+                '18' : Substitute(Index(tasagd3[@pday3],i.Value).pday3,";","-"),
+                '19' : Substitute(Index(tasagd3[@pday4],i.Value).pday4,";","-"),
+                '20' : Substitute(Index(tasagd3[@pday5],i.Value).pday5,";","-"),
+                '21' : Substitute(Index(tasagd3[@pday6],i.Value).pday6,";","-"),
+                '22' : Substitute(Index(tasagd3[@pday7],i.Value).pday7,";","-"),
+                '23' : Substitute(Index(tasagd3[@pday8],i.Value).pday8,";","-"),
+                '24' : Substitute(Index(tasagd3[@pday9],i.Value).pday9,";","-"),
+                '25' : Substitute(Index(tasagd3[@pday10],i.Value).pday10,";","-"),
+                '26' : Substitute(Index(tasagd3[@pday11],i.Value).pday11,";","-"),
+                '27' : Substitute(Index(tasagd3[@pday12],i.Value).pday12,";","-"),
+                '28' : Substitute(Index(tasagd3[@pday13],i.Value).pday13,";","-"),
+                '29' : Substitute(Index(tasagd3[@pday14],i.Value).pday14,";","-"),
+                '30' : Substitute(Index(tasagd3[@pday15],i.Value).pday15,";","-"),
+                '31' : Substitute(Index(tasagd3[@pday16],i.Value).pday16,";","-"),
+                'Бүх Өдөр': If(IsBlank(Index(tasagd3[@totalday],i.Value).totalday),0,Index(tasagd3[@totalday],i.Value).totalday),
+                'Бүх Цаг': If(IsBlank(Index(tasagd3[@totaltime],i.Value).totaltime),0,Index(tasagd3[@totaltime],i.Value).totaltime)
+            }
+            )
+        ,j.Value = 2 ,
+             Collect(tasagd4,{
+                 row : i.Value,
+                'Ажилтны нэр':"n",
+                'Албан тушаал': "n",
+                Тасаг : "Нийт цаг",
+                '16' : Text(Index(tasagd3[@day1],i.Value).day1),
+                '17' : Text(Index(tasagd3[@day2],i.Value).day2),
+                '18' : Text(Index(tasagd3[@day3],i.Value).day3),
+                '19' : Text(Index(tasagd3[@day4],i.Value).day4),
+                '20' : Text(Index(tasagd3[@day5],i.Value).day5),
+                '21' : Text(Index(tasagd3[@day6],i.Value).day6),
+                '22' : Text(Index(tasagd3[@day7],i.Value).day7),
+                '23' : Text(Index(tasagd3[@day8],i.Value).day8),
+                '24' : Text(Index(tasagd3[@day9],i.Value).day9),
+                '25' : Text(Index(tasagd3[@day10],i.Value).day10),
+                '26' : Text(Index(tasagd3[@day11],i.Value).day11),
+                '27' : Text(Index(tasagd3[@day12],i.Value).day12),
+                '28' : Text(Index(tasagd3[@day13],i.Value).day13),
+                '29' : Text(Index(tasagd3[@day14],i.Value).day14),
+                '30' : Text(Index(tasagd3[@day15],i.Value).day15),
+                '31' : Text(Index(tasagd3[@day16],i.Value).day16),
+                'Бүх Өдөр': 0,
+                'Бүх Цаг': 0
+            }
+            )
+        ,j.Value = 3 , 
+             Collect(tasagd4,{
+                 row : i.Value,
+                'Ажилтны нэр':"n",
+                'Албан тушаал': "n",
+                Тасаг : "Бодит Цаг",
+                '16' : If(Title6_49.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_49.Text,"-").Value).Value)-(Int(Last(Split(Title6_49.Text,"-").Value).Value)-Int(First(Split(Title6_49.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_49.Text,"-").Value).Value)-(Int(Last(Split(Title6_49.Text,"-").Value).Value)-Int(First(Split(Title6_49.Text,"-").Value).Value))/2  <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_49.Text,"-").Value).Value)-(Int(Last(Split(Title6_49.Text,"-").Value).Value)-Int(First(Split(Title6_49.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value)),"dd")) ,date),12,5))),
+                '17': If(Title6_52.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_52.Text,"-").Value).Value)-(Int(Last(Split(Title6_52.Text,"-").Value).Value)-Int(First(Split(Title6_52.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_52.Text,"-").Value).Value)-(Int(Last(Split(Title6_52.Text,"-").Value).Value)-Int(First(Split(Title6_52.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_52.Text,"-").Value).Value)-(Int(Last(Split(Title6_52.Text,"-").Value).Value)-Int(First(Split(Title6_52.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+1)),"dd") ),date),12,5))),
+                '18': If(Title6_53.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_53.Text,"-").Value).Value)-(Int(Last(Split(Title6_53.Text,"-").Value).Value)-Int(First(Split(Title6_53.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_53.Text,"-").Value).Value)-(Int(Last(Split(Title6_53.Text,"-").Value).Value)-Int(First(Split(Title6_53.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_53.Text,"-").Value).Value)-(Int(Last(Split(Title6_53.Text,"-").Value).Value)-Int(First(Split(Title6_53.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Text((Date(year_7.Selected.Value, month_8.Selected.Value,daysongolt_3.Selected.Value+2)),"dd") ),date),12,5))),
+                '19':If(Title6_54.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_54.Text,"-").Value).Value)-(Int(Last(Split(Title6_54.Text,"-").Value).Value)-Int(First(Split(Title6_54.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_54.Text,"-").Value).Value)-(Int(Last(Split(Title6_54.Text,"-").Value).Value)-Int(First(Split(Title6_54.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_54.Text,"-").Value).Value)-(Int(Last(Split(Title6_54.Text,"-").Value).Value)-Int(First(Split(Title6_54.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_19.Text),date),12,5))),
+                '20': If(Title6_65.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_65.Text,"-").Value).Value)-(Int(Last(Split(Title6_65.Text,"-").Value).Value)-Int(First(Split(Title6_65.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_65.Text,"-").Value).Value)-(Int(Last(Split(Title6_65.Text,"-").Value).Value)-Int(First(Split(Title6_65.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_65.Text,"-").Value).Value)-(Int(Last(Split(Title6_65.Text,"-").Value).Value)-Int(First(Split(Title6_65.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_20.Text),date),12,5))),
+                '21':If(Title6_66.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_66.Text,"-").Value).Value)-(Int(Last(Split(Title6_66.Text,"-").Value).Value)-Int(First(Split(Title6_66.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_66.Text,"-").Value).Value)-(Int(Last(Split(Title6_66.Text,"-").Value).Value)-Int(First(Split(Title6_66.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_66.Text,"-").Value).Value)-(Int(Last(Split(Title6_66.Text,"-").Value).Value)-Int(First(Split(Title6_66.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_21.Text),date),12,5))),
+                '22':If(Title6_67.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_67.Text,"-").Value).Value)-(Int(Last(Split(Title6_67.Text,"-").Value).Value)-Int(First(Split(Title6_67.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_67.Text,"-").Value).Value)-(Int(Last(Split(Title6_67.Text,"-").Value).Value)-Int(First(Split(Title6_67.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_67.Text,"-").Value).Value)-(Int(Last(Split(Title6_67.Text,"-").Value).Value)-Int(First(Split(Title6_67.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_22.Text),date),12,5))),
+                '23':If(Title6_68.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_68.Text,"-").Value).Value)-(Int(Last(Split(Title6_68.Text,"-").Value).Value)-Int(First(Split(Title6_68.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_68.Text,"-").Value).Value)-(Int(Last(Split(Title6_68.Text,"-").Value).Value)-Int(First(Split(Title6_68.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_68.Text,"-").Value).Value)-(Int(Last(Split(Title6_68.Text,"-").Value).Value)-Int(First(Split(Title6_68.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_23.Text),date),12,5))),
+                '24': If(Title6_69.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_69.Text,"-").Value).Value)-(Int(Last(Split(Title6_69.Text,"-").Value).Value)-Int(First(Split(Title6_69.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_69.Text,"-").Value).Value)-(Int(Last(Split(Title6_69.Text,"-").Value).Value)-Int(First(Split(Title6_69.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_69.Text,"-").Value).Value)-(Int(Last(Split(Title6_69.Text,"-").Value).Value)-Int(First(Split(Title6_69.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_24.Text),date),12,5))),
+                '25':If(Title6_70.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_70.Text,"-").Value).Value)-(Int(Last(Split(Title6_70.Text,"-").Value).Value)-Int(First(Split(Title6_70.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_70.Text,"-").Value).Value)-(Int(Last(Split(Title6_70.Text,"-").Value).Value)-Int(First(Split(Title6_70.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_70.Text,"-").Value).Value)-(Int(Last(Split(Title6_70.Text,"-").Value).Value)-Int(First(Split(Title6_70.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_25.Text),date),12,5))),
+                '26':If(Title6_71.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_71.Text,"-").Value).Value)-(Int(Last(Split(Title6_71.Text,"-").Value).Value)-Int(First(Split(Title6_71.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_71.Text,"-").Value).Value)-(Int(Last(Split(Title6_71.Text,"-").Value).Value)-Int(First(Split(Title6_71.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_71.Text,"-").Value).Value)-(Int(Last(Split(Title6_71.Text,"-").Value).Value)-Int(First(Split(Title6_71.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_26.Text),date),12,5))),
+                '27':If(Title6_72.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_72.Text,"-").Value).Value)-(Int(Last(Split(Title6_72.Text,"-").Value).Value)-Int(First(Split(Title6_72.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_72.Text,"-").Value).Value)-(Int(Last(Split(Title6_72.Text,"-").Value).Value)-Int(First(Split(Title6_72.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_72.Text,"-").Value).Value)-(Int(Last(Split(Title6_72.Text,"-").Value).Value)-Int(First(Split(Title6_72.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_27.Text),date),12,5))),
+                '28':If(Title6_73.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date),12,5)
+,
+Mid(LookUp(zkrealdata,Int(Last(Split(Title6_73.Text,"-").Value).Value)-(Int(Last(Split(Title6_73.Text,"-").Value).Value)-Int(First(Split(Title6_73.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_73.Text,"-").Value).Value)-(Int(Last(Split(Title6_73.Text,"-").Value).Value)-Int(First(Split(Title6_73.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_73.Text,"-").Value).Value)-(Int(Last(Split(Title6_73.Text,"-").Value).Value)-Int(First(Split(Title6_73.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_28.Text),date),12,5))),
+                '29':If(Title6_74.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date),12,5)
+, Mid(LookUp(zkrealdata,Int(Last(Split(Title6_74.Text,"-").Value).Value)-(Int(Last(Split(Title6_74.Text,"-").Value).Value)-Int(First(Split(Title6_74.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_74.Text,"-").Value).Value)-(Int(Last(Split(Title6_74.Text,"-").Value).Value)-Int(First(Split(Title6_74.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_74.Text,"-").Value).Value)-(Int(Last(Split(Title6_74.Text,"-").Value).Value)-Int(First(Split(Title6_74.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_29.Text),date),12,5))
+),
+                '30': If(Title6_75.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_75.Text,"-").Value).Value)-(Int(Last(Split(Title6_75.Text,"-").Value).Value)-Int(First(Split(Title6_75.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_75.Text,"-").Value).Value)-(Int(Last(Split(Title6_75.Text,"-").Value).Value)-Int(First(Split(Title6_75.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_75.Text,"-").Value).Value)-(Int(Last(Split(Title6_75.Text,"-").Value).Value)-Int(First(Split(Title6_75.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_30.Text),date),12,5))),
+                '31': If(Title6_61.Text = "-",Mid(LookUp(zkrealdata,12 >= hour&& hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date),12,5) & " " 
+& Mid(LookUp(zkrealdata,12 <= hour && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date),12,5)
+,Mid(LookUp(zkrealdata,Int(Last(Split(Title6_61.Text,"-").Value).Value)-(Int(Last(Split(Title6_61.Text,"-").Value).Value)-Int(First(Split(Title6_61.Text,"-").Value).Value))/2  >= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date),12,5) & " " &
+If( LookUp(zkrealdata,Int(Last(Split(Title6_61.Text,"-").Value).Value)-(Int(Last(Split(Title6_61.Text,"-").Value).Value)-Int(First(Split(Title6_61.Text,"-").Value).Value))/2  <= hour  && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date) = "24tsag","24:00",Mid(LookUp(zkrealdata,Int(Last(Split(Title6_61.Text,"-").Value).Value)-(Int(Last(Split(Title6_61.Text,"-").Value).Value)-Int(First(Split(Title6_61.Text,"-").Value).Value))/2  <= hour && hour > 2 && faceid=Index(tasagd3[@faceid],i.Value).faceid && day = Int(Label46_31.Text),date),12,5))),
+                'Бүх Өдөр': 0,
+                'Бүх Цаг': 0
+            }
+            )
+        )
+    )
+
+);
+);
+
+If(daysongolt_3.Selected.Value = 1,
+'hr-Excel-Цалингийнх1'.Run(If(IsBlank(ComboBox6_1.Selected.dep),Office365Users.UserProfile(User().Email).Department, ComboBox6_1.Selected.dep),JSON(tasagd4,JSONFormat.Compact),JSON(exceltitle,JSONFormat.Compact),1,daysongolt_3.Selected.Value,Text(Now()),User().Email);
+,
+'hr-Excel-Цалингийнх1'.Run(If(IsBlank( ComboBox6_1.Selected.dep),Office365Users.UserProfile(User().Email).Department, ComboBox6_1.Selected.dep),JSON(tasagd4,JSONFormat.Compact),JSON(exceltitle,JSONFormat.Compact),1,daysongolt_3.Selected.Value,Text(Now()),User().Email);
+);
+Set(shvvxlock,0);
+
+Notify("Хэсэг хугацааны дараа таны мэйлрүү очих болно",NotificationType.Information)

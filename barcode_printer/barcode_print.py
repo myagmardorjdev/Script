@@ -7,6 +7,10 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     # Convert mm to pixels (assuming 1mm = 3.77953 pixels)
     width_pixels = int(width_mm * 3.77953)
     height_pixels = int(height_mm * 3.77953)
+    image_path = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/sansar.png"
+    additional_image = Image.open(image_path)
+    additional_image = additional_image.resize((70,60))
+    additional_image_position = ( 20, 50)
 
     # Create a new white image
     image = Image.new("RGB", (width_pixels, height_pixels), "white")
@@ -16,25 +20,25 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
 
         # Specify the text content and font
     text_content = text_content
-    font_size = 22
-    font_family = "arial.ttf"
-    font = ImageFont.truetype(font_family, size=font_size)  # You can use a different font
+    font_size1 = 24
+    font_family = "verdana.ttf"
+    font = ImageFont.truetype(font_family, size=font_size1)  # You can use a different font
 
     # Specify the position to place the text (adjust as needed)
     text_position = (10, 2) # дээрээсээ 2 pixels
 
     # Add text to the image
     draw.text(text_position, text_content, fill="black", font=font)
-    font_size = 12
-    font = ImageFont.truetype(font_family, size=font_size) 
+    font_size2 = 16
+    font = ImageFont.truetype(font_family, size=font_size2) 
 
-    text_position = (10,14+font_size)
+    text_position = (10,7+font_size1)
     draw.text(text_position, price, fill="black", font=font)
     # Create a BytesIO object to store the barcode image data
-    font_size = 12
+    font_size = 16
     font = ImageFont.truetype(font_family, size=font_size) 
 
-    text_position = (10,28+font_size)
+    text_position = (10,30+font_size)
     draw.text(text_position, barcode_text, fill="black", font=font)
 
 
@@ -50,6 +54,8 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     barcode_position = (-15,120)
     # Paste the barcode onto the image
     image.paste(barcode_image, barcode_position)
+
+    image.paste(additional_image, additional_image_position)
     # Save the image to a PNG file
     image.save(output_file, "PNG")
 

@@ -52,14 +52,11 @@ odoodatabases = {'user': 'readonly_c17','password': 'readonly_c17_password','ser
 
 headers = {"Content-Type": "application/json; charset=utf-8"}
 # ! test orchin 
-pos_orders_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between '2023-11-15 02:00' and '2023-11-15 06:00'"
-pos_payment_query = "SELECT p1.pos_order_id,p1.amount,p2.name,p1.payment_date,p1.is_change FROM pos_payment as p1 inner join pos_payment_method as p2  on p2.id = p1.payment_method_id where p1.payment_date between '2023-11-15 02:00' and '2023-11-15 06:00'"
-refund_pos_order_query = "SELECT pos.id,pos.company_id,pro.barcode,pos.name,pos.product_id,pos.price_unit,pos.qty,pos.price_subtotal,pos.price_subtotal_incl,pos.order_id,pos.full_product_name,pos.create_date,ord.amount_paid,ord.pos_reference,ord.employee_id,ord.cashier,ord.bill_id,ord.name  FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id > 0 and pos.create_date between '2023-11-15 02:00' and '2023-11-15 06:00'"
 
 while True:
     now = datetime.now()
     if loop_status == 0 and now.hour == 5:
-        loop_status =1
+        loop_status = 1
     try:
         conp = psycopg2.connect(database=odoodatabases['database'], user=odoodatabases['user'], password=odoodatabases['password'], host=odoodatabases['server'], port= odoodatabases['port'])      
         pos_order_result = postg(conp,pos_orders_query)
@@ -317,7 +314,7 @@ while True:
         onoodroos_omnox = 6
         tdate = "'"+ str(now-timedelta(days=onoodroos_omnox))[:10]+ "' and '" +str(seconddate)[:10] +"'"
                                 #0    #1              #2          #3       #4            #5              #6      #7                #8                      #9            #10                   #11            #12              #13              #14             #15         #16         #17
-        pos_orders_query = "1Select pos.order_id FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between "+tdate
+        pos_orders_query = "Select pos.order_id FROM pos_order_line as pos inner join product_product pro on pos.product_id = pro.id inner join pos_order as ord on ord.id = pos.order_id WHERE pos.refunded_orderline_id is null and pos.create_date between "+tdate
         try:
             conp = psycopg2.connect(database=odoodatabases['database'], user=odoodatabases['user'], password=odoodatabases['password'], host=odoodatabases['server'], port= odoodatabases['port'])      
         

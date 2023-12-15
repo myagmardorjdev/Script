@@ -9,8 +9,8 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     height_pixels = int(height_mm * 3.77953)
     image_path = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/sansar.png"
     additional_image = Image.open(image_path)
-    additional_image = additional_image.resize((70,60))
-    additional_image_position = ( 20, 50)
+    additional_image = additional_image.resize((220,50))
+    additional_image_position = ( 0, 68)
 
     # Create a new white image
     image = Image.new("RGB", (width_pixels, height_pixels), "white")

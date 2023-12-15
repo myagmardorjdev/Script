@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
+
+</head>
+<body>
+    <h1>Шошго хэвлэх</h1>
+    <form method="post" action="{{ url_for('button_clicked') }}">
+        <div>
+            <label class="label1" for="user_input">Баар код: </label>
+            <input class="input1" type="text" id="user_input" name="user_input" required>
+            
+        </div>
+        <div>
+            <label class="label2" for="second_input">Барааны нэр: </label>
+            <input class="input2" type="text" id="second_input" name="second_input" required>
+        </div>
+        <div>
+            <label class="label3" for="thirtinput">Барааны үнэ: </label>
+            <input class="input3" type="text" id="thirtinput" name="thirtinput" required>
+            
+        </div>
+        <div>
+            <button class="but1" type="submit">Барааг шүүх</button>
+            <button class="but2" type="submit">Татаж авах</button>
+        </div>
+        
+    </form>
+    
+</body>
+</html>

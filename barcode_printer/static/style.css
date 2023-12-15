@@ -1,0 +1,58 @@
+
+.label1 {
+    color: blue;
+    font-size: 18px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+}
+.label2 {
+    color: blue;
+    font-size: 18px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+}
+.label3 {
+    color: blue;
+    font-size: 18px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+}
+.input1 {
+    padding: 5px;
+    margin-left: 64px;
+    margin-bottom: 10px;
+    font-size: large;
+}
+.input2 {
+    padding: 5px;
+    margin-left: 30px;
+    margin-bottom: 10px;
+    font-size: large;
+}
+.input3 {
+    padding: 5px;
+    margin-left: 30px;
+    margin-bottom: 10px;
+    font-size: large;
+}
+
+.but1 {
+    position: absolute;
+    background-color:#0a0a23;
+    color: #fff;
+    border:none; 
+    border-radius:10px; 
+    padding:15px;
+    min-height:30px; 
+    min-width: 120px;
+    margin-left: 180px;
+}
+.but2 {
+    position: absolute;
+    background-color:#0a0a23;
+    color: #fff;
+    border:none; 
+    border-radius:10px; 
+    padding:15px;
+    min-height:30px; 
+    min-width: 120px;
+    margin-left: 40px;
+}
+

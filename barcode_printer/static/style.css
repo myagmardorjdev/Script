@@ -2,33 +2,43 @@
 .label1 {
     color: blue;
     font-size: 18px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 .label2 {
     color: blue;
     font-size: 18px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 .label3 {
     color: blue;
     font-size: 18px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.label4 {
+    color: blue;
+    font-size: 18px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.label5 {
+    color: blue;
+    font-size: 18px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 .input1 {
     padding: 5px;
-    margin-left: 64px;
+    margin-left: 67px;
     margin-bottom: 10px;
     font-size: large;
 }
 .input2 {
     padding: 5px;
-    margin-left: 30px;
+    margin-left: 34px;
     margin-bottom: 10px;
     font-size: large;
 }
 .input3 {
     padding: 5px;
-    margin-left: 30px;
+    margin-left: 36px;
     margin-bottom: 10px;
     font-size: large;
 }
@@ -39,9 +49,11 @@
     color: #fff;
     border:none; 
     border-radius:10px; 
-    padding:15px;
+    padding:12px;
+    font-size:16px;
     min-height:30px; 
     min-width: 120px;
+    margin-top: 20px;
     margin-left: 180px;
 }
 .but2 {
@@ -49,10 +61,23 @@
     background-color:#0a0a23;
     color: #fff;
     border:none; 
+    font-size:16px;
     border-radius:10px; 
-    padding:15px;
+    padding:12px;
     min-height:30px; 
     min-width: 120px;
+    margin-top: 20px;
     margin-left: 40px;
 }
 
+select {
+    width: 228px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 18px;
+    margin-left: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: 5px;
+}

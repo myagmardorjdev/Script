@@ -1,6 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
 from barcode import Code128
+from flask import *
 from io import BytesIO
+import io
 from barcode.writer import ImageWriter
 
 def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode_data,barcode_text,price):
@@ -57,7 +59,9 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
 
     image.paste(additional_image, additional_image_position)
     # Save the image to a PNG file
-    image.save(output_file, "PNG")
+    #image.save(output_file, "PNG")
+
+    return image
 
 if __name__ == "__main__":
     # Set the dimensions, output file name, and text content

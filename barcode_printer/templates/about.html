@@ -12,24 +12,75 @@
     <form method="post" action="{{ url_for('button_clicked') }}">
         <div>
             <label class="label1" for="user_input">Баар код: </label>
-            <input class="input1" type="text" id="user_input" name="user_input" required>
+            <input class="input1" type="text" id="user_input" value="{{ barcode }}" name="user_input" required>
             
         </div>
         <div>
             <label class="label2" for="second_input">Барааны нэр: </label>
-            <input class="input2" type="text" id="second_input" name="second_input" required>
+            <input class="input2" type="text" id="second_input" value="{{ item_name }}" name="second_input" required>
         </div>
         <div>
             <label class="label3" for="thirtinput">Барааны үнэ: </label>
-            <input class="input3" type="text" id="thirtinput" name="thirtinput" required>
+            <input class="input3" type="text" id="thirtinput" value="{{ price }}" name="thirtinput" required>
             
         </div>
         <div>
-            <button class="but1" type="submit">Барааг шүүх</button>
-            <button class="but2" type="submit">Татаж авах</button>
+            <label class="label5" for="thirtinput">Салбар сонгох : </label>
+            <select id="dropdown1" name="dropdown1">
+                <option value="option01">01</option>
+                <option value="option06">06</option>
+                <option value="option08">08</option>
+                <option value="option13">13</option>
+                <option value="option16">16</option>
+                <option value="option17">17</option>
+                <option value="option21">21</option>
+                <option value="option22">22</option>
+                <option value="option25">25</option>
+                <option value="option26">26</option>
+                <option value="option32">32</option>
+                <option value="option33">33</option>
+                <option value="option34">34</option>
+                <option value="option38">38</option>
+                <option value="option39">39</option>
+                <option value="option12">42</option>
+                <option value="option61">61</option>
+                <option value="option62">62</option>
+            </select>
+            
+        </div>
+        <div>
+            <label class="label4" for="thirtinput">Дэлгүүр сонгох: </label>
+            <select id="dropdown" name="dropdown">
+                <option value="sansar">Сансар</option>
+                <option value="carrefour">Carrefour</option>
+            </select>
+            
         </div>
         
+        <input type="hidden" id="button_type" name="button_type" value="">
+
+        <!-- Add the first button -->
+        <button class="but1" type="submit" onclick="document.getElementById('button_type').value='button1'">Шошго татах</button>
+
+        <!-- Add the second button -->
+        <button class="but2" type="submit" onclick="document.getElementById('button_type').value='button2'">Барааг шүүх</button>
+        
+        <button type="submit" id="hidden_submit" style="display:none;">Hidden Submit</button>
     </form>
-    
+
+        
+    <script>
+        function setButtonType(value) {
+            document.getElementById('button_type').value = value;
+            // Trigger the hidden submit button click
+            document.getElementById('hidden_submit').click();
+        }
+
+        function handleFormSubmission(event) {
+            event.preventDefault();  // Prevent the default form submission
+            // Handle the form submission asynchronously using AJAX if needed
+            // You can add your custom logic here
+        }
+    </script>
 </body>
 </html>

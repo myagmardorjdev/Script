@@ -17,43 +17,64 @@
         </div>
         <div>
             <label class="label2" for="second_input">Барааны нэр: </label>
-            <input class="input2" type="text" id="second_input" value="{{ item_name }}" name="second_input" required>
+            <input class="input2" type="text" id="second_input" value="{{ item_name }}" name="second_input">
         </div>
         <div>
             <label class="label3" for="thirtinput">Барааны үнэ: </label>
-            <input class="input3" type="text" id="thirtinput" value="{{ price }}" name="thirtinput" required>
+            <input class="input3" type="text" id="thirtinput" value="{{ price }}" name="thirtinput">
             
         </div>
         <div>
             <label class="label5" for="thirtinput">Салбар сонгох : </label>
             <select id="dropdown1" name="dropdown1">
-                <option value="option01">01</option>
-                <option value="option06">06</option>
-                <option value="option08">08</option>
-                <option value="option13">13</option>
-                <option value="option16">16</option>
-                <option value="option17">17</option>
-                <option value="option21">21</option>
-                <option value="option22">22</option>
-                <option value="option25">25</option>
-                <option value="option26">26</option>
-                <option value="option32">32</option>
-                <option value="option33">33</option>
-                <option value="option34">34</option>
-                <option value="option38">38</option>
-                <option value="option39">39</option>
-                <option value="option12">42</option>
-                <option value="option61">61</option>
-                <option value="option62">62</option>
+                <option value="option01" {% if selected_salbar == 'option01' %} selected {% endif %}>01</option>
+                <option value="option06" {% if selected_salbar == 'option06' %} selected {% endif %}>06</option>
+                <option value="option08" {% if selected_salbar == 'option08' %} selected {% endif %}>08</option>
+                <option value="option13" {% if selected_salbar == 'option13' %} selected {% endif %}>13</option>
+                <option value="option16" {% if selected_salbar == 'option16' %} selected {% endif %}>16</option>
+                <option value="option17" {% if selected_salbar == 'option17' %} selected {% endif %}>17</option>
+                <option value="option21" {% if selected_salbar == 'option21' %} selected {% endif %}>21</option>
+                <option value="option22" {% if selected_salbar == 'option22' %} selected {% endif %}>22</option>
+                <option value="option25" {% if selected_salbar == 'option25' %} selected {% endif %}>25</option>
+                <option value="option26" {% if selected_salbar == 'option26' %} selected {% endif %}>26</option>
+                <option value="option32" {% if selected_salbar == 'option32' %} selected {% endif %}>32</option>
+                <option value="option33" {% if selected_salbar == 'option33' %} selected {% endif %}>33</option>
+                <option value="option34" {% if selected_salbar == 'option34' %} selected {% endif %}>34</option>
+                <option value="option38" {% if selected_salbar == 'option38' %} selected {% endif %}>38</option>
+                <option value="option39" {% if selected_salbar == 'option39' %} selected {% endif %}>39</option>
+                <option value="option12" {% if selected_salbar == 'option12' %} selected {% endif %}>42</option>
+                <option value="option61" {% if selected_salbar == 'option61' %} selected {% endif %}>61</option>
+                <option value="option62" {% if selected_salbar == 'option62' %} selected {% endif %}>62</option>
             </select>
             
         </div>
         <div>
             <label class="label4" for="thirtinput">Дэлгүүр сонгох: </label>
             <select id="dropdown" name="dropdown">
-                <option value="sansar">Сансар</option>
-                <option value="carrefour">Carrefour</option>
+                <option value="sansar"   {% if selected_option == 'sansar' %} selected {% endif %} >Сансар</option>
+                <option value="carrefour"{% if selected_option == 'carrefour' %} selected {% endif %}>Carrefour</option>
             </select>
+            
+        </div>
+        <div>
+            <label class="label6" for="thirtinput">Он сартай эсэх: </label>
+            <select class="dropdown2" id="dropdown2" name="dropdown2">
+                <option value="yes"   {% if selected_option2 == 'yes' %} selected {% endif %} >Тийм</option>
+                <option value="no"{% if selected_option2 == 'no' %} selected {% endif %}>Үгүй</option>
+            </select>
+            
+        </div>
+        <div>
+            <label class="label7" for="thirtinput">Цаасны төрөл: </label>
+            <select class="dropdown3" id="dropdown3" name="dropdown3">
+                <option value="4030"   {% if selected_option3 == '3040' %} selected {% endif %}>40x30mm</option>
+                <option value="6040"   {% if selected_option3 == '6040' %} selected {% endif %}>60x40mm</option>
+            </select>
+            
+        </div>
+        <div>
+            <label class="label8" for="fourthinput">Хадгалах хугацаа: </label>
+            <input class="input4" type="text" id="fourthinput" value="{{ expireday }}" name="fourthinput">
             
         </div>
         

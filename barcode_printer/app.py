@@ -50,21 +50,44 @@ def index():
 
 @app.route('/button_clicked', methods=['POST'])
 def button_clicked():
+    global product_template_table
     user_input = request.form.get('user_input')
     baraaner = request.form.get('second_input')
-    selected_option = request.form.get('dropdown')
-    button_type = request.form.get('button_type')
+    expire = request.form.get('fourthinput')
 
-    if button_type == "button1":
+    logo = request.form.get('dropdown')
+    button_type = request.form.get('button_type')
+    ishavedate = request.form.get('dropdown2')
+    print('date ',ishavedate)
+    papersize = request.form.get('dropdown3')
+    
+
+    if logo == "sansar":
+        isSansar = 1
+    else:
+        isSansar = 0
+
+    if ishavedate == "yes":
+        ishavedate = 1
+    else:
+        ishavedate = 0
+    if papersize =="4030":
         width_mm = 60   
         height_mm = 45
+    elif papersize == "6040":
+        width_mm = 90   
+        height_mm = 60
+    if button_type == "button1":
+        barcode_usr = request.form.get('user_input')
+        
         output_file = "output_with_text.png"
-        text_content = "Бэлэг 10500"
-        barcode_text = "Barcode: 12510500"
-        barcode = "12510500"
-        price = "Үнэ: 10500"
+        
+        text_content = product_template_table[0][0]
+        barcode_text = "Код: "+str(barcode_usr)
+        barcode = str(barcode_usr)
+        price = "Үнэ: "+str(product_template_table[0][1])
 
-        image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price)
+        image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire)
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format='PNG')
         img_byte_array.seek(0)
@@ -76,6 +99,9 @@ def button_clicked():
         itemname_usr = request.form.get('second_input')
         thirtinput_usr = request.form.get('thirtinput')
         salbar_usr=request.form.get('dropdown1')
+        type=request.form.get('dropdown')
+        expire = request.form.get('fourthinput')
+        
         conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
         product_product_table = postg_return_value(conp,query_get_barcodes+barcode_usr+"'")
         print(product_product_table[0][0])
@@ -85,7 +111,7 @@ def button_clicked():
 
         defaultvalue = product_template_table[0][0]   # барааны нэр 
         defaultprice = int(product_template_table[0][1])
-        return render_template('about.html',item_name=defaultvalue,price=defaultprice,barcode=barcode_usr)
+        return render_template('about.html',item_name=defaultvalue,price=defaultprice,barcode=barcode_usr,selected_option=type,selected_salbar=salbar_usr,selected_option2=ishavedate,selected_option3=papersize,expireday=expire)
 
 
 if __name__ == '__main__':

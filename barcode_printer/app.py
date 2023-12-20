@@ -2,8 +2,9 @@ from flask import *
 from barcode_print import *
 import io
 import psycopg2
+from datetime import datetime
 import pypyodbc as odbc
-path = 'C:/Users/myagmardorj/Git/lesson3/barcode_printer/'
+
 odoodatabases = {'34': {'user': 'readonly_c34','password': 'readonly_c34_password','server': '10.34.1.220','port': 5432,'database':'CARREFOURS34_LIVE'},
                 '13': {'user': 'postgres','password': 'postgres','server': '10.13.1.220','port': 5432,'database':'CARREFOURS13_LIVE'},
                 '88': {'user': 'readonly_c88','password': 'readonly_c88_password','server': '10.88.1.220','port': 5432,'database':'CARREFOURS88_LIVE'},
@@ -41,6 +42,7 @@ def postg_return_value(conn,query):
 
 query_get_barcodes = "SELECT * FROM product_product where barcode = '"
 query_get_template = "select name,list_price from product_template where id = '"
+query_get_extra_price = "SELECT date_start,date_end,fixed_price,min_quantity FROM product_pricelist_item where active='true' and (date_end >= CURRENT_DATE or date_end is null) and product_tmpl_id = '"
 app = Flask(__name__, static_url_path='/static')
 
 @app.route('/')
@@ -51,6 +53,7 @@ def index():
 @app.route('/button_clicked', methods=['POST'])
 def button_clicked():
     global product_template_table
+    global product_pricelist_table
     user_input = request.form.get('user_input')
     baraaner = request.form.get('second_input')
     expire = request.form.get('fourthinput')
@@ -85,7 +88,18 @@ def button_clicked():
         text_content = product_template_table[0][0]
         barcode_text = "Код: "+str(barcode_usr)
         barcode = str(barcode_usr)
-        price = "Үнэ: "+str(product_template_table[0][1])
+        defaultprice = product_template_table[0][1]
+        print(product_pricelist_table) # 8 цагийн зөрүүтэй байгааг анхаарна уу
+        if len(product_pricelist_table) > 0:
+            for i in product_pricelist_table:
+                print(i[0])
+                if int(i[3]) == 0: # 1 ширхэг барааг гэдэг үгийг шалгаж байна
+                    print(int(i[3]))
+                    now = datetime.now() # хэрэгжих хугацааг одоо цагаас өнгөрсөн байгаа үгүйг шалгаж байна
+                    if now >= i[0]:
+                        print("үнэ хэрэгжсэн байна")
+                        defaultprice = int(i[2])
+        price = "Үнэ: "+str(defaultprice)
 
         image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire)
         img_byte_array = io.BytesIO()
@@ -93,6 +107,7 @@ def button_clicked():
         img_byte_array.seek(0)
 
         # Return the PNG image as a response with appropriate headers
+        
         return send_file(img_byte_array, as_attachment=True, download_name='sample_image.png', mimetype='image/png')
     elif button_type == "button2":
         barcode_usr = request.form.get('user_input')
@@ -101,16 +116,35 @@ def button_clicked():
         salbar_usr=request.form.get('dropdown1')
         type=request.form.get('dropdown')
         expire = request.form.get('fourthinput')
-        
-        conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
-        product_product_table = postg_return_value(conp,query_get_barcodes+barcode_usr+"'")
-        print(product_product_table[0][0])
-        conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
-        product_template_table = postg_return_value(conp,query_get_template+str(product_product_table[0][0])+"'")
-        print(product_template_table)
+        try:
+            conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
+            product_product_table = postg_return_value(conp,query_get_barcodes+barcode_usr+"'")
 
-        defaultvalue = product_template_table[0][0]   # барааны нэр 
-        defaultprice = int(product_template_table[0][1])
+            conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
+            product_template_table = postg_return_value(conp,query_get_template+str(product_product_table[0][0])+"'")
+    
+            conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
+            product_pricelist_table = postg_return_value(conp,query_get_extra_price+str(product_product_table[0][0])+"'")
+            defaultprice = int(product_template_table[0][1])
+            print(product_pricelist_table) # 8 цагийн зөрүүтэй байгааг анхаарна уу
+            if len(product_pricelist_table) > 0:
+                for i in product_pricelist_table:
+                    print(i[0])
+                    if int(i[3]) == 0: # 1 ширхэг барааг гэдэг үгийг шалгаж байна
+                        print(int(i[3]))
+                        now = datetime.now() # хэрэгжих хугацааг одоо цагаас өнгөрсөн байгаа үгүйг шалгаж байна
+                        if now >= i[0]:
+                            print("үнэ хэрэгжсэн байна")
+                            defaultprice = int(i[2])
+
+            defaultvalue = product_template_table[0][0]   # барааны нэр 
+            
+        except:
+            defaultvalue = ""   # барааны нэр 
+            defaultprice = -1
+            
+
+        
         return render_template('about.html',item_name=defaultvalue,price=defaultprice,barcode=barcode_usr,selected_option=type,selected_salbar=salbar_usr,selected_option2=ishavedate,selected_option3=papersize,expireday=expire)
 
 

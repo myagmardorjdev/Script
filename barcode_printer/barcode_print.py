@@ -2,9 +2,38 @@ from PIL import Image, ImageDraw, ImageFont
 from barcode import Code128
 from flask import *
 from io import BytesIO
+import win32print
 from datetime import datetime
 import io
 from barcode.writer import ImageWriter
+def print_image(image_path, printer_name):
+    # Open the image using Pillow
+    img = Image.open(image_path)
+
+    # Get the printer handle
+    printer_handle = win32print.OpenPrinter(printer_name)
+
+    # Get the default printer properties
+    default_printer_props = win32print.GetPrinter(printer_handle, 2)
+
+    # Set the printer parameters
+    hDevMode, hDevNames, hPrintDC = win32print.DocumentProperties(0, printer_handle, printer_name, default_printer_props[0])
+
+    # Create a new print job
+    job_handle = win32print.StartDocPrinter(printer_handle, 1, (image_path, None, "RAW"))
+
+    # Start the print job
+    win32print.StartPagePrinter(printer_handle)
+
+    # Print the image
+    win32print.WritePrinter(printer_handle, img.tobytes())
+
+    # End the print job
+    win32print.EndPagePrinter(printer_handle)
+    win32print.EndDocPrinter(printer_handle)
+
+    # Close the printer handle
+    win32print.ClosePrinter(printer_handle)
 def draw_vertical_line(image, x_position,x_position1,y_position,y_position1, color):
     draw = ImageDraw.Draw(image)
     draw.line((x_position, x_position1, y_position, y_position1), fill=color, width=1)

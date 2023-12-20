@@ -8,8 +8,12 @@
 
 </head>
 <body>
+
     <h1>Шошго хэвлэх</h1>
     <form method="post" action="{{ url_for('button_clicked') }}">
+        <div>
+            <label class="label9" for="fourthinput">Баар код оруулсны дараа барааг шүүх товчлуур дарна, Дараа нь цаасны хэмжээ болон дэлгүүрээ сонгон шошго татах товчлуурыг дарна уу.</label>
+        </div> 
         <div>
             <label class="label1" for="user_input">Баар код: </label>
             <input class="input1" type="text" id="user_input" value="{{ barcode }}" name="user_input" required>
@@ -87,8 +91,9 @@
         <button class="but2" type="submit" onclick="document.getElementById('button_type').value='button2'">Барааг шүүх</button>
         
         <button type="submit" id="hidden_submit" style="display:none;">Hidden Submit</button>
+        
     </form>
-
+    
         
     <script>
         function setButtonType(value) {
@@ -103,5 +108,7 @@
             // You can add your custom logic here
         }
     </script>
+
+
 </body>
 </html>

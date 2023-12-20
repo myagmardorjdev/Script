@@ -89,16 +89,22 @@ def button_clicked():
         barcode_text = "Код: "+str(barcode_usr)
         barcode = str(barcode_usr)
         defaultprice = product_template_table[0][1]
-        print(product_pricelist_table) # 8 цагийн зөрүүтэй байгааг анхаарна уу
+        #print(product_pricelist_table) # 8 цагийн зөрүүтэй байгааг анхаарна уу
+
         if len(product_pricelist_table) > 0:
             for i in product_pricelist_table:
-                print(i[0])
+
                 if int(i[3]) == 0: # 1 ширхэг барааг гэдэг үгийг шалгаж байна
                     print(int(i[3]))
                     now = datetime.now() # хэрэгжих хугацааг одоо цагаас өнгөрсөн байгаа үгүйг шалгаж байна
-                    if now >= i[0]:
-                        print("үнэ хэрэгжсэн байна")
-                        defaultprice = int(i[2])
+                    if i[0] is not None:
+                        if now >= i[0]:
+                            print("үнэ хэрэгжсэн байна")
+                            defaultprice = int(i[2])
+                if int(i[3]) == 0 and i[0] is None:
+                    print ("үнэ хэрэгжих ёстой")
+                    defaultprice = int(i[2])    
+    
         price = "Үнэ: "+str(defaultprice)
 
         image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire)
@@ -111,9 +117,13 @@ def button_clicked():
         return send_file(img_byte_array, as_attachment=True, download_name='sample_image.png', mimetype='image/png')
     elif button_type == "button2":
         barcode_usr = request.form.get('user_input')
+        print("barcode: ",barcode_usr)
+        print("date: ",datetime.now())
         itemname_usr = request.form.get('second_input')
         thirtinput_usr = request.form.get('thirtinput')
         salbar_usr=request.form.get('dropdown1')
+        papersize = request.form.get('dropdown3')
+        ishavedate = request.form.get('dropdown2')
         type=request.form.get('dropdown')
         expire = request.form.get('fourthinput')
         try:
@@ -121,22 +131,25 @@ def button_clicked():
             product_product_table = postg_return_value(conp,query_get_barcodes+barcode_usr+"'")
 
             conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
-            product_template_table = postg_return_value(conp,query_get_template+str(product_product_table[0][0])+"'")
+            product_template_table = postg_return_value(conp,query_get_template+str(product_product_table[0][4])+"'")
     
             conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
-            product_pricelist_table = postg_return_value(conp,query_get_extra_price+str(product_product_table[0][0])+"'")
+            product_pricelist_table = postg_return_value(conp,query_get_extra_price+str(product_product_table[0][4])+"'")
             defaultprice = int(product_template_table[0][1])
             print(product_pricelist_table) # 8 цагийн зөрүүтэй байгааг анхаарна уу
             if len(product_pricelist_table) > 0:
                 for i in product_pricelist_table:
-                    print(i[0])
+                    
                     if int(i[3]) == 0: # 1 ширхэг барааг гэдэг үгийг шалгаж байна
-                        print(int(i[3]))
                         now = datetime.now() # хэрэгжих хугацааг одоо цагаас өнгөрсөн байгаа үгүйг шалгаж байна
-                        if now >= i[0]:
-                            print("үнэ хэрэгжсэн байна")
-                            defaultprice = int(i[2])
-
+                        if i[0] is not None:
+                            if now >= i[0]:
+                                print("үнэ хэрэгжсэн байна")
+                                defaultprice = int(i[2])
+ 
+                    if int(i[3]) == 0 and i[0] is None:
+                        print ("үнэ хэрэгжих ёстой")
+                        defaultprice = int(i[2])    
             defaultvalue = product_template_table[0][0]   # барааны нэр 
             
         except:

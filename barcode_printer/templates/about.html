@@ -5,32 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 
     <h1>Шошго хэвлэх</h1>
     <form method="post" action="{{ url_for('button_clicked') }}">
-        <div>
+        <div class="lable9div">
+            
             <label class="label9" for="fourthinput">Баар код оруулсны дараа барааг шүүх товчлуур дарна, Дараа нь цаасны хэмжээ болон дэлгүүрээ сонгон шошго татах товчлуурыг дарна уу.</label>
         </div> 
-        <div>
-            <label class="label1" for="user_input">Баар код: </label>
-            <input class="input1" type="text" id="user_input" value="{{ barcode }}" name="user_input" required>
+        <div class="input-container">
+            <!--<label class="label1" for="user_input">Баар код: </label>-->
+            <i class="fa fa-barcode icon"></i>
+            <input class="input-field" type="text" id="user_input" placeholder="Зөвхөн баар кодоор" value="{{ barcode }}" name="user_input" required>
             
         </div>
-        <div>
-            <label class="label2" for="second_input">Барааны нэр: </label>
-            <input class="input2" type="text" id="second_input" value="{{ item_name }}" name="second_input">
+        <div class="input-container">
+            <!--<label class="label2" for="second_input">Барааны нэр: </label>-->
+            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+
+            <input class="input-field" type="text" id="second_input" placeholder="Барааны Нэр" value="{{ item_name }}" name="second_input">
         </div>
-        <div>
-            <label class="label3" for="thirtinput">Барааны үнэ: </label>
-            <input class="input3" type="text" id="thirtinput" value="{{ price }}" name="thirtinput">
+        <div class="input-container">
+            <!--<label class="label3" for="thirtinput">Барааны үнэ: </label>-->
+            <i class="fa fa-credit-card-alt" aria-hidden="true"></i>
+
+            <input class="input-field" type="text" id="thirtinput" placeholder="Барааны үнэ" value="{{ price }}" name="thirtinput">
             
         </div>
-        <div>
-            <label class="label5" for="thirtinput">Салбар сонгох : </label>
-            <select id="dropdown1" name="dropdown1">
+        <div class="input-container">
+            <!--<label class="label5" for="thirtinput">Салбар сонгох : </label>-->
+            <i class="fa fa-list" aria-hidden="true"></i>
+            <select class="input-field" id="dropdown1"  name="dropdown1">
+                <option value="option01" {% if selected_salbar == 'option01' %} selected {% endif %}>Салбар сонгох</option>
                 <option value="option01" {% if selected_salbar == 'option01' %} selected {% endif %}>01</option>
                 <option value="option06" {% if selected_salbar == 'option06' %} selected {% endif %}>06</option>
                 <option value="option08" {% if selected_salbar == 'option08' %} selected {% endif %}>08</option>
@@ -52,33 +60,44 @@
             </select>
             
         </div>
-        <div>
-            <label class="label4" for="thirtinput">Дэлгүүр сонгох: </label>
-            <select id="dropdown" name="dropdown">
+        <div class="input-container">
+            <!--<label class="label4" for="thirtinput">Дэлгүүр сонгох: </label>-->
+            <i class="fa fa-align-left" aria-hidden="true"></i>
+
+            <select class="input-field" id="dropdown" name="dropdown">
+                <option value="s"   {% if selected_option == 's' %} selected {% endif %} >Лого сонгох</option>
                 <option value="sansar"   {% if selected_option == 'sansar' %} selected {% endif %} >Сансар</option>
                 <option value="carrefour"{% if selected_option == 'carrefour' %} selected {% endif %}>Carrefour</option>
             </select>
             
         </div>
-        <div>
-            <label class="label6" for="thirtinput">Он сартай эсэх: </label>
-            <select class="dropdown2" id="dropdown2" name="dropdown2">
+        <div class="input-container">
+            <!--<label class="label6" for="thirtinput">Он сартай эсэх: </label>-->
+            <i class="fa fa-calendar-o" aria-hidden="true"></i>
+
+            <select class="input-field" id="dropdown2" name="dropdown2">
+                <option value="d"   {% if selected_option2 == 'd' %} selected {% endif %} >Он сартай эсэх</option>
                 <option value="yes"   {% if selected_option2 == 'yes' %} selected {% endif %} >Тийм</option>
                 <option value="no"{% if selected_option2 == 'no' %} selected {% endif %}>Үгүй</option>
             </select>
             
         </div>
-        <div>
-            <label class="label7" for="thirtinput">Цаасны төрөл: </label>
-            <select class="dropdown3" id="dropdown3" name="dropdown3">
+        <div class="input-container">
+            <!--<label class="label7" for="thirtinput">Цаасны төрөл: </label>-->
+            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+
+            <select class="input-field" id="dropdown3" name="dropdown3">
+                <option value="4030"   {% if selected_option3 == '3040' %} selected {% endif %}>Цаасны төрөл сонгох</option>
                 <option value="4030"   {% if selected_option3 == '3040' %} selected {% endif %}>40x30mm</option>
                 <option value="6040"   {% if selected_option3 == '6040' %} selected {% endif %}>60x40mm</option>
             </select>
             
         </div>
-        <div>
-            <label class="label8" for="fourthinput">Хадгалах хугацаа: </label>
-            <input class="input4" type="text" id="fourthinput" value="{{ expireday }}" name="fourthinput">
+        <div class="input-container">
+            <i class="fa fa-sort-numeric-asc" aria-hidden="true"></i>
+
+            <!--<label class="label8" for="fourthinput">Хадгалах хугацаа: </label>-->
+            <input class="input-field" type="text" id="fourthinput" placeholder="Хадгалах хугацаа" value="{{ expireday }}" name="fourthinput">
             
         </div>
         

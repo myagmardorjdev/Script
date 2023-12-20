@@ -14,10 +14,21 @@ body::after {
     z-index: -1; /* Send the pseudo-element to the background */
 }
 
+.input-container {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    width: 20%;
+    margin-bottom: 15px;
+  }
+
+
 .label1 {
     color: blue;
     font-size: 18px;
+    padding: 5px;
     padding-left: 10px;
+    
+    background-color: #fff;
     width: 160px;
     display:inline-block;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -67,53 +78,112 @@ body::after {
     padding-left: 10px;
     width: 160px;
     display:inline-block;
-    font-size: 18px;
+    font-size: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+.fa-credit-card-alt{
+    padding: 10px;
+  background: dodgerblue;
+  color: white;
+  min-width: 40px;
+  text-align: center;margin-left: 20px
+}
+.fa-shopping-cart{
+    padding: 10px;
+  background: dodgerblue;
+  color: white;
+  min-width: 40px;
+  text-align: center;margin-left: 20px
+}
+.icon {
+    padding: 10px;
+    margin-left: 20px;
+  background: dodgerblue;
+  color: white;
+  min-width: 40px;
+  text-align: center;
+  }
+.fa-align-left
+{
+    padding: 10px;
+    margin-left: 20px;
+  background: dodgerblue;
+  color: white;
+  min-width: 40px;
+  text-align: center;
+  }
+.fa-calendar-o{
+    padding: 10px;
+    margin-left: 20px;
+    background: dodgerblue;
+    color: white;
+    min-width: 40px;
+    text-align: center;
+}
+.fa-pencil-square-o{
+    padding: 10px;
+    margin-left: 20px;
+    background: dodgerblue;
+    color: white;
+    min-width: 40px;
+    text-align: center;
+}
+.fa-sort-numeric-asc{
+    padding: 10px;
+    margin-left: 20px;
+    background: dodgerblue;
+    color: white;
+    min-width: 40px;
+    text-align: center;
+}
+.fa-list
+{
+    padding: 10px;
+    margin-left: 20px;
+  background: dodgerblue;
+  color: white;
+  min-width: 40px;
+  text-align: center;
+  }
 .label8 {
     color: blue;
     font-size: 18px;
     padding-left: 10px;
+    padding: 5px;
+    background-color: #fff;
+
     width: 160px;
     display:inline-block;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+.lable9div{
+    margin-bottom: 1%;
+}
 .label9 {
     color: red;
-    font-size: 12px;
-    margin-bottom: 40px;
-    padding-bottom: 20px;
+    font-size: 15px;
+    margin-bottom: 50px;
+    
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.input1 {
-    padding: 5px;
-    margin-bottom: 10px;
-    font-size: large;
-}
-.input2 {
-    padding: 5px;
-    margin-bottom: 10px;
-    font-size: large;
-}
-.input3 {
-    padding: 5px;
-    margin-bottom: 10px;
-    font-size: large;
-}
-.input4 {
-    padding: 5px;
-  
-    margin-bottom: 10px;
-    margin-top: 10px;
-    font-size: large;
-}
 
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    outline: none;
+    font-size: 16px;
+    border-radius:0;
+  }
+  .input-field:focus {
+    border: 2px solid dodgerblue;
+  }
 .but1 {
     position: absolute;
-    background-color:#0a0a23;
+    background-color:black;
     color: #fff;
     border:none; 
-    border-radius:10px; 
+    border-radius:0px; 
     padding:12px;
     font-size:16px;
     min-height:30px; 
@@ -121,31 +191,33 @@ body::after {
     margin-top: 20px;
     margin-left: 200px;
 }
+.but1:hover{
+    background-color: #008CBA;
+
+    color: white;
+    border-width: 2px;
+    
+}
 .but2 {
     position: absolute;
-    background-color:#0a0a23;
+    background-color:black;
     color: #fff;
     border:none; 
     font-size:16px;
-    border-radius:10px; 
+    border-radius:0px; 
     padding:12px;
     min-height:30px; 
     min-width: 140px;
     margin-top: 20px;
     margin-left: 40px;
 }
-
-select {
-    width: 228px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    border-color:blue;
-    font-size: 18px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin-top: 5px;
+.but2:hover{
+    background-color: #008CBA;
+    
+    border-width: 2px;
+    color: white;
 }
+
 .dropdown2 {
     width: 228px;
     padding: 5px;

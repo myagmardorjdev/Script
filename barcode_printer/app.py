@@ -54,17 +54,18 @@ def index():
 def button_clicked():
     global product_template_table
     global product_pricelist_table
+    global product_product_table
+    global begindate
     user_input = request.form.get('user_input')
     baraaner = request.form.get('second_input')
     expire = request.form.get('fourthinput')
-
+    
     logo = request.form.get('dropdown')
     button_type = request.form.get('button_type')
     ishavedate = request.form.get('dropdown2')
     print('date ',ishavedate)
     papersize = request.form.get('dropdown3')
     
-
     if logo == "sansar":
         isSansar = 1
     else:
@@ -80,7 +81,13 @@ def button_clicked():
     elif papersize == "6040":
         width_mm = 90   
         height_mm = 60
+    elif papersize =="297210":
+        width_mm = 297
+        height_mm = 210
     if button_type == "button1":
+        print(product_pricelist_table)
+        mainprice = int(product_template_table[0][1])
+        innercode = product_product_table[0][14]
         barcode_usr = request.form.get('user_input')
         
         output_file = "output_with_text.png"
@@ -88,7 +95,7 @@ def button_clicked():
         text_content = product_template_table[0][0]
         barcode_text = "Код: "+str(barcode_usr)
         barcode = str(barcode_usr)
-        defaultprice = product_template_table[0][1]
+        defaultprice = int(product_template_table[0][1])
         #print(product_pricelist_table) # 8 цагийн зөрүүтэй байгааг анхаарна уу
 
         if len(product_pricelist_table) > 0:
@@ -101,13 +108,14 @@ def button_clicked():
                         if now >= i[0]:
                             print("үнэ хэрэгжсэн байна")
                             defaultprice = int(i[2])
+                            begindate = str(i[0])[:10] +";"+ str(str(i[1])[:10])[-5:]
                 if int(i[3]) == 0 and i[0] is None:
                     print ("үнэ хэрэгжих ёстой")
                     defaultprice = int(i[2])    
-    
+                    begindate = str(i[0])[:10] +";"+ str(str(i[1])[:10])[-5:]
         price = "Үнэ: "+str(defaultprice)
 
-        image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire)
+        image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire,innercode,mainprice,begindate)
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format='PNG')
         img_byte_array.seek(0)
@@ -129,10 +137,9 @@ def button_clicked():
         try:
             conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
             product_product_table = postg_return_value(conp,query_get_barcodes+barcode_usr+"'")
-
+            
             conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
             product_template_table = postg_return_value(conp,query_get_template+str(product_product_table[0][4])+"'")
-    
             conp = psycopg2.connect(database=odoodatabases[salbar_usr[6:]]['database'], user=odoodatabases[salbar_usr[6:]]['user'], password=odoodatabases[salbar_usr[6:]]['password'], host=odoodatabases[salbar_usr[6:]]['server'], port= odoodatabases[salbar_usr[6:]]['port'])
             product_pricelist_table = postg_return_value(conp,query_get_extra_price+str(product_product_table[0][4])+"'")
             defaultprice = int(product_template_table[0][1])

@@ -13,6 +13,8 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     # Convert mm to pixels (assuming 1mm = 3.77953 pixels)
     width_pixels = int(width_mm * 3.77953)
     tugruglogo = "₮"
+    top_margin297 = 75
+    old_price_tugrug_margin = 67
     height_pixels = int(height_mm * 3.77953)
     if isSansar == 1:
         image_path = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/sansar.png"
@@ -42,7 +44,7 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
         text_position = (3, 2) # дээрээсээ 2 pixels
         font_family = "arial.ttf"
     elif width_mm == 297:
-        text_position = (20, 67*3.7+20) # дээрээсээ 2 pixels
+        text_position = (20, top_margin297*3.7+20) # дээрээсээ 2 pixels
         titlefont = 35 / 72 *96
         #Grey-Sans-Regular-2
         font_family = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/FontsFree-Net-arial-bold.ttf"
@@ -92,9 +94,12 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
         mainpricelen=len(mainprice)
         fontold = ImageFont.truetype(font_family, size=fonto) 
         print(mainpricelen)
-        draw.text((width_pixels-(30*mainpricelen)+(20 if mainpricelen == 9 else 0) -(10 if mainpricelen==5 else 0),67*3.7+100), str(mainprice),fill="black", font=fontold)
-        draw.text((width_pixels-40,67*3.7+100), tugruglogo, fill="black", font=(ImageFont.truetype(font_family, size=22 /72*96) ))
-        
+        if price != mainprice:
+            draw.text((width_pixels-(30*mainpricelen)+(20 if mainpricelen == 9 else 0) -(10 if mainpricelen==5 else 0),old_price_tugrug_margin*3.7+100), str(mainprice),fill="black", font=fontold)
+            draw.text((width_pixels-40,old_price_tugrug_margin*3.7+100), tugruglogo, fill="black", font=(ImageFont.truetype(font_family, size=22 /72*96) ))
+        # ? Хямдарлын хувь %
+        if mainprice != price:
+            pass 
 
 
     if isdate == 1:
@@ -113,7 +118,10 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
             font = ImageFont.truetype(font_family, size=font_size2) 
             draw.text(text_positiondate, str(now.year)+"-"+str(now.month)+"-"+str(now.day),  fill="black", font=font)
             font = ImageFont.truetype(font_family, size=15/72*96) 
-            draw.text((width_pixels-250,width_pixels-400), begindate.replace("-",".").replace(";","-") + " хүртэл",  fill="black", font=font)
+            if "x" == begindate:
+                draw.text((width_pixels-250,width_pixels-400), begindate.replace("-",".").replace(";","-") + " хүртэл",  fill="white", font=font)
+            else:
+                draw.text((width_pixels-250,width_pixels-400), begindate.replace("-",".").replace(";","-") + " хүртэл",  fill="black", font=font)   
 
     # Create a BytesIO object to store the barcode image data
     if width_mm == 60:
@@ -181,8 +189,11 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     image.paste(barcode_image, barcode_position)
     
     if width_mm == 297:
-        image.paste(barcode_number_background,textpositionb)
-        image.paste(barcode_number_background2,textpositionback2)
+        image.paste(barcode_number_background,textpositionb) # баар код
+        if mainprice!=price:
+            
+            image.paste(barcode_number_background2,textpositionback2) # хуучин үнэ дээр зураас татах
+        
         draw.text(textpositionb, textb, font=fontb, fill="black")
     
     if width_mm == 60:

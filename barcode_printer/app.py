@@ -59,7 +59,7 @@ def button_clicked():
     user_input = request.form.get('user_input')
     baraaner = request.form.get('second_input')
     expire = request.form.get('fourthinput')
-    
+    begindate = "x"
     logo = request.form.get('dropdown')
     button_type = request.form.get('button_type')
     ishavedate = request.form.get('dropdown2')
@@ -114,7 +114,7 @@ def button_clicked():
                     defaultprice = int(i[2])    
                     begindate = str(i[0])[:10] +";"+ str(str(i[1])[:10])[-5:]
         price = "Үнэ: "+str(defaultprice)
-
+    
         image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire,innercode,mainprice,begindate)
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format='PNG')

@@ -9,17 +9,29 @@ from barcode.writer import ImageWriter
 def draw_vertical_line(image, x_position,x_position1,y_position,y_position1, color):
     draw = ImageDraw.Draw(image)
     draw.line((x_position, x_position1, y_position, y_position1), fill=color, width=1)
-def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode_data,item_name,price,isdate,isSansar,expire,innercode,mainprice,begindate):
+def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode_data,item_name,price,isdate,isSansar,expire,innercode,mainprice,begindate,min_quantity):
+    mainpath = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/"
     # Convert mm to pixels (assuming 1mm = 3.77953 pixels)
     width_pixels = int(width_mm * 3.77953)
     tugruglogo = "₮"
     top_margin297 = 75
+    booniiunetextfont = 17
+    booniishirxegune = 28
+    
+    booniiwholeune = 126
+    titlefont_size_148 = 21
     old_price_tugrug_margin = 67
+    font_bold = mainpath + "segoebold.ttf"
+    font_ui = mainpath + "segoeuil.ttf"
+    font_family = "arial.ttf"
+    print("mainprice ",mainprice)
+    print("price ", price)
+    print("min quantity ", min_quantity)
     height_pixels = int(height_mm * 3.77953)
     if isSansar == 1:
-        image_path = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/sansar.png"
+        image_path = mainpath + "sansar.png"
     else:
-        image_path = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/carrefour.png"
+        image_path = mainpath + "carrefour.png"
     additional_image = Image.open(image_path)
     additional_image = additional_image.resize((220,50))
     if width_mm == 60:
@@ -33,25 +45,56 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     # Create a drawing object
     draw = ImageDraw.Draw(image)
 
-        # Specify the text content and font
+    # Specify the text content and font
     text_content = text_content
     if width_mm == 60:
         titlefont = 22
         text_position = (3, 2) # дээрээсээ 2 pixels
         font_family = "arial.ttf"
+        font = ImageFont.truetype(font_family, size=titlefont) 
     elif width_mm == 90:
         titlefont = 24
         text_position = (3, 2) # дээрээсээ 2 pixels
         font_family = "arial.ttf"
+        font = ImageFont.truetype(font_family, size=titlefont) 
     elif width_mm == 297:
         text_position = (20, top_margin297*3.7+20) # дээрээсээ 2 pixels
         titlefont = 35 / 72 *96
         #Grey-Sans-Regular-2
-        font_family = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/FontsFree-Net-arial-bold.ttf"
-    font = ImageFont.truetype(font_family, size=titlefont)  # You can use a different font
-
+        font_family = mainpath + "FontsFree-Net-arial-bold.ttf"
+        font = ImageFont.truetype(font_family, size=titlefont) 
+    elif width_mm == 148:
+        text_position = (7, 7) # дээрээсээ 2 pixels
+        titlefont = titlefont_size_148 / 72 *96
+        #Grey-Sans-Regular-2
+        
+        # ? ширхэгийн үнэ 
+        shfont = ImageFont.truetype(font_ui, size=13)
+        shfontposition = (width_pixels/2,50)
+        draw.text(shfontposition, "1 ширхэгийн үнэ", fill="black", font=shfont)
+        shfontune = ImageFont.truetype(font_family, size=booniishirxegune)
+        price = price.replace("Үнэ: ","")
+        price = "{:,}".format(int(price))
+        shfontuneposition = (width_pixels-100 - (30 if len(price)==7 else 0) - (40 if len(price)==9 else 0),42)
+        draw.text(shfontuneposition, price, fill="black", font=shfontune)
+        font = ImageFont.truetype(font_ui, size=titlefont)  
+        # ? Бөөний үнэ 
+        wholefont = ImageFont.truetype(font_family, size = booniiwholeune)
+    
+        mainprice = "{:,}".format(int(mainprice))
+        booniiwholeune = 110 if len(mainprice)==9 else booniiwholeune
+        wholefont = ImageFont.truetype(font_family, size = booniiwholeune)
+        wholefontposition = ((110 if len(mainprice) == 6 else 0) + (60 if len(mainprice) == 7 else 0) + (150 if len(mainprice) == 5 else 0) + (10 if len(mainprice) == 9 else 0),80)
+        draw.text(wholefontposition, mainprice, fill="black", font=wholefont)
+        # ? Төгрөг зураг оруулах 
+        draw.text((width_pixels-(60 if len(mainprice) == 9 else 0)-(50 if len(mainprice) == 7 else 0)-(60 if len(mainprice) == 6 else 0)-(95 if len(mainprice) == 5 else 0),95), tugruglogo, fill="black", font=(ImageFont.truetype(font_family, size=50 /72*96) ))
+        # ? Бөөний ширхэг болон нэр тайлбар 
+        wholenamefont = ImageFont.truetype(font_ui, size = booniiunetextfont)
+        wholenamefontposition = (width_pixels/1.8 , height_pixels-50)
+        draw.text(wholenamefontposition, "БӨӨНИЙ ҮНЭ: " + str(min_quantity) + "ш -с", fill="black", font=wholenamefont)
 
     draw.text(text_position, text_content, fill="black", font=font)
+
     if width_mm == 60:
         font_size2 = 14
         font = ImageFont.truetype(font_family, size=font_size2) 
@@ -111,8 +154,12 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
         elif width_mm ==90:
             text_positiondate = (width_pixels/2+width_pixels/7,7+titlefont)
             draw.text(text_positiondate, str(now.year)+"-"+str(now.month)+"-"+str(now.day),  fill="black", font=font)
+        elif width_mm ==148:
+            text_positiondate = (width_pixels-130,height_pixels-25)
+            font = ImageFont.truetype(font_ui, size=14) 
+            draw.text(text_positiondate, str(now.year)+"-"+str(now.month)+"-"+str(now.day)+" | "+str(now.hour)+":"+str(now.minute)+":"+str(now.second),  fill="black", font=font)
         elif width_mm == 297:
-            text_positiondate = (width_pixels-100,width_pixels-355)
+            text_positiondate = (width_pixels-120,width_pixels-355)
             font_size2 = 11/72*96
             font_family = 'arial.ttf'
             font = ImageFont.truetype(font_family, size=font_size2) 
@@ -139,13 +186,17 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     elif width_mm == 297:
         font_size = 16
         font = ImageFont.truetype(font_family, size=font_size) 
-    
+
+
     if isdate == 1:
-        text_positiondate = (width_pixels/2+width_pixels/7,33+font_size)
-        now = datetime.now()
+        
         if width_mm == 60:
+            text_positiondate = (width_pixels/2+width_pixels/7,33+font_size)
+            now = datetime.now()
             draw.text(text_positiondate,"Цаг "+ str(now.hour)+":"+str(now.minute),  fill="black", font=font)
         elif width_mm == 90:
+            text_positiondate = (width_pixels/2+width_pixels/7,33+font_size)
+            now = datetime.now()
             draw.text(text_positiondate,"Цаг "+ str(now.hour)+":"+str(now.minute),  fill="black", font=font)
 
     barcode_stream = BytesIO()
@@ -164,8 +215,13 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     elif width_mm == 90:
         barcode_image = barcode_image.resize((300,100))
         barcode_position = (17,158)
+    elif width_mm == 148: 
+        font_path = mainpath + "FontsFree-Net-arial-bold.ttf"
+        fontb = ImageFont.truetype(font_path, size=13/72 *96)
+        barcode_position = (5,int(height_pixels-55))
+        barcode_image = barcode_image.resize((140,60))
     elif width_mm == 297:
-        font_path = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/FontsFree-Net-arial-bold.ttf"
+        font_path = mainpath + "FontsFree-Net-arial-bold.ttf"
         fontb = ImageFont.truetype(font_path, size=11/72 *96)
 
         

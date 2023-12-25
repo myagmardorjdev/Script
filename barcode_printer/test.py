@@ -1,41 +1,45 @@
+from PIL import Image, ImageDraw, ImageFont
 from barcode import Code128
 from barcode.writer import ImageWriter
-from PIL import Image, ImageDraw, ImageFont
 
-# Your barcode data
-barcode_data = "123456789"
+def generate_barcode_with_custom_font_and_margin(barcode_data, output_file, font_path, margin_left):
+    # Generate the barcode image using python-barcode
+    barcode = Code128(barcode_data, writer=ImageWriter())
+    barcode_stream = barcode.render()
 
-# Generate the barcode
-barcode = Code128(barcode_data, writer=ImageWriter())
-barcode_image = barcode.render()
+    # Create a new Image object from the barcode stream
+    barcode_image = Image.open(barcode_stream)
 
-# Convert the barcode image to a Pillow Image object
-barcode_pil_image = Image.open(barcode_image)
+    # Create a drawing object
+    draw = ImageDraw.Draw(barcode_image)
 
-# Create a blank image to paste the barcode onto
+    # Load your custom font (replace "path/to/your/font.ttf" with the actual path)
+    custom_font = ImageFont.truetype(font_path, size=12)
 
+    # Get the text size to calculate the position
+    text_width, text_height = draw.textsize(barcode_data, custom_font)
 
-# Define the position to paste the barcode onto the background
-barcode_position = (50, 50)
+    # Calculate the position with the left margin
+    text_position = (margin_left, barcode_image.height - text_height - 5)
 
-# Paste the barcode onto the background
-background_image.paste(barcode_pil_image, barcode_position)
+    # Draw the barcode data using the custom font
+    draw.text(text_position, barcode_data, font=custom_font, fill="black")
 
-# Create a drawing object
-draw = ImageDraw.Draw(background_image)
+    # Save the final image with the barcode and custom font
+    barcode_image.save(output_file, "PNG")
 
-# Choose a font (you'll need to provide the path to a TTF font file)
-font_path = "consola.ttf"
-font_size = 24
-font = ImageFont.truetype(font_path, size=font_size)
+if __name__ == "__main__":
+    # Specify the barcode data, output file, font path, and margin left
+    barcode_data = "123456789"
+    output_file = "output_barcode_with_custom_font_and_margin.png"
+    
+    # Specify the path to your custom TrueType font file
+    font_path = "path/to/your/font.ttf"
 
-# Specify the text to be added
-text = "Barcode: {}".format(barcode_data)
+    # Set the left margin for the text
+    left_margin = 20  # Adjust the margin as needed
 
-# Add the text to the image
-text_position = (50, 150)
-draw.text(text_position, text, font=font, fill="black")
+    # Generate the barcode with the custom font and left margin
+    generate_barcode_with_custom_font_and_margin(barcode_data, output_file, font_path, left_margin)
 
-# Save or display the modified image
-background_image.save("output_with_text.png")
-background_image.show()
+    print(f"Barcode with custom font and left margin saved to: {output_file}")

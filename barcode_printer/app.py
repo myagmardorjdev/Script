@@ -42,7 +42,7 @@ def postg_return_value(conn,query):
 
 query_get_barcodes = "SELECT * FROM product_product where barcode = '"
 query_get_template = "select name,list_price from product_template where id = '"
-query_get_extra_price = "SELECT date_start,date_end,fixed_price,min_quantity FROM product_pricelist_item where active='true' and (date_end >= CURRENT_DATE or date_end is null) and product_tmpl_id = '"
+query_get_extra_price = "SELECT date_start,date_end,fixed_price,min_quantity,pricelist_id FROM product_pricelist_item where active='true' and (date_end >= CURRENT_DATE or date_end is null) and product_tmpl_id = '"
 app = Flask(__name__, static_url_path='/static')
 
 @app.route('/')
@@ -60,6 +60,7 @@ def button_clicked():
     baraaner = request.form.get('second_input')
     expire = request.form.get('fourthinput')
     begindate = "x"
+    min_quantity = 0
     logo = request.form.get('dropdown')
     button_type = request.form.get('button_type')
     ishavedate = request.form.get('dropdown2')
@@ -84,9 +85,30 @@ def button_clicked():
     elif papersize =="297210":
         width_mm = 297
         height_mm = 210
+    elif papersize =="14876":
+        width_mm = 148 
+        height_mm = 76
     if button_type == "button1":
         print(product_pricelist_table)
-        mainprice = int(product_template_table[0][1])
+        if papersize =="14876":
+            if len(product_pricelist_table) > 0:
+                for i in product_pricelist_table:
+
+                    if int(i[3]) != 0 : # 1 ширхэг барааг гэдэг үгийг шалгаж байна
+                        print(int(i[3]))
+                        now = datetime.now() # хэрэгжих хугацааг одоо цагаас өнгөрсөн байгаа үгүйг шалгаж байна
+                        if i[0] is not None and i[4] not in (25,26):
+                            if now >= i[0]:
+                                print("Бөөний үнэ хэрэгжсэн байна E1")
+                                min_quantity = int(i[3])
+                                mainprice = int(i[2])   
+                    if int(i[3]) != 0 and i[0] is None and i[4] not in (25,26): 
+                        print ("Бөөний үнэ хэрэгжсэн байна E2")
+                        min_quantity = int(i[3])
+                        mainprice = int(i[2])    
+        else:
+            mainprice = int(product_template_table[0][1])
+
         innercode = product_product_table[0][14]
         barcode_usr = request.form.get('user_input')
         
@@ -106,16 +128,16 @@ def button_clicked():
                     now = datetime.now() # хэрэгжих хугацааг одоо цагаас өнгөрсөн байгаа үгүйг шалгаж байна
                     if i[0] is not None:
                         if now >= i[0]:
-                            print("үнэ хэрэгжсэн байна")
+                            print("limited үнэ хэрэгжсэн байна E3")
                             defaultprice = int(i[2])
                             begindate = str(i[0])[:10] +";"+ str(str(i[1])[:10])[-5:]
                 if int(i[3]) == 0 and i[0] is None:
-                    print ("үнэ хэрэгжих ёстой")
+                    print ("infinity үнэ хэрэгжсэн байна E4")
                     defaultprice = int(i[2])    
                     begindate = str(i[0])[:10] +";"+ str(str(i[1])[:10])[-5:]
         price = "Үнэ: "+str(defaultprice)
     
-        image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire,innercode,mainprice,begindate)
+        image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire,innercode,mainprice,begindate,min_quantity)
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format='PNG')
         img_byte_array.seek(0)

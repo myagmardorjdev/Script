@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 from barcode import Code128
 from flask import *
-
+import math
 from io import BytesIO
 from datetime import datetime
 import io
@@ -9,24 +9,21 @@ from barcode.writer import ImageWriter
 def draw_vertical_line(image, x_position,x_position1,y_position,y_position1, color):
     draw = ImageDraw.Draw(image)
     draw.line((x_position, x_position1, y_position, y_position1), fill=color, width=1)
-def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode_data,item_name,price,isdate,isSansar,expire,innercode,mainprice,begindate,min_quantity):
+def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode_data,item_name,price,isdate,isSansar,expire,innercode,mainprice,begindate,min_quantity,orts):
     mainpath = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/"
     # Convert mm to pixels (assuming 1mm = 3.77953 pixels)
     width_pixels = int(width_mm * 3.77953)
     tugruglogo = "₮"
     top_margin297 = 75
-    booniiunetextfont = 17
-    booniishirxegune = 28
-    
+    booniiunetextfont = 28
+    booniishirxegune = 32
     booniiwholeune = 126
-    titlefont_size_148 = 21
+    titlefont_size_148 = 23
     old_price_tugrug_margin = 67
     font_bold = mainpath + "segoebold.ttf"
     font_ui = mainpath + "segoeuil.ttf"
     font_family = "arial.ttf"
-    print("mainprice ",mainprice)
-    print("price ", price)
-    print("min quantity ", min_quantity)
+    print("orts> ", orts)
     height_pixels = int(height_mm * 3.77953)
     if isSansar == 1:
         image_path = mainpath + "sansar.png"
@@ -46,12 +43,105 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
     draw = ImageDraw.Draw(image)
 
     # Specify the text content and font
-    text_content = text_content
+
     if width_mm == 60:
         titlefont = 22
         text_position = (3, 2) # дээрээсээ 2 pixels
-        font_family = "arial.ttf"
+        font_family = "candara.ttf"
         font = ImageFont.truetype(font_family, size=titlefont) 
+    elif width_mm == 2400:
+        titlefont = 340
+        margin_left= 150
+        text_content = orts[0]
+        orts_nairlaga = orts[11]
+        hereglex_zaawar = orts[12]
+        country = orts[13]
+        supplier = orts[15]
+        attention = orts[17]
+        supplier = "Нийлүүлэгч: " + supplier
+        attention = supplier+ " || Анхааруулга: " + attention
+        hadgalax_noxtsol = orts[18]
+        hadgalax_noxtsol = "Хадгалах нөхцөл: " + hadgalax_noxtsol
+        hereglex_zaawar = "Хэрэглэх заавар: " + hereglex_zaawar
+        niit_hemjee = orts[2]
+        orts_nairlaga = "Найрлага: " +orts_nairlaga
+        tasdaxvalue = 57
+        font_family = "arial.ttf"
+        exlexind=math.ceil(len(orts_nairlaga)/tasdaxvalue)
+        startind = 0
+        endind = tasdaxvalue
+        font = ImageFont.truetype(font_family, size=titlefont) 
+        text_position = (margin_left, 12)
+        pos = 50
+        for i in range(exlexind):
+            print(orts_nairlaga[startind:endind])
+            
+            text_pos_nairlaga = (margin_left, pos + titlefont)
+            pos += titlefont
+            draw.text(text_pos_nairlaga,orts_nairlaga[startind:endind], fill="black", font=font)
+            startind += tasdaxvalue
+            endind += tasdaxvalue
+        if len(orts[12])>2:
+            font_family = "arial.ttf"
+            exlexind=math.ceil(len(hereglex_zaawar)/tasdaxvalue)
+            startind = 0
+            endind = tasdaxvalue
+            font = ImageFont.truetype(font_family, size=titlefont) 
+            for i in range(exlexind):
+                print(hereglex_zaawar[startind:endind])
+                
+                text_pos_nairlaga = (margin_left, pos + titlefont)
+                pos += titlefont
+                draw.text(text_pos_nairlaga,hereglex_zaawar[startind:endind], fill="black", font=font)
+                startind += tasdaxvalue
+                endind += tasdaxvalue
+        tasdaxvalue = 48
+        font_family = "arial.ttf"
+        exlexind=math.ceil(len(hadgalax_noxtsol)/tasdaxvalue)
+        startind = 0
+        endind = tasdaxvalue
+        font = ImageFont.truetype(font_family, size=titlefont) 
+        for i in range(exlexind):
+            print(hadgalax_noxtsol[startind:endind])
+            
+            text_pos_nairlaga = (margin_left, pos + titlefont)
+            pos += titlefont
+            draw.text(text_pos_nairlaga,hadgalax_noxtsol[startind:endind], fill="black", font=font)
+            startind += tasdaxvalue
+            endind += tasdaxvalue    
+        tasdaxvalue = 48
+        font_family = "arial.ttf"
+        exlexind=math.ceil(len(attention)/tasdaxvalue)
+        startind = 0
+        endind = tasdaxvalue
+        font = ImageFont.truetype(font_family, size=titlefont) 
+        for i in range(exlexind):
+            print(attention[startind:endind])
+            text_pos_nairlaga = (margin_left, pos + titlefont)
+            pos += titlefont
+            draw.text(text_pos_nairlaga,attention[startind:endind], fill="black", font=font)
+            startind += tasdaxvalue
+            endind += tasdaxvalue     
+        text_pos_nairlaga = (margin_left, pos + titlefont)     
+        draw.text(text_pos_nairlaga, "Нийт хэмжээ: "+niit_hemjee +" || Үйлдвэрлэсэн улс: " +country, fill="black", font=font)    
+        pos += titlefont         
+        text_pos_nairlaga = (margin_left, pos + titlefont)  
+        #3560070232963
+        илчлэг = "Илчлэг (kj):"+orts[3] + " Калори (kkal):"+orts[4]+" Уураг:"+orts[5]+" Нүүрс ус:"+orts[6]+" Сахар:"+orts[7]+" Өөх тос:"+orts[8]+" Ханасан өөх тос:"+orts[9]+" Давс:"+orts[10]
+        tasdaxvalue = 48
+        font_family = "arial.ttf"
+        exlexind=math.ceil(len(илчлэг)/tasdaxvalue)
+        startind = 0
+        endind = tasdaxvalue
+        font = ImageFont.truetype(font_family, size=titlefont) 
+        for i in range(exlexind):
+            print(илчлэг[startind:endind])
+            
+            text_pos_nairlaga = (margin_left, pos + titlefont)
+            pos += titlefont
+            draw.text(text_pos_nairlaga,илчлэг[startind:endind], fill="black", font=font)
+            startind += tasdaxvalue
+            endind += tasdaxvalue                   
     elif width_mm == 90:
         titlefont = 24
         text_position = (3, 2) # дээрээсээ 2 pixels
@@ -64,18 +154,18 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
         font_family = mainpath + "FontsFree-Net-arial-bold.ttf"
         font = ImageFont.truetype(font_family, size=titlefont) 
     elif width_mm == 148:
-        text_position = (7, 7) # дээрээсээ 2 pixels
+        text_position = (7, 2) # дээрээсээ 2 pixels
         titlefont = titlefont_size_148 / 72 *96
         #Grey-Sans-Regular-2
         
         # ? ширхэгийн үнэ 
-        shfont = ImageFont.truetype(font_ui, size=13)
-        shfontposition = (width_pixels/2,50)
+        shfont = ImageFont.truetype(font_bold, size=20)
+        shfontposition = (width_pixels/2.5,50)
         draw.text(shfontposition, "1 ширхэгийн үнэ", fill="black", font=shfont)
         shfontune = ImageFont.truetype(font_family, size=booniishirxegune)
         price = price.replace("Үнэ: ","")
         price = "{:,}".format(int(price))
-        shfontuneposition = (width_pixels-100 - (30 if len(price)==7 else 0) - (40 if len(price)==9 else 0),42)
+        shfontuneposition = (width_pixels-110 - (30 if len(price)==7 else 0) - (40 if len(price)==9 else 0),42)
         draw.text(shfontuneposition, price, fill="black", font=shfontune)
         font = ImageFont.truetype(font_ui, size=titlefont)  
         # ? Бөөний үнэ 
@@ -89,8 +179,8 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
         # ? Төгрөг зураг оруулах 
         draw.text((width_pixels-(60 if len(mainprice) == 9 else 0)-(50 if len(mainprice) == 7 else 0)-(60 if len(mainprice) == 6 else 0)-(95 if len(mainprice) == 5 else 0),95), tugruglogo, fill="black", font=(ImageFont.truetype(font_family, size=50 /72*96) ))
         # ? Бөөний ширхэг болон нэр тайлбар 
-        wholenamefont = ImageFont.truetype(font_ui, size = booniiunetextfont)
-        wholenamefontposition = (width_pixels/1.8 , height_pixels-50)
+        wholenamefont = ImageFont.truetype(font_bold, size = booniiunetextfont)
+        wholenamefontposition = (width_pixels/2.2 , height_pixels-64)
         draw.text(wholenamefontposition, "БӨӨНИЙ ҮНЭ: " + str(min_quantity) + "ш -с", fill="black", font=wholenamefont)
 
     draw.text(text_position, text_content, fill="black", font=font)
@@ -155,8 +245,8 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
             text_positiondate = (width_pixels/2+width_pixels/7,7+titlefont)
             draw.text(text_positiondate, str(now.year)+"-"+str(now.month)+"-"+str(now.day),  fill="black", font=font)
         elif width_mm ==148:
-            text_positiondate = (width_pixels-130,height_pixels-25)
-            font = ImageFont.truetype(font_ui, size=14) 
+            text_positiondate = (width_pixels-190,height_pixels-25)
+            font = ImageFont.truetype(font_bold, size=19) 
             draw.text(text_positiondate, str(now.year)+"-"+str(now.month)+"-"+str(now.day)+" | "+str(now.hour)+":"+str(now.minute)+":"+str(now.second),  fill="black", font=font)
         elif width_mm == 297:
             text_positiondate = (width_pixels-120,width_pixels-355)
@@ -207,19 +297,23 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
 
 
     Code128(barcode_data, writer=ImageWriter()).write(barcode_stream)
-
+    background_color = (255,255,255)  # White background
+    black_background = (0,0,0)  # black background
     barcode_image = Image.open(barcode_stream)
     if width_mm == 60:
         barcode_image = barcode_image.resize((260,80))
-        barcode_position = (-15,120)
+        barcode_position = (-18,120)
+        image.paste(barcode_image, barcode_position)
     elif width_mm == 90:
         barcode_image = barcode_image.resize((300,100))
         barcode_position = (17,158)
+        image.paste(barcode_image, barcode_position)
     elif width_mm == 148: 
         font_path = mainpath + "FontsFree-Net-arial-bold.ttf"
         fontb = ImageFont.truetype(font_path, size=13/72 *96)
-        barcode_position = (5,int(height_pixels-55))
-        barcode_image = barcode_image.resize((140,60))
+        barcode_position = (3,int(height_pixels-75))
+        barcode_image = barcode_image.resize((240,70))
+        image.paste(barcode_image, barcode_position)
     elif width_mm == 297:
         font_path = mainpath + "FontsFree-Net-arial-bold.ttf"
         fontb = ImageFont.truetype(font_path, size=11/72 *96)
@@ -231,19 +325,28 @@ def generate_white_png_with_text(width_mm, height_mm, output_file, text_content,
         # Add the text to the image
         textpositionb = (int(height_mm/11),int(height_pixels-24))
         textpositionback2 = (width_pixels-250+(35 if mainpricelen == 7 else 0)+(70 if mainpricelen == 6 else 0)+(90 if mainpricelen == 5 else 0),int(67*3.7+115))
-        background_color = (255,255,255)  # White background
-        background_color2 = (0,0,0)  # black background
-        barcode_number_background = Image.new("RGB", textpositionb, background_color)
-        barcode_number_background2 = Image.new("RGB", textpositionback2, background_color2)
+        
+        barcode_number_background = Image.new("RGB", size=(200,50),color=background_color)
+
+        barcode_number_background2 = Image.new("RGB", textpositionback2, black_background)
         barcode_number_background2=barcode_number_background2.resize((25*mainpricelen,4))
-        barcode_number_background=barcode_number_background.resize((200,50))
+        
         barcode_image = barcode_image.resize((200,80))
 
         barcode_position = (int(height_mm/11),int(height_pixels-80))
+        image.paste(barcode_image, barcode_position)
     
  
-    image.paste(barcode_image, barcode_position)
     
+    if width_mm ==148:
+        # ? Баар кодны тоог дарж байна 
+        barcodeunedaraxposition = (0, height_pixels-32)
+        daralt_barcode_number = Image.new("RGB", size=(250,50),color = (255, 255, 255))
+        image.paste(daralt_barcode_number,barcodeunedaraxposition)
+        # ? Баар кодны тоог шинээр бичиж байна
+        font = ImageFont.truetype(font_bold, size=23) 
+        draw.text((12,height_pixels-38), barcode_data,  fill="black", font=font)
+        pass
     if width_mm == 297:
         image.paste(barcode_number_background,textpositionb) # баар код
         if mainprice!=price:

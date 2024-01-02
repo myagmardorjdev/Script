@@ -13,12 +13,20 @@ body::after {
     opacity: 0.7; /* Adjust the opacity value as needed */
     z-index: -1; /* Send the pseudo-element to the background */
 }
-
+.butt1-container{
+    text-align: center;
+}
+.butt2-container{
+    text-align: center;
+    margin-top: 10px;
+}
 .input-container {
     display: -ms-flexbox; /* IE10 */
     display: flex;
     width: 25%;
     margin-bottom: 15px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
 
@@ -86,18 +94,17 @@ body::after {
   background: dodgerblue;
   color: white;
   min-width: 40px;
-  text-align: center;margin-left: 20px
+  text-align: center;
 }
 .fa-shopping-cart{
     padding: 10px;
   background: dodgerblue;
   color: white;
   min-width: 40px;
-  text-align: center;margin-left: 20px
+  text-align: center;
 }
 .icon {
     padding: 10px;
-    margin-left: 20px;
   background: dodgerblue;
   color: white;
   min-width: 40px;
@@ -106,7 +113,7 @@ body::after {
 .fa-align-left
 {
     padding: 10px;
-    margin-left: 20px;
+    
   background: dodgerblue;
   color: white;
   min-width: 40px;
@@ -114,7 +121,7 @@ body::after {
   }
 .fa-calendar-o{
     padding: 10px;
-    margin-left: 20px;
+    
     background: dodgerblue;
     color: white;
     min-width: 40px;
@@ -122,7 +129,7 @@ body::after {
 }
 .fa-pencil-square-o{
     padding: 10px;
-    margin-left: 20px;
+    
     background: dodgerblue;
     color: white;
     min-width: 40px;
@@ -130,7 +137,7 @@ body::after {
 }
 .fa-sort-numeric-asc{
     padding: 10px;
-    margin-left: 20px;
+    
     background: dodgerblue;
     color: white;
     min-width: 40px;
@@ -139,7 +146,7 @@ body::after {
 .fa-list
 {
     padding: 10px;
-    margin-left: 20px;
+    
   background: dodgerblue;
   color: white;
   min-width: 40px;
@@ -156,15 +163,19 @@ body::after {
     display:inline-block;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
 .lable9div{
+    margin-left: auto;
+    margin-right: auto;
     margin-bottom: 1%;
+    background-color: white;
+    width: 25%;
 }
 .label9 {
-    color: red;
-    font-size: 15px;
-    margin-bottom: 50px;
-    
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: rgb(0, 0, 0);
+    font-size: 16px;
+    text-align: justify;
+    font-family: serif;
 }
 
 
@@ -178,8 +189,24 @@ body::after {
   .input-field:focus {
     border: 2px solid dodgerblue;
   }
+.h1pro{
+    text-align: center;
+    height: 30px;
+    font-size: 24px;
+    font-family: Arial, Helvetica, sans-serif;
+    opacity: 1;
+    color: white;
+    border-radius: 10px;
+    padding-top: 6px;
+    border-color: #008CBA;
+    border-width: 2px;
+    padding-right: 20px;
+    padding-left: 20px;
+    width: auto;
+}
+  
 .but1 {
-    position: absolute;
+
     background-color:black;
     color: #fff;
     border:none; 
@@ -187,19 +214,21 @@ body::after {
     padding:12px;
     font-size:16px;
     min-height:30px; 
-    min-width: 140px;
-    margin-top: 20px;
-    margin-left: 200px;
+    width: 8%;
+    margin-left: 10px;
+    margin-right: 10px;
+
 }
 .but1:hover{
-    background-color: #008CBA;
-
-    color: white;
+    background-color:rgb(216, 195, 175);
+    border-radius: 10px;
     border-width: 2px;
+    font-size: 18px;
+    color:black;
     
 }
 .but2 {
-    position: absolute;
+    
     background-color:black;
     color: #fff;
     border:none; 
@@ -207,15 +236,16 @@ body::after {
     border-radius:0px; 
     padding:12px;
     min-height:30px; 
-    min-width: 140px;
-    margin-top: 20px;
-    margin-left: 40px;
+    width: 8%;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .but2:hover{
-    background-color: #008CBA;
-    
+    background-color:rgb(216, 195, 175);
+    border-radius: 10px;
     border-width: 2px;
-    color: white;
+    font-size: 18px;
+    color:black;
 }
 
 .dropdown2 {
@@ -242,3 +272,7 @@ body::after {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin-top: 5px;
 }
+
+
+
+

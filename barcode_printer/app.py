@@ -1,7 +1,10 @@
+current_dir = "C:/Users/myagmardorj/Git/lesson3/barcode_printer/"
 from flask import *
 from barcode_print import *
 import io
 import psycopg2
+import openpyxl
+import xlwings as xw
 from datetime import datetime
 import pypyodbc as odbc
 
@@ -44,7 +47,40 @@ query_get_barcodes = "SELECT * FROM product_product where barcode = '"
 query_get_template = "select name,list_price from product_template where id = '"
 query_get_extra_price = "SELECT date_start,date_end,fixed_price,min_quantity,pricelist_id FROM product_pricelist_item where active='true' and (date_end >= CURRENT_DATE or date_end is null) and product_tmpl_id = '"
 app = Flask(__name__, static_url_path='/static')
+class excel_file_to_list_xlwings(): #! excel file iig list bolgon huwirganga (convert)
+    def __init__(self,path,filename,barcodeint):
+        self.path = path
+        self.filename = filename
+        self.barcode = barcodeint
+        ws = xw.Book(self.path +self.filename).sheets['Sheet1']
+        v1 = ws.range("A2:T1030").value
+        self.newlist=[]
+        for i in v1:
+            if i is not None:
+                if(int(i[1])==self.barcode):
+                    print("barcode olow")
+                    self.newlist.append(i)
+                    break
+        # v2 = ws.range("F5").value
+        self.newlist = i
+    def returnc(self):
+        return self.newlist
 
+class excel_file_to_list(): #! excel file iig list bolgon huwirganga (convert)
+    def __init__(self,path,filename,barcode):
+        self.path = path
+        self.filename = filename
+        self.exceldata = (openpyxl.load_workbook(self.path+self.filename)).active
+        self.returnlist = []
+        for row in range(1, self.exceldata.max_row):
+            self.newrow = []
+            for col in self.exceldata.iter_cols(1, self.exceldata.max_column):
+                self.newrow.append(col[row].value)
+            if self.newrow[1] == int(barcode):
+                break;
+            
+    def returnc(self):
+        return self.newrow
 @app.route('/')
 def index():
 
@@ -56,7 +92,9 @@ def button_clicked():
     global product_pricelist_table
     global product_product_table
     global begindate
+    global mainprice
     user_input = request.form.get('user_input')
+    ortslist = []
     baraaner = request.form.get('second_input')
     expire = request.form.get('fourthinput')
     begindate = "x"
@@ -66,7 +104,8 @@ def button_clicked():
     ishavedate = request.form.get('dropdown2')
     print('date ',ishavedate)
     papersize = request.form.get('dropdown3')
-    
+    if papersize =='6141':
+        ortslist = excel_file_to_list_xlwings(current_dir,"data.xlsx",int(user_input)).returnc()
     if logo == "sansar":
         isSansar = 1
     else:
@@ -88,6 +127,9 @@ def button_clicked():
     elif papersize =="14876":
         width_mm = 148 
         height_mm = 76
+    elif papersize == "6141":
+        width_mm = 2400   
+        height_mm = 1600
     if button_type == "button1":
         print(product_pricelist_table)
         if papersize =="14876":
@@ -106,6 +148,9 @@ def button_clicked():
                         print ("Бөөний үнэ хэрэгжсэн байна E2")
                         min_quantity = int(i[3])
                         mainprice = int(i[2])    
+            else:
+                mainprice = int(product_template_table[0][1])
+                min_quantity = 1
         else:
             mainprice = int(product_template_table[0][1])
 
@@ -137,7 +182,7 @@ def button_clicked():
                     begindate = str(i[0])[:10] +";"+ str(str(i[1])[:10])[-5:]
         price = "Үнэ: "+str(defaultprice)
     
-        image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire,innercode,mainprice,begindate,min_quantity)
+        image = generate_white_png_with_text(width_mm, height_mm, output_file, text_content,barcode,barcode_text,price,ishavedate,isSansar,expire,innercode,mainprice,begindate,min_quantity,ortslist)
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format='PNG')
         img_byte_array.seek(0)
@@ -146,6 +191,7 @@ def button_clicked():
         
         return send_file(img_byte_array, as_attachment=True, download_name='sample_image.png', mimetype='image/png')
     elif button_type == "button2":
+        
         barcode_usr = request.form.get('user_input')
         print("barcode: ",barcode_usr)
         print("date: ",datetime.now())
@@ -153,6 +199,7 @@ def button_clicked():
         thirtinput_usr = request.form.get('thirtinput')
         salbar_usr=request.form.get('dropdown1')
         papersize = request.form.get('dropdown3')
+        print("Цаасны төрөл ", papersize)
         ishavedate = request.form.get('dropdown2')
         type=request.form.get('dropdown')
         expire = request.form.get('fourthinput')

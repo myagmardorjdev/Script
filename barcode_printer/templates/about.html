@@ -9,16 +9,15 @@
 </head>
 <body>
 
-    <h1>Шошго хэвлэх</h1>
+    <h1 class="h1pro" >Барааны шошго хэвлэх</h1>
     <form method="post" action="{{ url_for('button_clicked') }}">
         <div class="lable9div">
-            
-            <label class="label9" for="fourthinput">Баар код оруулсны дараа барааг шүүх товчлуур дарна, Дараа нь цаасны хэмжээ болон дэлгүүрээ сонгон шошго татах товчлуурыг дарна уу.</label>
+            <label class="label9" for="fourthinput">Баар код оруулан салбар сонгосны дараа барааг шүүх товчлуур даран барааны үнэ болон нэрийг татаж авна, Дараа нь цаасны төрөл болон хадгалах хугацааг сонгон шошго татах товчлуурыг дарна уу.</label>
         </div> 
         <div class="input-container">
             <!--<label class="label1" for="user_input">Баар код: </label>-->
             <i class="fa fa-barcode icon"></i>
-            <input class="input-field" type="text" id="user_input" placeholder="Зөвхөн баар кодоор" value="{{ barcode }}" name="user_input" required>
+            <input class="input-field" style="justify-content:end;" type="text" id="user_input" placeholder="Зөвхөн баар кодоор" value="{{ barcode }}" name="user_input" required>
             
         </div>
         <div class="input-container">
@@ -34,6 +33,9 @@
             <input class="input-field" type="text" id="thirtinput" placeholder="Барааны үнэ" value="{{ price }}" name="thirtinput">
             
         </div>
+        
+        
+        
         <div class="input-container">
             <!--<label class="label5" for="thirtinput">Салбар сонгох : </label>-->
             <i class="fa fa-list" aria-hidden="true"></i>
@@ -87,11 +89,12 @@
             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
 
             <select class="input-field" id="dropdown3" name="dropdown3">
-                <option value="4030"   {% if selected_option3 == '3040' %} selected {% endif %}>Цаасны төрөл сонгох</option>
-                <option value="4030"   {% if selected_option3 == '3040' %} selected {% endif %}>40x30mm</option>
+                <option value="4030"   {% if selected_option3 == '4030' %} selected {% endif %}>Цаасны төрөл сонгох</option>
+                <option value="4030"   {% if selected_option3 == '4030' %} selected {% endif %}>40x30mm</option>
                 <option value="6040"   {% if selected_option3 == '6040' %} selected {% endif %}>60x40mm</option>
                 <option value="14876"   {% if selected_option3 == '14876' %} selected {% endif %}>Бөөний үнэтэй</option>
-                <option value="297210"   {% if selected_option3 == '297210' %} selected {% endif %}>Онцгой Хямдрал</option>
+                <option value="297210"   {% if selected_option3 == '297210' %} selected {% endif %}>Онцгой хямдрал (A4 цаас)</option>
+                <option value="6141"   {% if selected_option3 == '6141' %} selected {% endif %}>Хэлний тайлбар (60x40 чихрийн цаас)</option>
             </select>
             
         </div>
@@ -105,14 +108,13 @@
         
         <input type="hidden" id="button_type" name="button_type" value="">
 
-        <!-- Add the first button -->
-        <button class="but1" type="submit" onclick="document.getElementById('button_type').value='button1'">Шошго татах</button>
-
-        <!-- Add the second button -->
+        <div class="butt1-container">
         <button class="but2" type="submit" onclick="document.getElementById('button_type').value='button2'">Барааг шүүх</button>
+        <button class="but1" type="submit" onclick="document.getElementById('button_type').value='button1'">Шошго татах</button>
         
         <button type="submit" id="hidden_submit" style="display:none;">Hidden Submit</button>
-        
+        </div>
+       
     </form>
     
         
